@@ -63,8 +63,16 @@ export default function GenesisInteractionScript() {
     if(el) el.textContent = new Intl.DateTimeFormat('zh-CN', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}).format(new Date());
   }
   function boot(){
-    document.querySelectorAll('[data-module-id]').forEach(btn => btn.addEventListener('click', () => setModule(btn.getAttribute('data-module-id'))));
-    document.querySelectorAll('[data-mentor-index]').forEach(btn => btn.addEventListener('click', () => setMentor(btn.getAttribute('data-mentor-index'))));
+    window.__genesisSetModule = setModule;
+    window.__genesisSetMentor = setMentor;
+    document.addEventListener('click', function(event){
+      const target = event.target && event.target.closest ? event.target.closest('[data-module-id], [data-mentor-index]') : null;
+      if(!target) return;
+      const moduleId = target.getAttribute('data-module-id');
+      const mentorIndex = target.getAttribute('data-mentor-index');
+      if(moduleId) setModule(moduleId);
+      if(mentorIndex !== null) setMentor(mentorIndex);
+    }, true);
     tick(); setInterval(tick, 1000);
     setModule('coding'); setMentor(0);
     window.__genesisVanillaReady = true;
