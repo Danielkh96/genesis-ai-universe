@@ -1,7 +1,5 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, OrbitControls, Stars, Text, Html } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import {
@@ -19,8 +17,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import * as THREE from "three";
+import { useEffect, useMemo, useState } from "react";
 
 type Module = {
   id: string;
@@ -145,83 +142,6 @@ function useLenis() {
   }, []);
 }
 
-function CoreBrain({ activeColor }: { activeColor: string }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const ring = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y += 0.004;
-      ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.6) * 0.08;
-    }
-    if (ring.current) ring.current.rotation.z += 0.006;
-  });
-  return (
-    <group>
-      <mesh ref={ref}>
-        <icosahedronGeometry args={[1.08, 5]} />
-        <meshStandardMaterial color="#0ea5e9" emissive={activeColor} emissiveIntensity={1.35} roughness={0.18} metalness={0.48} />
-      </mesh>
-      <mesh ref={ring} rotation={[Math.PI / 2.5, 0, 0]}>
-        <torusGeometry args={[1.62, 0.015, 16, 160]} />
-        <meshBasicMaterial color={activeColor} transparent opacity={0.75} />
-      </mesh>
-      <mesh rotation={[Math.PI / 1.7, 0, 0]}>
-        <torusGeometry args={[2.2, 0.006, 16, 160]} />
-        <meshBasicMaterial color="#38bdf8" transparent opacity={0.35} />
-      </mesh>
-      <Html center distanceFactor={9} position={[0, -1.75, 0]}>
-        <div className="rounded-full border border-cyan-300/30 bg-black/45 px-4 py-2 text-center text-[11px] uppercase tracking-[0.35em] text-cyan-100 shadow-[0_0_35px_rgba(34,211,238,.25)] backdrop-blur-md">
-          Genesis Core
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-function ModulePlanet({ module, onSelect, active }: { module: Module; onSelect: (m: Module) => void; active: boolean }) {
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y += 0.01;
-      ref.current.position.y = module.position[1] + Math.sin(state.clock.elapsedTime * 1.4 + module.position[0]) * 0.08;
-    }
-  });
-  return (
-    <Float speed={1.4} rotationIntensity={0.12} floatIntensity={0.25}>
-      <group position={module.position} onClick={(e) => { e.stopPropagation(); onSelect(module); }}>
-        <mesh ref={ref}>
-          <sphereGeometry args={[active ? 0.48 : 0.38, 48, 48]} />
-          <meshStandardMaterial color={module.color} emissive={module.color} emissiveIntensity={active ? 1.25 : 0.72} metalness={0.35} roughness={0.25} />
-        </mesh>
-        <mesh>
-          <torusGeometry args={[0.63, 0.007, 12, 96]} />
-          <meshBasicMaterial color={module.color} transparent opacity={active ? 0.8 : 0.38} />
-        </mesh>
-        <Text position={[0, -0.76, 0]} fontSize={0.16} color="#e0f2fe" anchorX="center" anchorY="middle">
-          {module.label}
-        </Text>
-      </group>
-    </Float>
-  );
-}
-
-function UniverseScene({ active, setActive }: { active: Module; setActive: (m: Module) => void }) {
-  return (
-    <Canvas camera={{ position: [0, 0, 6.3], fov: 45 }} dpr={[1, 1.7]}>
-      <color attach="background" args={["#02030a"]} />
-      <ambientLight intensity={0.45} />
-      <pointLight position={[0, 0, 4]} intensity={12} color="#67e8f9" />
-      <pointLight position={[4, 2, 2]} intensity={3} color="#a855f7" />
-      <Stars radius={80} depth={45} count={1800} factor={3} fade speed={0.55} />
-      <CoreBrain activeColor={active.color} />
-      {modules.map((m) => (
-        <ModulePlanet key={m.id} module={m} active={m.id === active.id} onSelect={setActive} />
-      ))}
-      <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.35} />
-    </Canvas>
-  );
-}
-
 function Clock() {
   const [time, setTime] = useState("");
   useEffect(() => {
@@ -317,7 +237,6 @@ export default function GenesisUniverse() {
         </div>
 
         <div className="relative h-[560px] min-h-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-black/20 shadow-2xl shadow-cyan-950/40">
-          <UniverseScene active={active} setActive={(m) => { setActive(m); setPanelOpen(true); }} />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,.12),transparent_22%),radial-gradient(circle_at_70%_30%,rgba(168,85,247,.13),transparent_28%)]" />
           <div className="absolute inset-0 z-10 grid place-items-center">
             <div className="pointer-events-none absolute h-[310px] w-[310px] rounded-full border border-cyan-200/20 shadow-[0_0_80px_rgba(34,211,238,.12)]" />
