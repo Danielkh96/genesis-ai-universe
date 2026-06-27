@@ -60,7 +60,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   z-index: 0;
   background:
     radial-gradient(circle at var(--mx) var(--my), color-mix(in srgb, var(--active) 28%, transparent), transparent 20rem),
-    radial-gradient(circle at 50% 52%, rgba(103,232,249,.18), transparent 30rem),
+    radial-gradient(circle at 50% 52%, rgba(255,255,255,.18), transparent 16rem),
+    radial-gradient(circle at 50% 52%, rgba(103,232,249,.25), transparent 34rem),
     radial-gradient(circle at 15% 22%, rgba(168,85,247,.18), transparent 20rem),
     radial-gradient(circle at 82% 78%, rgba(244,114,182,.15), transparent 22rem),
     linear-gradient(180deg, #040815 0%, #02030a 48%, #03040b 100%);
@@ -103,10 +104,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   height: 100%;
   pointer-events: none;
   mix-blend-mode: screen;
-  opacity: .9;
-  transform: translate3d(var(--camera-x), var(--camera-y), 0) scale(var(--camera-scale));
-  transform-origin: center center;
-  transition: transform .18s linear;
+  opacity: .45;
 }
 
 .portal-briefing {
@@ -252,9 +250,6 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   pointer-events: none;
   transform-style: preserve-3d;
   perspective: 1100px;
-  transform: translate3d(var(--camera-x), var(--camera-y), 0) scale(var(--camera-scale));
-  transform-origin: center center;
-  transition: transform .18s linear;
 }
 
 .central-brain {
@@ -342,7 +337,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 
 .agent-planet {
   position: absolute;
-  z-index: 18;
+  z-index: 34;
   width: 106px;
   height: 106px;
   transform: translate(-50%, -50%);
@@ -391,7 +386,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 .planet-label strong { display: block; color: var(--node); font-size: 13px; text-shadow: 0 0 12px var(--node); }
 .planet-label em { display: block; margin-top: 2px; color: rgba(226,232,240,.76); font-size: 10px; font-style: normal; letter-spacing: .08em; }
-.agent-planet:hover, .agent-planet.selected { z-index: 23; }
+.agent-planet:hover, .agent-planet.selected { z-index: 42; }
 .agent-planet:hover .planet-body, .agent-planet.selected .planet-body { transform: scale(1.16); box-shadow: 0 0 54px var(--node-glow), 0 0 92px color-mix(in srgb, var(--node) 32%, transparent), inset 0 0 20px rgba(255,255,255,.5); }
 
 .nav-asteroid {

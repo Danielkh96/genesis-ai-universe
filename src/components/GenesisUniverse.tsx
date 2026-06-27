@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Stars, Text } from "@react-three/drei";
+import { Stars, Text } from "@react-three/drei";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, BrainCircuit, Code2, ExternalLink, Megaphone, RefreshCcw, RotateCcw, Satellite, Sparkles, Workflow, Zap } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,7 +17,8 @@ type Agent = {
   color: string;
   glow: string;
   icon: typeof Workflow;
-  position: { x: number; y: number };
+  position: [number, number, number];
+  hud: { x: number; y: number };
   url: string;
   description: string;
 };
@@ -27,8 +28,17 @@ type NavPlanet = {
   label: string;
   sub: string;
   color: string;
-  position: { x: number; y: number };
+  hud: { x: number; y: number };
   url: string;
+};
+
+type CameraView = {
+  id: "core" | AgentId;
+  target: [number, number, number];
+  camera: [number, number, number];
+  label: string;
+  eyebrow: string;
+  text: string;
 };
 
 const agents: Agent[] = [
@@ -40,7 +50,8 @@ const agents: Agent[] = [
     color: "#22d3ee",
     glow: "rgba(34,211,238,.78)",
     icon: Workflow,
-    position: { x: 23, y: 28 },
+    position: [-4.9, 2.45, -0.6],
+    hud: { x: 23, y: 28 },
     url: "#ai-automation",
     description: "表格、API、社群、CRM 与 OpenClaw 工作流自动连接。",
   },
@@ -52,7 +63,8 @@ const agents: Agent[] = [
     color: "#f472b6",
     glow: "rgba(244,114,182,.76)",
     icon: Megaphone,
-    position: { x: 74, y: 29 },
+    position: [4.9, 2.3, -0.8],
+    hud: { x: 74, y: 29 },
     url: "#ai-marketing",
     description: "爆款 Hook、广告图、内容矩阵、短影音脚本与营销漏斗。",
   },
@@ -64,7 +76,8 @@ const agents: Agent[] = [
     color: "#a78bfa",
     glow: "rgba(167,139,250,.78)",
     icon: Bot,
-    position: { x: 74, y: 72 },
+    position: [4.65, -2.55, -0.4],
+    hud: { x: 74, y: 72 },
     url: "#ai-agent",
     description: "让 AI 会思考、调用工具、拆任务，并成为业务执行助手。",
   },
@@ -76,34 +89,39 @@ const agents: Agent[] = [
     color: "#fbbf24",
     glow: "rgba(251,191,36,.76)",
     icon: Code2,
-    position: { x: 25, y: 72 },
+    position: [-4.65, -2.6, -0.7],
+    hud: { x: 25, y: 72 },
     url: "#ai-coding",
     description: "用 AI 建网站、工具、App、自动化系统，并部署上线。",
   },
 ];
 
 const navPlanets: NavPlanet[] = [
-  { id: "academy", label: "Academy", sub: "课程入口", color: "#38bdf8", position: { x: 14, y: 44 }, url: "#academy" },
-  { id: "projects", label: "Projects", sub: "实战作品", color: "#c084fc", position: { x: 86, y: 44 }, url: "#projects" },
-  { id: "templates", label: "Templates", sub: "模板库", color: "#34d399", position: { x: 16, y: 60 }, url: "#templates" },
-  { id: "community", label: "Community", sub: "学习社群", color: "#fb7185", position: { x: 84, y: 60 }, url: "#community" },
-  { id: "roadmap", label: "Roadmap", sub: "路线图", color: "#60a5fa", position: { x: 38, y: 14 }, url: "#roadmap" },
-  { id: "diagnosis", label: "Diagnosis", sub: "AI 诊断", color: "#f97316", position: { x: 62, y: 14 }, url: "#diagnosis" },
-  { id: "vault", label: "Vault", sub: "资源库", color: "#2dd4bf", position: { x: 39, y: 88 }, url: "#vault" },
-  { id: "launch", label: "Launch", sub: "上线部署", color: "#e879f9", position: { x: 61, y: 88 }, url: "#launch" },
+  { id: "academy", label: "Academy", sub: "课程入口", color: "#38bdf8", hud: { x: 14, y: 44 }, url: "#academy" },
+  { id: "projects", label: "Projects", sub: "实战作品", color: "#c084fc", hud: { x: 86, y: 44 }, url: "#projects" },
+  { id: "templates", label: "Templates", sub: "模板库", color: "#34d399", hud: { x: 16, y: 60 }, url: "#templates" },
+  { id: "community", label: "Community", sub: "学习社群", color: "#fb7185", hud: { x: 84, y: 60 }, url: "#community" },
+  { id: "roadmap", label: "Roadmap", sub: "路线图", color: "#60a5fa", hud: { x: 38, y: 14 }, url: "#roadmap" },
+  { id: "diagnosis", label: "Diagnosis", sub: "AI 诊断", color: "#f97316", hud: { x: 62, y: 14 }, url: "#diagnosis" },
+  { id: "vault", label: "Vault", sub: "资源库", color: "#2dd4bf", hud: { x: 39, y: 88 }, url: "#vault" },
+  { id: "launch", label: "Launch", sub: "上线部署", color: "#e879f9", hud: { x: 61, y: 88 }, url: "#launch" },
 ];
-
-const allNodes = [...agents, ...navPlanets];
-
-type CameraView = { id: "core" | AgentId; x: number; y: number; scale: number; label: string; eyebrow: string; text: string };
 
 const cameraViews: CameraView[] = [
-  { id: "core", x: 0, y: 0, scale: 1, label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
-  { id: "automation", x: 30, y: 22, scale: 1.72, label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头滑向自动化星球：表格、API、OpenClaw 与业务流程在这里接成轨道。" },
-  { id: "marketing", x: -30, y: 22, scale: 1.72, label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头推进到营销星云：内容、广告图、Hook、短影音脚本和增长漏斗汇聚。" },
-  { id: "agent", x: -30, y: -22, scale: 1.72, label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头飞向智能代理星群：会思考、调用工具、拆任务、执行 SOP 的 Agent 网络。" },
-  { id: "coding", x: 30, y: -22, scale: 1.72, label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头降落到构建星球：用 AI 写代码、做网站、修 bug，并部署到真实线上。" },
+  { id: "core", target: [0, 0, 0], camera: [0, 0.2, 9.2], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
+  { id: "automation", target: [-4.9, 2.45, -0.6], camera: [-2.9, 1.65, 4.3], label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头滑向自动化星球：表格、API、OpenClaw 与业务流程在这里接成轨道。" },
+  { id: "marketing", target: [4.9, 2.3, -0.8], camera: [2.9, 1.55, 4.25], label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头推进到营销星云：内容、广告图、Hook、短影音脚本和增长漏斗汇聚。" },
+  { id: "agent", target: [4.65, -2.55, -0.4], camera: [2.85, -1.45, 4.05], label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头飞向智能代理星群：会思考、调用工具、拆任务、执行 SOP 的 Agent 网络。" },
+  { id: "coding", target: [-4.65, -2.6, -0.7], camera: [-2.8, -1.45, 4.05], label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头降落到构建星球：用 AI 写代码、做网站、修 bug，并部署到真实线上。" },
 ];
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+function lerpVec(a: [number, number, number], b: [number, number, number], t: number): [number, number, number] {
+  return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+}
 
 function Clock() {
   const [time, setTime] = useState("");
@@ -116,129 +134,217 @@ function Clock() {
   return <span>{time}</span>;
 }
 
+function CameraRig({ cameraPosition, target, progress }: { cameraPosition: [number, number, number]; target: [number, number, number]; progress: number }) {
+  const targetVec = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera, clock }) => {
+    const t = clock.getElapsedTime();
+    const driftX = Math.sin(t * 0.18 + progress * 6) * 0.12;
+    const driftY = Math.cos(t * 0.21 + progress * 4) * 0.08;
+    camera.position.lerp(new THREE.Vector3(cameraPosition[0] + driftX, cameraPosition[1] + driftY, cameraPosition[2]), 0.075);
+    targetVec.set(target[0], target[1], target[2]);
+    camera.lookAt(targetVec);
+  });
+  return null;
+}
+
 function CentralBrain3D({ color }: { color: string }) {
   const brain = useRef<THREE.Group>(null);
   const shell = useRef<THREE.Mesh>(null);
-  const ring = useRef<THREE.Mesh>(null);
+  const plasma = useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (brain.current) {
-      brain.current.rotation.y = t * 0.22;
-      brain.current.rotation.x = Math.sin(t * 0.45) * 0.12;
+      brain.current.rotation.y = t * 0.16;
+      brain.current.rotation.x = Math.sin(t * 0.38) * 0.1;
     }
-    if (shell.current) shell.current.scale.setScalar(1 + Math.sin(t * 2.4) * 0.035);
-    if (ring.current) ring.current.rotation.z = t * 0.45;
+    if (shell.current) shell.current.scale.setScalar(1 + Math.sin(t * 2.25) * 0.045);
+    if (plasma.current) plasma.current.rotation.z = -t * 0.32;
   });
 
   return (
     <group ref={brain}>
+      <mesh ref={plasma}>
+        <sphereGeometry args={[1.95, 64, 64]} />
+        <meshBasicMaterial color="#efffff" transparent opacity={0.22} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
       <mesh ref={shell}>
-        <icosahedronGeometry args={[1.85, 4]} />
-        <meshStandardMaterial color="#dffcff" emissive={color} emissiveIntensity={2.2} roughness={0.05} metalness={0.3} transparent opacity={0.78} wireframe />
+        <icosahedronGeometry args={[1.72, 5]} />
+        <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={3.8} roughness={0.04} metalness={0.22} transparent opacity={0.72} wireframe />
       </mesh>
       <mesh>
-        <sphereGeometry args={[1.55, 64, 64]} />
-        <meshStandardMaterial color="#f8ffff" emissive="#67e8f9" emissiveIntensity={2.8} roughness={0.15} metalness={0.28} transparent opacity={0.72} />
+        <sphereGeometry args={[1.32, 64, 64]} />
+        <meshStandardMaterial color="#f8ffff" emissive="#eaffff" emissiveIntensity={3.25} roughness={0.08} metalness={0.18} transparent opacity={0.88} />
       </mesh>
-      <mesh rotation={[0.45, 0.2, 0.1]}>
-        <torusGeometry args={[2.25, 0.018, 16, 220]} />
-        <meshBasicMaterial color="#67e8f9" transparent opacity={0.82} />
-      </mesh>
-      <mesh ref={ring} rotation={[1.2, 0.3, 0.6]}>
-        <torusGeometry args={[2.8, 0.01, 16, 240]} />
-        <meshBasicMaterial color="#c084fc" transparent opacity={0.38} />
-      </mesh>
-      <pointLight color={color} intensity={10} distance={10} />
+      {[2.35, 2.9, 3.45].map((radius, i) => (
+        <mesh key={radius} rotation={[0.55 + i * 0.3, 0.2 + i * 0.2, i * 0.65]}>
+          <torusGeometry args={[radius, 0.012, 16, 220]} />
+          <meshBasicMaterial color={i === 1 ? "#c084fc" : "#67e8f9"} transparent opacity={0.55 - i * 0.1} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ))}
+      <pointLight color="#ffffff" intensity={7} distance={9} />
+      <pointLight color={color} intensity={14} distance={10} />
     </group>
   );
 }
 
-function AgentPlanet3D({ agent, index, active }: { agent: Agent; index: number; active: boolean }) {
+function AgentPlanet3D({ agent, active }: { agent: Agent; active: boolean }) {
   const group = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
-  const angle = (index / agents.length) * Math.PI * 2 + Math.PI * 0.2;
-  const radius = 4.05;
-  const pos: [number, number, number] = [Math.cos(angle) * radius, Math.sin(angle) * 2.35, Math.sin(angle) * 0.7];
+  const base = useMemo(() => new THREE.Vector3(...agent.position), [agent.position]);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    if (group.current) group.current.position.y = pos[1] + Math.sin(t * 1.2 + index) * 0.15;
+    if (group.current) {
+      group.current.position.set(base.x + Math.sin(t * 0.42 + base.y) * 0.28, base.y + Math.cos(t * 0.5 + base.x) * 0.18, base.z + Math.sin(t * 0.35) * 0.22);
+      group.current.rotation.y = t * 0.15;
+    }
     if (planet.current) planet.current.rotation.y = t * 0.7;
   });
 
   return (
-    <group ref={group} position={pos}>
+    <group ref={group} position={agent.position}>
       <mesh ref={planet}>
-        <sphereGeometry args={[active ? 0.36 : 0.29, 36, 36]} />
-        <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 2.4 : 1.25} metalness={0.5} roughness={0.22} />
+        <sphereGeometry args={[active ? 0.5 : 0.38, 48, 48]} />
+        <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 3.2 : 1.55} metalness={0.55} roughness={0.18} />
       </mesh>
-      <mesh rotation={[Math.PI / 2.2, 0, 0]}>
-        <torusGeometry args={[active ? 0.72 : 0.58, 0.01, 16, 120]} />
-        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.95 : 0.45} />
+      <mesh rotation={[Math.PI / 2.1, 0, 0]}>
+        <torusGeometry args={[active ? 0.9 : 0.72, 0.012, 18, 140]} />
+        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.95 : 0.48} blending={THREE.AdditiveBlending} />
       </mesh>
-      <Text position={[0, -0.64, 0]} fontSize={0.13} color="#effcff" anchorX="center" anchorY="middle">
+      <mesh rotation={[0.7, 0.35, 0.2]}>
+        <torusGeometry args={[active ? 1.25 : 1.0, 0.006, 18, 160]} />
+        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.55 : 0.25} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <pointLight color={agent.color} intensity={active ? 5 : 2.5} distance={4} />
+      <Text position={[0, -0.8, 0]} fontSize={active ? 0.18 : 0.14} color="#eaffff" anchorX="center" anchorY="middle">
         {agent.short}
       </Text>
     </group>
   );
 }
 
-function SignalBars() {
+function EnergyTube({ to, color }: { to: [number, number, number]; color: string }) {
+  const curve = useMemo(() => {
+    const end = new THREE.Vector3(...to);
+    const mid = end.clone().multiplyScalar(0.45);
+    mid.z += 0.7;
+    return new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, 0), mid, end]);
+  }, [to]);
+  return (
+    <mesh>
+      <tubeGeometry args={[curve, 80, 0.012, 8, false]} />
+      <meshBasicMaterial color={color} transparent opacity={0.42} blending={THREE.AdditiveBlending} depthWrite={false} />
+    </mesh>
+  );
+}
+
+function SatelliteModules() {
   const group = useRef<THREE.Group>(null);
-  const bars = useMemo(() => Array.from({ length: 30 }, (_, i) => ({ angle: (i / 30) * Math.PI * 2, h: 0.35 + (i % 7) * 0.18, r: 3.05 + (i % 5) * 0.12 })), []);
+  const modules = useMemo(() => Array.from({ length: 54 }, (_, i) => {
+    const angle = (i / 54) * Math.PI * 2;
+    const radius = 2.35 + (i % 7) * 0.34;
+    return {
+      position: [Math.cos(angle) * radius, Math.sin(angle) * radius * 0.58, Math.sin(angle * 1.7) * 1.2] as [number, number, number],
+      rotation: [Math.sin(angle) * 1.2, angle, Math.cos(angle) * 0.8] as [number, number, number],
+      scale: [0.035 + (i % 4) * 0.015, 0.28 + (i % 6) * 0.14, 0.045] as [number, number, number],
+      color: i % 4 === 0 ? "#ffffff" : i % 4 === 1 ? "#67e8f9" : i % 4 === 2 ? "#a78bfa" : "#f472b6",
+    };
+  }), []);
   useFrame(({ clock }) => {
-    if (group.current) group.current.rotation.z = clock.getElapsedTime() * 0.08;
+    if (group.current) {
+      group.current.rotation.z = clock.getElapsedTime() * 0.045;
+      group.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.15) * 0.18;
+    }
   });
   return (
-    <group ref={group} rotation={[0.2, 0, 0]}>
-      {bars.map((bar, i) => (
-        <mesh key={i} position={[Math.cos(bar.angle) * bar.r, Math.sin(bar.angle) * bar.r * 0.58, 0]} rotation={[0, 0, bar.angle]}>
-          <boxGeometry args={[0.035, bar.h, 0.055]} />
-          <meshBasicMaterial color={i % 3 === 0 ? "#dffbff" : i % 3 === 1 ? "#67e8f9" : "#a78bfa"} transparent opacity={0.82} />
+    <group ref={group}>
+      {modules.map((m, i) => (
+        <mesh key={i} position={m.position} rotation={m.rotation} scale={m.scale}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial color={m.color} transparent opacity={0.76} blending={THREE.AdditiveBlending} />
         </mesh>
       ))}
     </group>
   );
 }
 
-function UniverseCanvas({ active }: { active: Agent }) {
+function NetworkNodes() {
+  const group = useRef<THREE.Group>(null);
+  const nodes = useMemo(() => Array.from({ length: 126 }, (_, i) => {
+    const angle = (i * 2.399963) % (Math.PI * 2);
+    const radius = 3.2 + ((i * 17) % 100) / 100 * 5.3;
+    const y = Math.sin(i * 1.37) * 3.4;
+    return {
+      p: new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.65 - 1.4),
+      s: 0.025 + (i % 5) * 0.01,
+      color: i % 5 === 0 ? "#fb7185" : i % 5 === 1 ? "#fbbf24" : i % 5 === 2 ? "#a78bfa" : "#67e8f9",
+    };
+  }), []);
+  const linePositions = useMemo(() => {
+    const values: number[] = [];
+    nodes.forEach((node, i) => {
+      const next = nodes[(i + 13) % nodes.length];
+      if (node.p.distanceTo(next.p) < 5.2 || i % 3 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
+    });
+    return new Float32Array(values);
+  }, [nodes]);
+
+  useFrame(({ clock }) => {
+    if (group.current) {
+      group.current.rotation.y = clock.getElapsedTime() * 0.025;
+      group.current.rotation.z = Math.sin(clock.getElapsedTime() * 0.1) * 0.06;
+    }
+  });
+
   return (
-    <Canvas className="portal-canvas" camera={{ position: [0, 0.1, 7.2], fov: 46 }} dpr={[1, 1.55]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+    <group ref={group}>
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color="#67e8f9" transparent opacity={0.17} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </lineSegments>
+      {nodes.map((node, i) => (
+        <mesh key={i} position={node.p}>
+          <sphereGeometry args={[node.s, 8, 8]} />
+          <meshBasicMaterial color={node.color} transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function UniverseCanvas({ active, cameraPosition, target, progress }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number }) {
+  return (
+    <Canvas className="portal-canvas" camera={{ position: [0, 0.2, 9.2], fov: 46 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#02030a"]} />
-      <fog attach="fog" args={["#02030a", 7, 15]} />
-      <ambientLight intensity={0.34} />
-      <pointLight position={[0, 3, 4]} intensity={7} color="#67e8f9" />
-      <pointLight position={[4, -2, 3]} intensity={4} color="#a78bfa" />
-      <Stars radius={88} depth={54} count={2600} factor={4.2} saturation={0.6} fade speed={0.8} />
-      <SignalBars />
+      <fog attach="fog" args={["#02030a", 8, 20]} />
+      <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} />
+      <ambientLight intensity={0.22} />
+      <pointLight position={[0, 3, 5]} intensity={8} color="#eaffff" />
+      <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
+      <pointLight position={[5, -3, 2]} intensity={4} color="#a78bfa" />
+      <Stars radius={120} depth={70} count={3600} factor={4.8} saturation={0.7} fade speed={0.85} />
+      <NetworkNodes />
+      <SatelliteModules />
       <CentralBrain3D color={active.color} />
-      {agents.map((agent, i) => <AgentPlanet3D key={agent.id} agent={agent} index={i} active={active.id === agent.id} />)}
-      <OrbitControls enablePan={false} enableZoom={false} rotateSpeed={0.28} autoRotate autoRotateSpeed={0.22} />
+      {agents.map((agent) => <EnergyTube key={`line-${agent.id}`} to={agent.position} color={agent.color} />)}
+      {agents.map((agent) => <AgentPlanet3D key={agent.id} agent={agent} active={active.id === agent.id} />)}
     </Canvas>
   );
 }
 
-function NetworkLines() {
-  const center = { x: 50, y: 50 };
+function ClockworkFallbackLines() {
   return (
     <svg className="portal-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <filter id="lineGlow">
           <feGaussianBlur stdDeviation="0.45" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
-      {allNodes.map((node) => (
-        <line key={node.id} x1={center.x} y1={center.y} x2={node.position.x} y2={node.position.y} stroke={(node as Agent).color ?? (node as NavPlanet).color} strokeWidth="0.13" opacity="0.72" filter="url(#lineGlow)" />
-      ))}
-      {navPlanets.map((node, i) => {
-        const next = navPlanets[(i + 1) % navPlanets.length];
-        return <line key={`${node.id}-${next.id}`} x1={node.position.x} y1={node.position.y} x2={next.position.x} y2={next.position.y} stroke="#38bdf8" strokeWidth="0.07" opacity="0.35" filter="url(#lineGlow)" />;
-      })}
+      {agents.map((node) => <line key={node.id} x1="50" y1="50" x2={node.hud.x} y2={node.hud.y} stroke={node.color} strokeWidth="0.13" opacity="0.56" filter="url(#lineGlow)" />)}
     </svg>
   );
 }
@@ -247,9 +353,9 @@ export default function GenesisUniverse() {
   const [activeId, setActiveId] = useState<AgentId>("automation");
   const [webglReady, setWebglReady] = useState(false);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
+  const [camera, setCamera] = useState({ target: cameraViews[0].target, cameraPosition: cameraViews[0].camera, progress: 0, viewIndex: 0 });
   const active = agents.find((agent) => agent.id === activeId) ?? agents[0];
   const ActiveIcon = active.icon;
-  const [camera, setCamera] = useState({ x: 0, y: 0, scale: 1, progress: 0, viewIndex: 0 });
   const currentView = cameraViews[camera.viewIndex] ?? cameraViews[0];
 
   const scrollToView = (id: "core" | AgentId) => {
@@ -276,10 +382,9 @@ export default function GenesisUniverse() {
       const from = cameraViews[index];
       const to = cameraViews[index + 1] ?? from;
       const nearest = Math.min(cameraViews.length - 1, Math.round(scaled));
-      const x = from.x + (to.x - from.x) * eased;
-      const y = from.y + (to.y - from.y) * eased;
-      const scale = from.scale + (to.scale - from.scale) * eased;
-      setCamera({ x, y, scale, progress: raw, viewIndex: nearest });
+      const target = lerpVec(from.target, to.target, eased);
+      const cameraPosition = lerpVec(from.camera, to.camera, eased);
+      setCamera({ target, cameraPosition, progress: raw, viewIndex: nearest });
       const focus = cameraViews[nearest];
       if (focus?.id && focus.id !== "core") setActiveId(focus.id);
     };
@@ -317,153 +422,133 @@ export default function GenesisUniverse() {
         ["--mx" as string]: `${mouse.x}%`,
         ["--my" as string]: `${mouse.y}%`,
         ["--active" as string]: active.color,
-        ["--camera-x" as string]: `${camera.x}vw`,
-        ["--camera-y" as string]: `${camera.y}vh`,
-        ["--camera-scale" as string]: camera.scale,
         ["--scroll-progress" as string]: camera.progress,
       }}
     >
       <div className="portal-viewport">
-      <div className="portrait-guard">
-        <RotateCcw className="h-12 w-12 text-cyan-200" />
-        <h1>请横屏进入 Genesis AI Universe</h1>
-        <p>这个界面是横屏游戏式星系传送门，旋转手机后可看到完整中心大脑、Agent 星球和导航行星。</p>
-      </div>
+        <div className="portrait-guard">
+          <RotateCcw className="h-12 w-12 text-cyan-200" />
+          <h1>请横屏进入 Genesis AI Universe</h1>
+          <p>这个界面是横屏游戏式星系传送门，旋转手机后可看到完整中心大脑、Agent 星球和导航行星。</p>
+        </div>
 
-      <div className="portal-bg" />
-      {webglReady && <UniverseCanvas active={active} />}
-      <NetworkLines />
+        <div className="portal-bg" />
+        {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} />}
+        <ClockworkFallbackLines />
 
-      <header className="portal-briefing">
-        <span className="live-dot" />
-        <strong>BRIEFING · LIVE</strong>
-        <span className="separator">|</span>
-        <Clock />
-        <span className="separator">|</span>
-        <span>GENESIS AI UNIVERSE · 传送门在线</span>
-      </header>
+        <header className="portal-briefing">
+          <span className="live-dot" />
+          <strong>BRIEFING · LIVE</strong>
+          <span className="separator">|</span>
+          <Clock />
+          <span className="separator">|</span>
+          <span>GENESIS AI UNIVERSE · 3D CAMERA ONLINE</span>
+        </header>
 
-      <div className="scroll-brief">
-        <p>{currentView.eyebrow}</p>
-        <h1>{currentView.label}</h1>
-        <span>{currentView.text}</span>
-      </div>
+        <div className="scroll-brief">
+          <p>{currentView.eyebrow}</p>
+          <h1>{currentView.label}</h1>
+          <span>{currentView.text}</span>
+        </div>
 
-      <div className="progress-rail" aria-hidden="true">
-        {cameraViews.map((view, index) => (
-          <button key={view.id} onClick={() => scrollToView(view.id)} className={camera.viewIndex === index ? "active" : ""}>
-            <i />
-            <span>{String(index).padStart(2, "0")}</span>
-          </button>
-        ))}
-      </div>
-
-      <nav className="side-console" aria-label="Universe navigation">
-        <button onClick={() => scrollToView("core")} className="console-btn reset"><RefreshCcw className="h-4 w-4" /> 重置</button>
-        {agents.map((agent) => (
-          <button key={agent.id} onClick={() => scrollToView(agent.id)} className={`console-btn ${activeId === agent.id ? "active" : ""}`} style={{ ["--node" as string]: agent.color }}>
-            {agent.name.replace("AI ", "")}
-          </button>
-        ))}
-        <a className="console-btn portal-link" href="#academy">Academy</a>
-        <a className="console-btn portal-link" href="#diagnosis">诊断</a>
-      </nav>
-
-      <section className="galaxy-stage" aria-label="Genesis AI Universe portal">
-        <div className="orbit-ring orbit-ring-1" />
-        <div className="orbit-ring orbit-ring-2" />
-        <div className="orbit-ring orbit-ring-3" />
-        <motion.button
-          className="central-brain"
-          aria-label="Genesis central AI brain"
-          initial={false}
-          animate={{ boxShadow: `0 0 70px ${active.glow}, 0 0 190px rgba(103,232,249,.55)` }}
-          transition={{ duration: 0.35 }}
-        >
-          <span className="brain-mesh" />
-          <span className="brain-core-glow" />
-          <BrainCircuit className="brain-icon" />
-          <span className="brain-label">GENESIS<br />CORE</span>
-        </motion.button>
-
-        {agents.map((agent) => {
-          const Icon = agent.icon;
-          const selected = activeId === agent.id;
-          return (
-            <button
-              key={agent.id}
-              data-module-id={agent.id}
-              onClick={() => scrollToView(agent.id)}
-              className={`agent-planet ${selected ? "selected" : ""}`}
-              style={{ left: `${agent.position.x}%`, top: `${agent.position.y}%`, ["--node" as string]: agent.color, ["--node-glow" as string]: agent.glow }}
-            >
-              <span className="planet-orbit" />
-              <span className="planet-body"><Icon className="h-7 w-7" /></span>
-              <span className="planet-label"><strong>{agent.name}</strong><em>{agent.role}</em></span>
+        <div className="progress-rail" aria-hidden="true">
+          {cameraViews.map((view, index) => (
+            <button key={view.id} onClick={() => scrollToView(view.id)} className={camera.viewIndex === index ? "active" : ""}>
+              <i />
+              <span>{String(index).padStart(2, "0")}</span>
             </button>
-          );
-        })}
+          ))}
+        </div>
 
-        {navPlanets.map((planet, index) => (
-          <a
-            key={planet.id}
-            className="nav-asteroid"
-            href={planet.url}
-            style={{ left: `${planet.position.x}%`, top: `${planet.position.y}%`, ["--node" as string]: planet.color, animationDelay: `${index * -0.4}s` }}
-          >
-            <span className="asteroid-dot" />
-            <span className="asteroid-card"><strong>{planet.label}</strong><em>{planet.sub}</em></span>
-          </a>
-        ))}
+        <nav className="side-console" aria-label="Universe navigation">
+          <button onClick={() => scrollToView("core")} className="console-btn reset"><RefreshCcw className="h-4 w-4" /> 重置</button>
+          {agents.map((agent) => (
+            <button key={agent.id} onClick={() => scrollToView(agent.id)} className={`console-btn ${activeId === agent.id ? "active" : ""}`} style={{ ["--node" as string]: agent.color }}>
+              {agent.name.replace("AI ", "")}
+            </button>
+          ))}
+          <a className="console-btn portal-link" href="#academy">Academy</a>
+          <a className="console-btn portal-link" href="#diagnosis">诊断</a>
+        </nav>
 
-        <div className="data-block data-block-a">AI ROUTE<br /><span>LEARNING MAP</span></div>
-        <div className="data-block data-block-b">DEPLOY<br /><span>VERCEL / GITHUB</span></div>
-        <div className="data-block data-block-c">TOOLS<br /><span>AGENT OS</span></div>
-        <div className="light-beam beam-a" />
-        <div className="light-beam beam-b" />
-      </section>
+        <section className="galaxy-stage" aria-label="Genesis AI Universe portal">
+          {!webglReady && (
+            <>
+              <div className="orbit-ring orbit-ring-1" />
+              <div className="orbit-ring orbit-ring-2" />
+              <div className="orbit-ring orbit-ring-3" />
+              <motion.button className="central-brain" aria-label="Genesis central AI brain" initial={false} animate={{ boxShadow: `0 0 70px ${active.glow}, 0 0 190px rgba(103,232,249,.55)` }} transition={{ duration: 0.35 }}>
+                <span className="brain-mesh" />
+                <span className="brain-core-glow" />
+                <BrainCircuit className="brain-icon" />
+                <span className="brain-label">GENESIS<br />CORE</span>
+              </motion.button>
+            </>
+          )}
 
-      <AnimatePresence mode="wait">
-        <motion.aside
-          key={active.id}
-          className="agent-dossier"
-          initial={{ opacity: 0, y: 18, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.98 }}
-          transition={{ duration: 0.24 }}
-        >
-          <div className="dossier-icon" style={{ color: active.color, background: `${active.color}22` }}><ActiveIcon /></div>
-          <div>
-            <p>SELECTED AGENT</p>
-            <h2 id="selected-galaxy-title">{active.name}</h2>
-            <span>{active.role}</span>
-          </div>
-          <p id="selected-galaxy-description" className="dossier-desc">{active.description}</p>
-          <a href={active.url} className="dossier-link">进入这个星球 <ExternalLink className="h-4 w-4" /></a>
-        </motion.aside>
-      </AnimatePresence>
+          {agents.map((agent) => {
+            const Icon = agent.icon;
+            const selected = activeId === agent.id;
+            return (
+              <button
+                key={agent.id}
+                data-module-id={agent.id}
+                onClick={() => scrollToView(agent.id)}
+                className={`agent-planet ${selected ? "selected" : ""}`}
+                style={{ left: `${agent.hud.x}%`, top: `${agent.hud.y}%`, ["--node" as string]: agent.color, ["--node-glow" as string]: agent.glow }}
+              >
+                <span className="planet-orbit" />
+                <span className="planet-body"><Icon className="h-7 w-7" /></span>
+                <span className="planet-label"><strong>{agent.name}</strong><em>{agent.role}</em></span>
+              </button>
+            );
+          })}
 
-      <footer className="agent-dock" aria-label="Agent selector">
-        {agents.map((agent) => (
-          <button key={agent.id} onClick={() => scrollToView(agent.id)} className={activeId === agent.id ? "active" : ""} style={{ ["--node" as string]: agent.color }}>
-            {agent.name}
-          </button>
-        ))}
-      </footer>
+          {navPlanets.map((planet, index) => (
+            <a key={planet.id} className="nav-asteroid" href={planet.url} style={{ left: `${planet.hud.x}%`, top: `${planet.hud.y}%`, ["--node" as string]: planet.color, animationDelay: `${index * -0.4}s` }}>
+              <span className="asteroid-dot" />
+              <span className="asteroid-card"><strong>{planet.label}</strong><em>{planet.sub}</em></span>
+            </a>
+          ))}
 
-      <div className="scanline" />
-      <div className="corner-hud corner-a"><Sparkles className="h-4 w-4" /> SYSTEM ONLINE</div>
-      <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> NAV NODES: 12</div>
-      <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> ENERGY LINKED</div>
+          <div className="data-block data-block-a">AI ROUTE<br /><span>LEARNING MAP</span></div>
+          <div className="data-block data-block-b">DEPLOY<br /><span>VERCEL / GITHUB</span></div>
+          <div className="data-block data-block-c">TOOLS<br /><span>AGENT OS</span></div>
+          <div className="light-beam beam-a" />
+          <div className="light-beam beam-b" />
+        </section>
+
+        <AnimatePresence mode="wait">
+          <motion.aside key={active.id} className="agent-dossier" initial={{ opacity: 0, y: 18, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.98 }} transition={{ duration: 0.24 }}>
+            <div className="dossier-icon" style={{ color: active.color, background: `${active.color}22` }}><ActiveIcon /></div>
+            <div>
+              <p>SELECTED AGENT</p>
+              <h2 id="selected-galaxy-title">{active.name}</h2>
+              <span>{active.role}</span>
+            </div>
+            <p id="selected-galaxy-description" className="dossier-desc">{active.description}</p>
+            <a href={active.url} className="dossier-link">进入这个星球 <ExternalLink className="h-4 w-4" /></a>
+          </motion.aside>
+        </AnimatePresence>
+
+        <footer className="agent-dock" aria-label="Agent selector">
+          {agents.map((agent) => (
+            <button key={agent.id} onClick={() => scrollToView(agent.id)} className={activeId === agent.id ? "active" : ""} style={{ ["--node" as string]: agent.color }}>
+              {agent.name}
+            </button>
+          ))}
+        </footer>
+
+        <div className="scanline" />
+        <div className="corner-hud corner-a"><Sparkles className="h-4 w-4" /> SYSTEM ONLINE</div>
+        <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> 3D NODES: 126</div>
+        <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> CAMERA FLY-IN</div>
       </div>
 
       <div className="scroll-sectors" aria-hidden="true">
         {cameraViews.map((view, index) => (
           <section key={view.id} id={view.id === "core" ? "genesis-core" : `ai-${view.id}`} className="scroll-sector">
-            <div>
-              <span>{String(index).padStart(2, "0")}</span>
-              <strong>{view.label}</strong>
-            </div>
+            <div><span>{String(index).padStart(2, "0")}</span><strong>{view.label}</strong></div>
           </section>
         ))}
       </div>
