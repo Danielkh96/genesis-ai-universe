@@ -59,8 +59,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   z-index: 0;
   background:
     radial-gradient(circle at var(--mx) var(--my), color-mix(in srgb, var(--active) 28%, transparent), transparent 20rem),
-    radial-gradient(circle at 50% 52%, rgba(255,255,255,.34), transparent 14rem),
-    radial-gradient(circle at 50% 52%, rgba(103,232,249,.34), transparent 40rem),
+    radial-gradient(circle at 50% 52%, rgba(255,255,255,.2), transparent 15rem),
+    radial-gradient(circle at 50% 52%, rgba(103,232,249,.22), transparent 34rem),
     radial-gradient(circle at 15% 22%, rgba(168,85,247,.18), transparent 20rem),
     radial-gradient(circle at 82% 78%, rgba(244,114,182,.15), transparent 22rem),
     linear-gradient(180deg, #040815 0%, #02030a 48%, #03040b 100%);
@@ -103,7 +103,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   height: 100%;
   pointer-events: none;
   mix-blend-mode: screen;
-  opacity: .45;
+  opacity: .18;
 }
 
 .portal-briefing {
@@ -122,8 +122,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   padding: 8px 18px;
   white-space: nowrap;
   color: rgba(224, 252, 255, .9);
-  font-size: 12px;
-  letter-spacing: .22em;
+  font-size: 11px;
+  letter-spacing: .16em;
   backdrop-filter: blur(18px);
 }
 .portal-briefing strong { color: #ff718d; letter-spacing: .34em; }
@@ -135,9 +135,9 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   left: 148px;
   top: 118px;
   z-index: 32;
-  width: min(310px, 25vw);
-  border-left: 2px solid var(--active);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--active) 13%, rgba(2,8,23,.52)), transparent);
+  width: min(340px, 30vw);
+  border-left: 3px solid var(--active);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--active) 18%, rgba(2,8,23,.68)), rgba(2,8,23,.18), transparent);
   padding: 12px 0 12px 16px;
   pointer-events: none;
   text-shadow: 0 0 18px rgba(0,0,0,.9);
@@ -151,7 +151,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 .scroll-brief h1 {
   margin: 0;
-  font-size: clamp(18px, 2.4vw, 38px);
+  font-size: clamp(22px, 2.8vw, 44px);
   line-height: .96;
   font-weight: 1000;
   text-transform: uppercase;
@@ -161,14 +161,14 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   display: block;
   margin-top: 9px;
   max-width: 300px;
-  color: rgba(226,232,240,.62);
+  color: rgba(226,232,240,.78);
   font-size: 12px;
   line-height: 1.55;
 }
 
 .progress-rail {
   position: absolute;
-  right: 20px;
+  right: 18px;
   top: 50%;
   z-index: 48;
   display: flex;
@@ -183,7 +183,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   gap: 8px;
   border: 0;
   background: transparent;
-  color: rgba(224,252,255,.42);
+  color: rgba(224,252,255,.32);
   cursor: pointer;
   font-size: 10px;
   font-weight: 1000;
@@ -256,7 +256,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   left: 50%;
   top: 52%;
   z-index: 14;
-  width: min(34vw, 470px);
+  width: min(30vw, 390px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -377,7 +377,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   transform: translateX(-50%);
   border: 1px solid color-mix(in srgb, var(--node) 36%, transparent);
   border-radius: 12px;
-  background: rgba(2,8,23,.62);
+  background: rgba(2,8,23,.78);
   padding: 7px 9px;
   text-align: center;
   backdrop-filter: blur(12px);
@@ -400,8 +400,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   animation: asteroidFloat 4.8s ease-in-out infinite;
 }
 .asteroid-dot {
-  width: 18px;
-  height: 18px;
+  width: 13px;
+  height: 13px;
   border-radius: 999px;
   background: radial-gradient(circle at 35% 30%, #fff, var(--node), rgba(15,23,42,.8) 76%);
   box-shadow: 0 0 20px var(--node), 0 0 42px color-mix(in srgb, var(--node) 55%, transparent);
@@ -414,7 +414,11 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   padding: 4px 7px;
   box-shadow: 0 0 20px color-mix(in srgb, var(--node) 18%, transparent);
   backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .18s ease, transform .18s ease;
 }
+.nav-asteroid:hover .asteroid-card { opacity: 1; transform: translateX(2px); }
 .asteroid-card strong { display: block; color: var(--node); font-size: 11px; text-shadow: 0 0 9px var(--node); }
 .asteroid-card em { display: block; color: rgba(226,232,240,.68); font-size: 9px; font-style: normal; }
 
@@ -423,7 +427,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   z-index: 12;
   border: 1px solid rgba(103,232,249,.28);
   border-radius: 10px;
-  background: rgba(2,8,23,.44);
+  background: rgba(2,8,23,.28);
   box-shadow: 0 0 22px rgba(34,211,238,.12);
   padding: 7px 12px;
   color: #e0ffff;
@@ -443,12 +447,12 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   height: 7vh;
   left: -10vw;
   top: 52%;
-  background: linear-gradient(90deg, transparent, rgba(191,219,254,.16), transparent);
+  background: linear-gradient(90deg, transparent, rgba(191,219,254,.08), transparent);
   filter: blur(2px);
   transform: rotate(-7deg);
   pointer-events: none;
 }
-.beam-b { top: 35%; transform: rotate(5deg); opacity: .64; }
+.beam-b { top: 35%; transform: rotate(5deg); opacity: .38; }
 
 .cinematic-burst {
   position: absolute;
@@ -459,7 +463,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   max-width: 86vw;
   pointer-events: none;
   color: rgba(255,255,255,.92);
-  font-size: clamp(54px, 11vw, 180px);
+  font-size: clamp(42px, 7.5vw, 118px);
   font-weight: 1000;
   line-height: .82;
   letter-spacing: -.06em;
@@ -489,12 +493,12 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-dossier {
   position: absolute;
   right: 24px;
-  bottom: 84px;
+  bottom: 76px;
   z-index: 38;
-  width: min(330px, 28vw);
+  width: min(320px, 27vw);
   border: 1px solid rgba(255,255,255,.13);
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(2,8,23,.76), rgba(8,13,31,.54));
+  background: linear-gradient(135deg, rgba(2,8,23,.86), rgba(8,13,31,.7));
   box-shadow: 0 0 45px rgba(34,211,238,.12), inset 0 0 24px rgba(255,255,255,.04);
   padding: 18px;
   backdrop-filter: blur(22px);
@@ -522,7 +526,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   bottom: 18px;
   z-index: 45;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   transform: translateX(-50%);
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 999px;
@@ -535,7 +539,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border: 1px solid color-mix(in srgb, var(--node) 42%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--node) 10%, rgba(0,0,0,.5));
-  padding: 8px 14px;
+  padding: 9px 13px;
   color: #eaffff;
   cursor: pointer;
   font-size: 13px;
@@ -599,6 +603,24 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   25% { margin-left: 0; margin-top: -9px; }
   50% { margin-left: 8px; margin-top: 0; }
   75% { margin-left: 0; margin-top: 9px; }
+}
+
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .portal-briefing { top: 8px; padding: 6px 12px; font-size: 9px; gap: 8px; }
+  .side-console { top: 44px; left: 8px; width: 92px; gap: 6px; }
+  .console-btn { min-height: 28px; font-size: 11px; padding: 4px 8px; }
+  .scroll-brief { left: 110px; top: 68px; width: 260px; padding: 8px 0 8px 12px; }
+  .scroll-brief p { font-size: 8px; margin-bottom: 5px; }
+  .scroll-brief h1 { font-size: 24px; }
+  .scroll-brief span { font-size: 10px; line-height: 1.4; }
+  .agent-dossier { right: 10px; bottom: 58px; width: 270px; padding: 12px; }
+  .dossier-desc { display: none; }
+  .agent-dock { bottom: 8px; padding: 6px; }
+  .agent-dock button { font-size: 11px; padding: 7px 10px; }
+  .corner-hud { display: none; }
+  .planet-label { display: none; }
+  .asteroid-card { display: none; }
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
