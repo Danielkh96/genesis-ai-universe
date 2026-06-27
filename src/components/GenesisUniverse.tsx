@@ -562,6 +562,12 @@ export default function GenesisUniverse() {
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove, { passive: false });
     window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("mousemove", onMouseMove, { passive: false });
+    document.addEventListener("mouseup", onMouseUp);
+    document.body?.addEventListener("mousedown", onMouseDown);
+    document.body?.addEventListener("mousemove", onMouseMove, { passive: false });
+    document.body?.addEventListener("mouseup", onMouseUp);
     document.addEventListener("pointerdown", onPointerDown, { passive: true });
     document.addEventListener("pointermove", onPointerMove, { passive: false });
     document.addEventListener("pointerup", onPointerUp);
@@ -581,6 +587,12 @@ export default function GenesisUniverse() {
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body?.removeEventListener("mousedown", onMouseDown);
+      document.body?.removeEventListener("mousemove", onMouseMove);
+      document.body?.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerup", onPointerUp);
