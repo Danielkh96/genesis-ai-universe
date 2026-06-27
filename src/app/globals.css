@@ -18,9 +18,7 @@ html, body {
   margin: 0;
   width: 100%;
   min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  overflow: hidden;
   background: #02030a;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
@@ -39,16 +37,17 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   --camera-y: 0vh;
   --camera-scale: 1;
   --scroll-progress: 0;
-  position: relative;
-  min-height: 500vh;
+  position: fixed;
+  inset: 0;
+  min-height: 100vh;
   background: #02030a;
   color: white;
   isolation: isolate;
 }
 
 .portal-viewport {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -133,10 +132,10 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 
 .scroll-brief {
   position: absolute;
-  left: 152px;
-  top: 110px;
+  left: 148px;
+  top: 118px;
   z-index: 32;
-  width: min(390px, 31vw);
+  width: min(310px, 25vw);
   border-left: 2px solid var(--active);
   background: linear-gradient(90deg, color-mix(in srgb, var(--active) 13%, rgba(2,8,23,.52)), transparent);
   padding: 12px 0 12px 16px;
@@ -152,19 +151,19 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 .scroll-brief h1 {
   margin: 0;
-  font-size: clamp(28px, 4vw, 62px);
-  line-height: .9;
+  font-size: clamp(18px, 2.4vw, 38px);
+  line-height: .96;
   font-weight: 1000;
   text-transform: uppercase;
   text-shadow: 0 0 24px color-mix(in srgb, var(--active) 45%, transparent);
 }
 .scroll-brief span {
   display: block;
-  margin-top: 12px;
-  max-width: 340px;
-  color: rgba(226,232,240,.74);
-  font-size: 14px;
-  line-height: 1.75;
+  margin-top: 9px;
+  max-width: 300px;
+  color: rgba(226,232,240,.62);
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .progress-rail {
@@ -408,11 +407,11 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   box-shadow: 0 0 20px var(--node), 0 0 42px color-mix(in srgb, var(--node) 55%, transparent);
 }
 .asteroid-card {
-  min-width: 92px;
+  min-width: 82px;
   border: 1px solid color-mix(in srgb, var(--node) 44%, transparent);
   border-radius: 8px;
   background: rgba(2,8,23,.58);
-  padding: 5px 8px;
+  padding: 4px 7px;
   box-shadow: 0 0 20px color-mix(in srgb, var(--node) 18%, transparent);
   backdrop-filter: blur(10px);
 }
@@ -520,7 +519,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-dock {
   position: absolute;
   left: 50%;
-  bottom: 20px;
+  bottom: 18px;
   z-index: 45;
   display: flex;
   gap: 10px;
@@ -536,7 +535,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border: 1px solid color-mix(in srgb, var(--node) 42%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--node) 10%, rgba(0,0,0,.5));
-  padding: 9px 16px;
+  padding: 8px 14px;
   color: #eaffff;
   cursor: pointer;
   font-size: 13px;
@@ -567,9 +566,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .scanline { position: absolute; inset: 0; z-index: 60; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px); mix-blend-mode: soft-light; opacity: .42; }
 
 .scroll-sectors {
-  position: absolute;
-  inset: 0 0 auto 0;
-  z-index: 2;
+  display: none;
   pointer-events: none;
 }
 .scroll-sector {

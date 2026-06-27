@@ -109,10 +109,10 @@ const navPlanets: NavPlanet[] = [
 
 const cameraViews: CameraView[] = [
   { id: "core", target: [0, 0, 0], camera: [0, 0.1, 7.2], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
-  { id: "automation", target: [-4.9, 2.45, -0.6], camera: [-3.8, 2.2, 3.05], label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头滑向自动化星球：表格、API、OpenClaw 与业务流程在这里接成轨道。" },
-  { id: "marketing", target: [4.9, 2.3, -0.8], camera: [3.8, 2.05, 3.0], label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头推进到营销星云：内容、广告图、Hook、短影音脚本和增长漏斗汇聚。" },
-  { id: "agent", target: [4.65, -2.55, -0.4], camera: [3.65, -2.05, 2.9], label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头飞向智能代理星群：会思考、调用工具、拆任务、执行 SOP 的 Agent 网络。" },
-  { id: "coding", target: [-4.65, -2.6, -0.7], camera: [-3.65, -2.05, 2.9], label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头降落到构建星球：用 AI 写代码、做网站、修 bug，并部署到真实线上。" },
+  { id: "automation", target: [-0.55, 0.35, 0], camera: [-1.75, 0.95, 3.05], label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头贴近中心大脑，自动化星球在轨道侧翼发光连接。" },
+  { id: "marketing", target: [0.55, 0.32, 0], camera: [1.75, 0.9, 3.0], label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头贴近中心大脑，营销星球在右侧轨道发光连接。" },
+  { id: "agent", target: [0.52, -0.32, 0], camera: [1.6, -0.95, 2.82], label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头贴近中心大脑，Agent 星群像神经节点一样接入核心。" },
+  { id: "coding", target: [-0.52, -0.35, 0], camera: [-1.6, -1.0, 2.82], label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头贴近中心大脑，Coding 星球连接到构建传送门。" },
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -165,15 +165,15 @@ function CentralBrain3D({ color }: { color: string }) {
   return (
     <group ref={brain}>
       <mesh ref={plasma}>
-        <sphereGeometry args={[2.45, 72, 72]} />
-        <meshBasicMaterial color="#efffff" transparent opacity={0.22} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <sphereGeometry args={[2.65, 72, 72]} />
+        <meshBasicMaterial color="#efffff" transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh ref={shell}>
-        <icosahedronGeometry args={[2.18, 5]} />
+        <icosahedronGeometry args={[2.34, 5]} />
         <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={5.6} roughness={0.04} metalness={0.22} transparent opacity={0.72} wireframe />
       </mesh>
       <mesh>
-        <sphereGeometry args={[1.72, 72, 72]} />
+        <sphereGeometry args={[1.9, 72, 72]} />
         <meshStandardMaterial color="#f8ffff" emissive="#eaffff" emissiveIntensity={5.2} roughness={0.08} metalness={0.18} transparent opacity={0.88} />
       </mesh>
       {[2.85, 3.55, 4.25, 4.95].map((radius, i) => (
@@ -357,13 +357,32 @@ export default function GenesisUniverse() {
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
   const [camera, setCamera] = useState({ target: cameraViews[0].target, cameraPosition: cameraViews[0].camera, progress: 0, viewIndex: 0 });
   const [burst, setBurst] = useState(cameraViews[0]);
+  const progressRef = useRef(0);
   const active = agents.find((agent) => agent.id === activeId) ?? agents[0];
   const ActiveIcon = active.icon;
   const currentView = cameraViews[camera.viewIndex] ?? cameraViews[0];
 
+  const applyCameraProgress = (raw: number) => {
+    const clamped = Math.min(1, Math.max(0, raw));
+    progressRef.current = clamped;
+    const scaled = clamped * (cameraViews.length - 1);
+    const index = Math.min(cameraViews.length - 2, Math.floor(scaled));
+    const local = scaled - index;
+    const eased = local * local * (3 - 2 * local);
+    const from = cameraViews[index];
+    const to = cameraViews[index + 1] ?? from;
+    const nearest = Math.min(cameraViews.length - 1, Math.round(scaled));
+    const target = lerpVec(from.target, to.target, eased);
+    const cameraPosition = lerpVec(from.camera, to.camera, eased);
+    setCamera({ target, cameraPosition, progress: clamped, viewIndex: nearest });
+    const focus = cameraViews[nearest];
+    if (focus) setBurst(focus);
+    if (focus?.id && focus.id !== "core") setActiveId(focus.id);
+  };
+
   const scrollToView = (id: "core" | AgentId) => {
     const index = Math.max(0, cameraViews.findIndex((view) => view.id === id));
-    window.scrollTo({ top: index * window.innerHeight, behavior: "smooth" });
+    applyCameraProgress(index / (cameraViews.length - 1));
     const view = cameraViews[index] ?? cameraViews[0];
     setBurst(view);
     if (id !== "core") setActiveId(id);
@@ -377,34 +396,40 @@ export default function GenesisUniverse() {
 
   useEffect(() => {
     let frame = 0;
-    const updateCamera = () => {
-      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const raw = Math.min(1, Math.max(0, window.scrollY / max));
-      const scaled = raw * (cameraViews.length - 1);
-      const index = Math.min(cameraViews.length - 2, Math.floor(scaled));
-      const local = scaled - index;
-      const eased = local * local * (3 - 2 * local);
-      const from = cameraViews[index];
-      const to = cameraViews[index + 1] ?? from;
-      const nearest = Math.min(cameraViews.length - 1, Math.round(scaled));
-      const target = lerpVec(from.target, to.target, eased);
-      const cameraPosition = lerpVec(from.camera, to.camera, eased);
-      setCamera({ target, cameraPosition, progress: raw, viewIndex: nearest });
-      const focus = cameraViews[nearest];
-      if (focus) setBurst(focus);
-      if (focus?.id && focus.id !== "core") setActiveId(focus.id);
-    };
-    const onScroll = () => {
+    let touchY = 0;
+    const schedule = (next: number) => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(updateCamera);
+      frame = requestAnimationFrame(() => applyCameraProgress(next));
     };
-    updateCamera();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      schedule(progressRef.current + event.deltaY / 3600);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (["ArrowDown", "PageDown", " "].includes(event.key)) { event.preventDefault(); schedule(progressRef.current + 1 / (cameraViews.length - 1)); }
+      if (["ArrowUp", "PageUp"].includes(event.key)) { event.preventDefault(); schedule(progressRef.current - 1 / (cameraViews.length - 1)); }
+      if (event.key === "Home") { event.preventDefault(); schedule(0); }
+      if (event.key === "End") { event.preventDefault(); schedule(1); }
+    };
+    const onTouchStart = (event: TouchEvent) => { touchY = event.touches[0]?.clientY ?? 0; };
+    const onTouchMove = (event: TouchEvent) => {
+      const nextY = event.touches[0]?.clientY ?? touchY;
+      const delta = touchY - nextY;
+      touchY = nextY;
+      event.preventDefault();
+      schedule(progressRef.current + delta / 2600);
+    };
+    frame = requestAnimationFrame(() => applyCameraProgress(0));
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
     };
   }, []);
 
