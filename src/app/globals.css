@@ -60,8 +60,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   z-index: 0;
   background:
     radial-gradient(circle at var(--mx) var(--my), color-mix(in srgb, var(--active) 28%, transparent), transparent 20rem),
-    radial-gradient(circle at 50% 52%, rgba(255,255,255,.18), transparent 16rem),
-    radial-gradient(circle at 50% 52%, rgba(103,232,249,.25), transparent 34rem),
+    radial-gradient(circle at 50% 52%, rgba(255,255,255,.34), transparent 14rem),
+    radial-gradient(circle at 50% 52%, rgba(103,232,249,.34), transparent 40rem),
     radial-gradient(circle at 15% 22%, rgba(168,85,247,.18), transparent 20rem),
     radial-gradient(circle at 82% 78%, rgba(244,114,182,.15), transparent 22rem),
     linear-gradient(180deg, #040815 0%, #02030a 48%, #03040b 100%);
@@ -451,14 +451,50 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 .beam-b { top: 35%; transform: rotate(5deg); opacity: .64; }
 
+.cinematic-burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 33;
+  transform: translate(-50%, -50%);
+  max-width: 86vw;
+  pointer-events: none;
+  color: rgba(255,255,255,.92);
+  font-size: clamp(54px, 11vw, 180px);
+  font-weight: 1000;
+  line-height: .82;
+  letter-spacing: -.06em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 18px #fff,
+    0 0 42px var(--active),
+    0 0 100px color-mix(in srgb, var(--active) 70%, transparent),
+    0 0 180px rgba(103,232,249,.6);
+  mix-blend-mode: screen;
+}
+.cinematic-burst::before,
+.cinematic-burst::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 110vw;
+  height: 2px;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), var(--active), transparent);
+  box-shadow: 0 0 32px var(--active);
+}
+.cinematic-burst::after { transform: translate(-50%, -50%) rotate(8deg); opacity: .65; }
+
 .agent-dossier {
   position: absolute;
   right: 24px;
   bottom: 84px;
   z-index: 38;
-  width: min(360px, 30vw);
+  width: min(330px, 28vw);
   border: 1px solid rgba(255,255,255,.13);
-  border-radius: 24px;
+  border-radius: 18px;
   background: linear-gradient(135deg, rgba(2,8,23,.76), rgba(8,13,31,.54));
   box-shadow: 0 0 45px rgba(34,211,238,.12), inset 0 0 24px rgba(255,255,255,.04);
   padding: 18px;
@@ -543,7 +579,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   padding: 0 0 9vh 9vw;
 }
 .scroll-sector div {
-  opacity: .01;
+  opacity: 0;
   transform: translateY(20px);
 }
 .scroll-sector span,

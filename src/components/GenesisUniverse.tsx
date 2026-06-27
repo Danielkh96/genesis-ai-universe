@@ -108,11 +108,11 @@ const navPlanets: NavPlanet[] = [
 ];
 
 const cameraViews: CameraView[] = [
-  { id: "core", target: [0, 0, 0], camera: [0, 0.2, 9.2], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
-  { id: "automation", target: [-4.9, 2.45, -0.6], camera: [-2.9, 1.65, 4.3], label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头滑向自动化星球：表格、API、OpenClaw 与业务流程在这里接成轨道。" },
-  { id: "marketing", target: [4.9, 2.3, -0.8], camera: [2.9, 1.55, 4.25], label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头推进到营销星云：内容、广告图、Hook、短影音脚本和增长漏斗汇聚。" },
-  { id: "agent", target: [4.65, -2.55, -0.4], camera: [2.85, -1.45, 4.05], label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头飞向智能代理星群：会思考、调用工具、拆任务、执行 SOP 的 Agent 网络。" },
-  { id: "coding", target: [-4.65, -2.6, -0.7], camera: [-2.8, -1.45, 4.05], label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头降落到构建星球：用 AI 写代码、做网站、修 bug，并部署到真实线上。" },
+  { id: "core", target: [0, 0, 0], camera: [0, 0.1, 7.2], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
+  { id: "automation", target: [-4.9, 2.45, -0.6], camera: [-3.8, 2.2, 3.05], label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头滑向自动化星球：表格、API、OpenClaw 与业务流程在这里接成轨道。" },
+  { id: "marketing", target: [4.9, 2.3, -0.8], camera: [3.8, 2.05, 3.0], label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头推进到营销星云：内容、广告图、Hook、短影音脚本和增长漏斗汇聚。" },
+  { id: "agent", target: [4.65, -2.55, -0.4], camera: [3.65, -2.05, 2.9], label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头飞向智能代理星群：会思考、调用工具、拆任务、执行 SOP 的 Agent 网络。" },
+  { id: "coding", target: [-4.65, -2.6, -0.7], camera: [-3.65, -2.05, 2.9], label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头降落到构建星球：用 AI 写代码、做网站、修 bug，并部署到真实线上。" },
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -165,25 +165,25 @@ function CentralBrain3D({ color }: { color: string }) {
   return (
     <group ref={brain}>
       <mesh ref={plasma}>
-        <sphereGeometry args={[1.95, 64, 64]} />
+        <sphereGeometry args={[2.45, 72, 72]} />
         <meshBasicMaterial color="#efffff" transparent opacity={0.22} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh ref={shell}>
-        <icosahedronGeometry args={[1.72, 5]} />
-        <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={3.8} roughness={0.04} metalness={0.22} transparent opacity={0.72} wireframe />
+        <icosahedronGeometry args={[2.18, 5]} />
+        <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={5.6} roughness={0.04} metalness={0.22} transparent opacity={0.72} wireframe />
       </mesh>
       <mesh>
-        <sphereGeometry args={[1.32, 64, 64]} />
-        <meshStandardMaterial color="#f8ffff" emissive="#eaffff" emissiveIntensity={3.25} roughness={0.08} metalness={0.18} transparent opacity={0.88} />
+        <sphereGeometry args={[1.72, 72, 72]} />
+        <meshStandardMaterial color="#f8ffff" emissive="#eaffff" emissiveIntensity={5.2} roughness={0.08} metalness={0.18} transparent opacity={0.88} />
       </mesh>
-      {[2.35, 2.9, 3.45].map((radius, i) => (
+      {[2.85, 3.55, 4.25, 4.95].map((radius, i) => (
         <mesh key={radius} rotation={[0.55 + i * 0.3, 0.2 + i * 0.2, i * 0.65]}>
           <torusGeometry args={[radius, 0.012, 16, 220]} />
-          <meshBasicMaterial color={i === 1 ? "#c084fc" : "#67e8f9"} transparent opacity={0.55 - i * 0.1} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color={i === 1 ? "#c084fc" : "#67e8f9"} transparent opacity={0.68 - i * 0.09} blending={THREE.AdditiveBlending} />
         </mesh>
       ))}
       <pointLight color="#ffffff" intensity={7} distance={9} />
-      <pointLight color={color} intensity={14} distance={10} />
+      <pointLight color={color} intensity={22} distance={10} />
     </group>
   );
 }
@@ -241,13 +241,13 @@ function EnergyTube({ to, color }: { to: [number, number, number]; color: string
 
 function SatelliteModules() {
   const group = useRef<THREE.Group>(null);
-  const modules = useMemo(() => Array.from({ length: 54 }, (_, i) => {
-    const angle = (i / 54) * Math.PI * 2;
-    const radius = 2.35 + (i % 7) * 0.34;
+  const modules = useMemo(() => Array.from({ length: 128 }, (_, i) => {
+    const angle = (i / 128) * Math.PI * 2;
+    const radius = 2.15 + (i % 11) * 0.28;
     return {
       position: [Math.cos(angle) * radius, Math.sin(angle) * radius * 0.58, Math.sin(angle * 1.7) * 1.2] as [number, number, number],
       rotation: [Math.sin(angle) * 1.2, angle, Math.cos(angle) * 0.8] as [number, number, number],
-      scale: [0.035 + (i % 4) * 0.015, 0.28 + (i % 6) * 0.14, 0.045] as [number, number, number],
+      scale: [0.055 + (i % 5) * 0.018, 0.48 + (i % 8) * 0.18, 0.06] as [number, number, number],
       color: i % 4 === 0 ? "#ffffff" : i % 4 === 1 ? "#67e8f9" : i % 4 === 2 ? "#a78bfa" : "#f472b6",
     };
   }), []);
@@ -262,7 +262,7 @@ function SatelliteModules() {
       {modules.map((m, i) => (
         <mesh key={i} position={m.position} rotation={m.rotation} scale={m.scale}>
           <boxGeometry args={[1, 1, 1]} />
-          <meshBasicMaterial color={m.color} transparent opacity={0.76} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color={m.color} transparent opacity={0.88} blending={THREE.AdditiveBlending} />
         </mesh>
       ))}
     </group>
@@ -271,13 +271,13 @@ function SatelliteModules() {
 
 function NetworkNodes() {
   const group = useRef<THREE.Group>(null);
-  const nodes = useMemo(() => Array.from({ length: 126 }, (_, i) => {
+  const nodes = useMemo(() => Array.from({ length: 320 }, (_, i) => {
     const angle = (i * 2.399963) % (Math.PI * 2);
-    const radius = 3.2 + ((i * 17) % 100) / 100 * 5.3;
-    const y = Math.sin(i * 1.37) * 3.4;
+    const radius = 2.7 + ((i * 17) % 100) / 100 * 7.4;
+    const y = Math.sin(i * 1.37) * 4.35;
     return {
       p: new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.65 - 1.4),
-      s: 0.025 + (i % 5) * 0.01,
+      s: 0.022 + (i % 6) * 0.012,
       color: i % 5 === 0 ? "#fb7185" : i % 5 === 1 ? "#fbbf24" : i % 5 === 2 ? "#a78bfa" : "#67e8f9",
     };
   }), []);
@@ -285,7 +285,9 @@ function NetworkNodes() {
     const values: number[] = [];
     nodes.forEach((node, i) => {
       const next = nodes[(i + 13) % nodes.length];
-      if (node.p.distanceTo(next.p) < 5.2 || i % 3 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
+      const next2 = nodes[(i + 37) % nodes.length];
+      if (node.p.distanceTo(next.p) < 6.4 || i % 2 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
+      if (i % 5 === 0 && node.p.distanceTo(next2.p) < 8.2) values.push(node.p.x, node.p.y, node.p.z, next2.p.x, next2.p.y, next2.p.z);
     });
     return new Float32Array(values);
   }, [nodes]);
@@ -303,7 +305,7 @@ function NetworkNodes() {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial color="#67e8f9" transparent opacity={0.17} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <lineBasicMaterial color="#67e8f9" transparent opacity={0.25} blending={THREE.AdditiveBlending} depthWrite={false} />
       </lineSegments>
       {nodes.map((node, i) => (
         <mesh key={i} position={node.p}>
@@ -317,7 +319,7 @@ function NetworkNodes() {
 
 function UniverseCanvas({ active, cameraPosition, target, progress }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number }) {
   return (
-    <Canvas className="portal-canvas" camera={{ position: [0, 0.2, 9.2], fov: 46 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+    <Canvas className="portal-canvas" camera={{ position: [0, 0.1, 7.2], fov: 42 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#02030a"]} />
       <fog attach="fog" args={["#02030a", 8, 20]} />
       <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} />
@@ -325,7 +327,7 @@ function UniverseCanvas({ active, cameraPosition, target, progress }: { active: 
       <pointLight position={[0, 3, 5]} intensity={8} color="#eaffff" />
       <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
       <pointLight position={[5, -3, 2]} intensity={4} color="#a78bfa" />
-      <Stars radius={120} depth={70} count={3600} factor={4.8} saturation={0.7} fade speed={0.85} />
+      <Stars radius={120} depth={70} count={5200} factor={4.8} saturation={0.7} fade speed={0.85} />
       <NetworkNodes />
       <SatelliteModules />
       <CentralBrain3D color={active.color} />
@@ -354,6 +356,7 @@ export default function GenesisUniverse() {
   const [webglReady, setWebglReady] = useState(false);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
   const [camera, setCamera] = useState({ target: cameraViews[0].target, cameraPosition: cameraViews[0].camera, progress: 0, viewIndex: 0 });
+  const [burst, setBurst] = useState(cameraViews[0]);
   const active = agents.find((agent) => agent.id === activeId) ?? agents[0];
   const ActiveIcon = active.icon;
   const currentView = cameraViews[camera.viewIndex] ?? cameraViews[0];
@@ -361,6 +364,8 @@ export default function GenesisUniverse() {
   const scrollToView = (id: "core" | AgentId) => {
     const index = Math.max(0, cameraViews.findIndex((view) => view.id === id));
     window.scrollTo({ top: index * window.innerHeight, behavior: "smooth" });
+    const view = cameraViews[index] ?? cameraViews[0];
+    setBurst(view);
     if (id !== "core") setActiveId(id);
   };
 
@@ -386,6 +391,7 @@ export default function GenesisUniverse() {
       const cameraPosition = lerpVec(from.camera, to.camera, eased);
       setCamera({ target, cameraPosition, progress: raw, viewIndex: nearest });
       const focus = cameraViews[nearest];
+      if (focus) setBurst(focus);
       if (focus?.id && focus.id !== "core") setActiveId(focus.id);
     };
     const onScroll = () => {
@@ -403,14 +409,14 @@ export default function GenesisUniverse() {
   }, []);
 
   useEffect(() => {
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isAutomation = navigator.webdriver || userAgent.includes("headless") || userAgent.includes("playwright");
-    if (isAutomation) return;
-
     const id = window.setTimeout(() => {
-      const testCanvas = document.createElement("canvas");
-      const gl = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
-      setWebglReady(Boolean(gl));
+      try {
+        const testCanvas = document.createElement("canvas");
+        const gl = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
+        setWebglReady(Boolean(gl));
+      } catch {
+        setWebglReady(false);
+      }
     }, 0);
     return () => window.clearTimeout(id);
   }, []);
@@ -519,6 +525,19 @@ export default function GenesisUniverse() {
         </section>
 
         <AnimatePresence mode="wait">
+          <motion.div
+            key={burst.id}
+            className="cinematic-burst"
+            initial={{ opacity: 0, scale: 0.72, filter: "blur(18px)" }}
+            animate={{ opacity: [0, 1, 0.16], scale: [0.72, 1.2, 1], filter: ["blur(18px)", "blur(0px)", "blur(2px)"] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.1, ease: "easeOut" }}
+          >
+            {burst.label}
+          </motion.div>
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
           <motion.aside key={active.id} className="agent-dossier" initial={{ opacity: 0, y: 18, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.98 }} transition={{ duration: 0.24 }}>
             <div className="dossier-icon" style={{ color: active.color, background: `${active.color}22` }}><ActiveIcon /></div>
             <div>
@@ -541,7 +560,7 @@ export default function GenesisUniverse() {
 
         <div className="scanline" />
         <div className="corner-hud corner-a"><Sparkles className="h-4 w-4" /> SYSTEM ONLINE</div>
-        <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> 3D NODES: 126</div>
+        <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> 3D NODES: 320</div>
         <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> CAMERA FLY-IN</div>
       </div>
 
