@@ -18,7 +18,9 @@ html, body {
   margin: 0;
   width: 100%;
   min-height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
   background: #02030a;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
@@ -33,12 +35,23 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   --active: #22d3ee;
   --mx: 50%;
   --my: 50%;
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
+  --camera-x: 0vw;
+  --camera-y: 0vh;
+  --camera-scale: 1;
+  --scroll-progress: 0;
+  position: relative;
+  min-height: 500vh;
   background: #02030a;
   color: white;
   isolation: isolate;
+}
+
+.portal-viewport {
+  position: sticky;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .portal-bg {
@@ -91,6 +104,9 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   pointer-events: none;
   mix-blend-mode: screen;
   opacity: .9;
+  transform: translate3d(var(--camera-x), var(--camera-y), 0) scale(var(--camera-scale));
+  transform-origin: center center;
+  transition: transform .18s linear;
 }
 
 .portal-briefing {
@@ -116,6 +132,82 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .portal-briefing strong { color: #ff718d; letter-spacing: .34em; }
 .live-dot { width: 7px; height: 7px; border-radius: 999px; background: #fb7185; box-shadow: 0 0 16px #fb7185; animation: pulseDot 1.3s ease-in-out infinite; }
 .separator { color: rgba(103,232,249,.38); }
+
+.scroll-brief {
+  position: absolute;
+  left: 152px;
+  top: 110px;
+  z-index: 32;
+  width: min(390px, 31vw);
+  border-left: 2px solid var(--active);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--active) 13%, rgba(2,8,23,.52)), transparent);
+  padding: 12px 0 12px 16px;
+  pointer-events: none;
+  text-shadow: 0 0 18px rgba(0,0,0,.9);
+}
+.scroll-brief p {
+  margin: 0 0 8px;
+  color: var(--active);
+  font-size: 10px;
+  font-weight: 1000;
+  letter-spacing: .28em;
+}
+.scroll-brief h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 62px);
+  line-height: .9;
+  font-weight: 1000;
+  text-transform: uppercase;
+  text-shadow: 0 0 24px color-mix(in srgb, var(--active) 45%, transparent);
+}
+.scroll-brief span {
+  display: block;
+  margin-top: 12px;
+  max-width: 340px;
+  color: rgba(226,232,240,.74);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.progress-rail {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  z-index: 48;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transform: translateY(-50%);
+}
+.progress-rail button {
+  display: grid;
+  grid-template-columns: 18px 28px;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: rgba(224,252,255,.42);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 1000;
+  letter-spacing: .12em;
+}
+.progress-rail i {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(103,232,249,.5);
+  border-radius: 999px;
+  background: rgba(2,8,23,.75);
+  box-shadow: 0 0 12px rgba(103,232,249,.18);
+}
+.progress-rail button.active { color: #eaffff; }
+.progress-rail button.active i {
+  width: 17px;
+  height: 17px;
+  background: var(--active);
+  border-color: white;
+  box-shadow: 0 0 22px var(--active), 0 0 42px color-mix(in srgb, var(--active) 38%, transparent);
+}
 
 .side-console {
   position: absolute;
@@ -160,6 +252,9 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   pointer-events: none;
   transform-style: preserve-3d;
   perspective: 1100px;
+  transform: translate3d(var(--camera-x), var(--camera-y), 0) scale(var(--camera-scale));
+  transform-origin: center center;
+  transition: transform .18s linear;
 }
 
 .central-brain {
@@ -256,6 +351,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   color: white;
   cursor: pointer;
   pointer-events: auto;
+  animation: nodeOrbitDrift 7s ease-in-out infinite;
 }
 .planet-body {
   position: absolute;
@@ -439,6 +535,27 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .corner-c { left: 154px; bottom: 28px; }
 .scanline { position: absolute; inset: 0; z-index: 60; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px); mix-blend-mode: soft-light; opacity: .42; }
 
+.scroll-sectors {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.scroll-sector {
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 9vh 9vw;
+}
+.scroll-sector div {
+  opacity: .01;
+  transform: translateY(20px);
+}
+.scroll-sector span,
+.scroll-sector strong { display: block; }
+.scroll-sector span { color: var(--active); font-size: 14px; letter-spacing: .3em; }
+.scroll-sector strong { color: white; font-size: 38px; }
+
 .portrait-guard { display: none; }
 
 @keyframes starDrift { to { transform: translate3d(-110px, 80px, 0); } }
@@ -449,9 +566,15 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 @keyframes pulseDot { 0%, 100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
 @keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.28); } }
 @keyframes asteroidFloat { 0%, 100% { translate: 0 -4px; } 50% { translate: 0 7px; } }
+@keyframes nodeOrbitDrift {
+  0%, 100% { margin-left: -7px; margin-top: 0; }
+  25% { margin-left: 0; margin-top: -9px; }
+  50% { margin-left: 8px; margin-top: 0; }
+  75% { margin-left: 0; margin-top: 9px; }
+}
 
 @media (max-width: 900px) and (orientation: portrait) {
-  .portal-shell > :not(.portrait-guard) { display: none !important; }
+  .portal-viewport > :not(.portrait-guard), .scroll-sectors { display: none !important; }
   .portrait-guard {
     position: fixed;
     inset: 0;
@@ -479,6 +602,10 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   .planet-label strong { font-size: 11px; }
   .planet-label em { display: none; }
   .asteroid-card { display: none; }
+  .scroll-brief { left: 118px; width: 300px; top: 98px; }
+  .scroll-brief h1 { font-size: 30px; }
+  .scroll-brief span { display: none; }
+  .progress-rail { right: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

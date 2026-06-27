@@ -95,6 +95,16 @@ const navPlanets: NavPlanet[] = [
 
 const allNodes = [...agents, ...navPlanets];
 
+type CameraView = { id: "core" | AgentId; x: number; y: number; scale: number; label: string; eyebrow: string; text: string };
+
+const cameraViews: CameraView[] = [
+  { id: "core", x: 0, y: 0, scale: 1, label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
+  { id: "automation", x: 30, y: 22, scale: 1.72, label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头滑向自动化星球：表格、API、OpenClaw 与业务流程在这里接成轨道。" },
+  { id: "marketing", x: -30, y: 22, scale: 1.72, label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头推进到营销星云：内容、广告图、Hook、短影音脚本和增长漏斗汇聚。" },
+  { id: "agent", x: -30, y: -22, scale: 1.72, label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头飞向智能代理星群：会思考、调用工具、拆任务、执行 SOP 的 Agent 网络。" },
+  { id: "coding", x: 30, y: -22, scale: 1.72, label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头降落到构建星球：用 AI 写代码、做网站、修 bug，并部署到真实线上。" },
+];
+
 function Clock() {
   const [time, setTime] = useState("");
   useEffect(() => {
@@ -239,11 +249,52 @@ export default function GenesisUniverse() {
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
   const active = agents.find((agent) => agent.id === activeId) ?? agents[0];
   const ActiveIcon = active.icon;
+  const [camera, setCamera] = useState({ x: 0, y: 0, scale: 1, progress: 0, viewIndex: 0 });
+  const currentView = cameraViews[camera.viewIndex] ?? cameraViews[0];
+
+  const scrollToView = (id: "core" | AgentId) => {
+    const index = Math.max(0, cameraViews.findIndex((view) => view.id === id));
+    window.scrollTo({ top: index * window.innerHeight, behavior: "smooth" });
+    if (id !== "core") setActiveId(id);
+  };
 
   useEffect(() => {
     const move = (event: MouseEvent) => setMouse({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100 });
     window.addEventListener("mousemove", move);
     return () => window.removeEventListener("mousemove", move);
+  }, []);
+
+  useEffect(() => {
+    let frame = 0;
+    const updateCamera = () => {
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const raw = Math.min(1, Math.max(0, window.scrollY / max));
+      const scaled = raw * (cameraViews.length - 1);
+      const index = Math.min(cameraViews.length - 2, Math.floor(scaled));
+      const local = scaled - index;
+      const eased = local * local * (3 - 2 * local);
+      const from = cameraViews[index];
+      const to = cameraViews[index + 1] ?? from;
+      const nearest = Math.min(cameraViews.length - 1, Math.round(scaled));
+      const x = from.x + (to.x - from.x) * eased;
+      const y = from.y + (to.y - from.y) * eased;
+      const scale = from.scale + (to.scale - from.scale) * eased;
+      setCamera({ x, y, scale, progress: raw, viewIndex: nearest });
+      const focus = cameraViews[nearest];
+      if (focus?.id && focus.id !== "core") setActiveId(focus.id);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(updateCamera);
+    };
+    updateCamera();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -260,7 +311,19 @@ export default function GenesisUniverse() {
   }, []);
 
   return (
-    <main className="portal-shell" style={{ ["--mx" as string]: `${mouse.x}%`, ["--my" as string]: `${mouse.y}%`, ["--active" as string]: active.color }}>
+    <main
+      className="portal-shell"
+      style={{
+        ["--mx" as string]: `${mouse.x}%`,
+        ["--my" as string]: `${mouse.y}%`,
+        ["--active" as string]: active.color,
+        ["--camera-x" as string]: `${camera.x}vw`,
+        ["--camera-y" as string]: `${camera.y}vh`,
+        ["--camera-scale" as string]: camera.scale,
+        ["--scroll-progress" as string]: camera.progress,
+      }}
+    >
+      <div className="portal-viewport">
       <div className="portrait-guard">
         <RotateCcw className="h-12 w-12 text-cyan-200" />
         <h1>请横屏进入 Genesis AI Universe</h1>
@@ -280,10 +343,25 @@ export default function GenesisUniverse() {
         <span>GENESIS AI UNIVERSE · 传送门在线</span>
       </header>
 
+      <div className="scroll-brief">
+        <p>{currentView.eyebrow}</p>
+        <h1>{currentView.label}</h1>
+        <span>{currentView.text}</span>
+      </div>
+
+      <div className="progress-rail" aria-hidden="true">
+        {cameraViews.map((view, index) => (
+          <button key={view.id} onClick={() => scrollToView(view.id)} className={camera.viewIndex === index ? "active" : ""}>
+            <i />
+            <span>{String(index).padStart(2, "0")}</span>
+          </button>
+        ))}
+      </div>
+
       <nav className="side-console" aria-label="Universe navigation">
-        <button onClick={() => setActiveId("automation")} className="console-btn reset"><RefreshCcw className="h-4 w-4" /> 重置</button>
+        <button onClick={() => scrollToView("core")} className="console-btn reset"><RefreshCcw className="h-4 w-4" /> 重置</button>
         {agents.map((agent) => (
-          <button key={agent.id} onClick={() => setActiveId(agent.id)} className={`console-btn ${activeId === agent.id ? "active" : ""}`} style={{ ["--node" as string]: agent.color }}>
+          <button key={agent.id} onClick={() => scrollToView(agent.id)} className={`console-btn ${activeId === agent.id ? "active" : ""}`} style={{ ["--node" as string]: agent.color }}>
             {agent.name.replace("AI ", "")}
           </button>
         ))}
@@ -315,7 +393,7 @@ export default function GenesisUniverse() {
             <button
               key={agent.id}
               data-module-id={agent.id}
-              onClick={() => setActiveId(agent.id)}
+              onClick={() => scrollToView(agent.id)}
               className={`agent-planet ${selected ? "selected" : ""}`}
               style={{ left: `${agent.position.x}%`, top: `${agent.position.y}%`, ["--node" as string]: agent.color, ["--node-glow" as string]: agent.glow }}
             >
@@ -367,7 +445,7 @@ export default function GenesisUniverse() {
 
       <footer className="agent-dock" aria-label="Agent selector">
         {agents.map((agent) => (
-          <button key={agent.id} onClick={() => setActiveId(agent.id)} className={activeId === agent.id ? "active" : ""} style={{ ["--node" as string]: agent.color }}>
+          <button key={agent.id} onClick={() => scrollToView(agent.id)} className={activeId === agent.id ? "active" : ""} style={{ ["--node" as string]: agent.color }}>
             {agent.name}
           </button>
         ))}
@@ -377,6 +455,18 @@ export default function GenesisUniverse() {
       <div className="corner-hud corner-a"><Sparkles className="h-4 w-4" /> SYSTEM ONLINE</div>
       <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> NAV NODES: 12</div>
       <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> ENERGY LINKED</div>
+      </div>
+
+      <div className="scroll-sectors" aria-hidden="true">
+        {cameraViews.map((view, index) => (
+          <section key={view.id} id={view.id === "core" ? "genesis-core" : `ai-${view.id}`} className="scroll-sector">
+            <div>
+              <span>{String(index).padStart(2, "0")}</span>
+              <strong>{view.label}</strong>
+            </div>
+          </section>
+        ))}
+      </div>
     </main>
   );
 }
