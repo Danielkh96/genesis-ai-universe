@@ -39,6 +39,8 @@ a {
 
 canvas {
   touch-action: pan-y;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
