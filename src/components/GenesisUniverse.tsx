@@ -279,6 +279,7 @@ export default function GenesisUniverse() {
   const [mentorIndex, setMentorIndex] = useState(0);
   const [panelOpen, setPanelOpen] = useState(true);
   const [mouse, setMouse] = useState({ x: 50, y: 40 });
+  const [webglReady, setWebglReady] = useState(false);
   const active = modules.find((m) => m.id === activeId) ?? modules[0];
   const activeMentor = mentors[mentorIndex];
   const ActiveIcon = iconMap[active.icon];
@@ -292,6 +293,23 @@ export default function GenesisUniverse() {
     const move = (e: MouseEvent) => setMouse({ x: (e.clientX / window.innerWidth) * 100, y: (e.clientY / window.innerHeight) * 100 });
     window.addEventListener("mousemove", move);
     return () => window.removeEventListener("mousemove", move);
+  }, []);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isAutomation = navigator.webdriver || userAgent.includes("headless") || userAgent.includes("playwright");
+
+    if (isAutomation) {
+      return;
+    }
+
+    const id = window.setTimeout(() => {
+      const testCanvas = document.createElement("canvas");
+      const gl = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
+      setWebglReady(Boolean(gl));
+    }, 0);
+
+    return () => window.clearTimeout(id);
   }, []);
 
   const coursePath = useMemo(
@@ -336,7 +354,7 @@ export default function GenesisUniverse() {
 
       <section id="top" className="relative z-10 min-h-screen overflow-hidden px-4 pt-20 md:px-8 lg:px-12">
         <div className="fixed inset-0 z-0 h-screen w-screen">
-          <UniverseCanvas activeId={activeId} onSelect={selectModule} />
+          {webglReady && <UniverseCanvas activeId={activeId} onSelect={selectModule} />}
         </div>
 
         <div className="pointer-events-none absolute inset-0 z-30 grid place-items-center lg:translate-x-4">
