@@ -89,6 +89,40 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   opacity: .34;
 }
 
+.flying-orbs {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+.flying-orbs span {
+  position: absolute;
+  left: -12vw;
+  top: calc(8% + var(--lane, 0) * 10%);
+  width: var(--size, 18px);
+  height: var(--size, 18px);
+  border-radius: 999px;
+  background: radial-gradient(circle at 32% 30%, #fff 0 9%, var(--orb, #67e8f9) 22%, color-mix(in srgb, var(--orb, #67e8f9) 36%, transparent) 48%, transparent 72%);
+  box-shadow:
+    0 0 calc(var(--size, 18px) * 1.1) var(--orb, #67e8f9),
+    0 0 calc(var(--size, 18px) * 3.2) color-mix(in srgb, var(--orb, #67e8f9) 60%, transparent),
+    -42px 0 34px color-mix(in srgb, var(--orb, #67e8f9) 30%, transparent);
+  opacity: .82;
+  filter: blur(.1px);
+  animation: flyingOrb 10s linear infinite;
+}
+.flying-orbs span:nth-child(1) { --lane: 1; --size: 15px; --orb: #67e8f9; animation-duration: 11s; animation-delay: -1s; }
+.flying-orbs span:nth-child(2) { --lane: 3; --size: 24px; --orb: #a78bfa; animation-duration: 16s; animation-delay: -5s; }
+.flying-orbs span:nth-child(3) { --lane: 6; --size: 12px; --orb: #fff; animation-duration: 9s; animation-delay: -3s; }
+.flying-orbs span:nth-child(4) { --lane: 8; --size: 21px; --orb: #f472b6; animation-duration: 18s; animation-delay: -9s; }
+.flying-orbs span:nth-child(5) { --lane: 4; --size: 10px; --orb: #22d3ee; animation-duration: 7.5s; animation-delay: -2s; }
+.flying-orbs span:nth-child(6) { --lane: 0; --size: 28px; --orb: #c084fc; animation-duration: 22s; animation-delay: -13s; }
+.flying-orbs span:nth-child(7) { --lane: 7; --size: 14px; --orb: #fbbf24; animation-duration: 12s; animation-delay: -7s; }
+.flying-orbs span:nth-child(8) { --lane: 2; --size: 18px; --orb: #34d399; animation-duration: 15s; animation-delay: -10s; }
+.flying-orbs span:nth-child(9) { --lane: 5; --size: 32px; --orb: #e0f2fe; animation-duration: 25s; animation-delay: -18s; }
+
 .touch-glow {
   position: absolute;
   left: var(--touch-x, 50%);
@@ -297,11 +331,16 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border: 1px solid rgba(224,252,255,.76);
   border-radius: 999px;
   background:
-    radial-gradient(circle at 45% 44%, rgba(255,255,255,1) 0 18%, rgba(219,253,255,.95) 28%, rgba(82,225,246,.5) 46%, rgba(56,189,248,.19) 61%, rgba(3,7,18,.2) 70%),
+    radial-gradient(circle at 45% 44%, rgba(255,255,255,1) 0 22%, rgba(219,253,255,1) 30%, rgba(82,225,246,.62) 47%, rgba(56,189,248,.24) 62%, rgba(3,7,18,.16) 72%),
     conic-gradient(from 0deg, rgba(103,232,249,.12), rgba(255,255,255,.6), rgba(167,139,250,.22), rgba(103,232,249,.12));
+  box-shadow:
+    0 0 44px rgba(255,255,255,.9),
+    0 0 120px color-mix(in srgb, var(--active) 78%, transparent),
+    0 0 230px rgba(103,232,249,.5),
+    inset 0 0 44px rgba(255,255,255,.72);
   cursor: pointer;
   pointer-events: auto;
-  animation: coreFloat 5s ease-in-out infinite;
+  animation: coreFloat 5s ease-in-out infinite, coreEnergy 1.8s ease-in-out infinite;
   overflow: hidden;
 }
 .central-brain::before {
@@ -359,13 +398,24 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   z-index: 7;
   transform: translate(-50%, -50%) rotateX(64deg);
   border-radius: 999px;
-  border: 1px solid rgba(103,232,249,.25);
-  box-shadow: 0 0 30px rgba(103,232,249,.18), inset 0 0 28px rgba(167,139,250,.06);
+  border: 1px solid rgba(103,232,249,.42);
+  box-shadow: 0 0 42px rgba(103,232,249,.35), inset 0 0 32px rgba(167,139,250,.12);
   pointer-events: none;
 }
-.orbit-ring-1 { width: 48vw; height: 48vw; animation: orbitSpin 22s linear infinite; }
-.orbit-ring-2 { width: 63vw; height: 63vw; border-color: rgba(167,139,250,.18); animation: orbitSpin 34s linear reverse infinite; }
-.orbit-ring-3 { width: 78vw; height: 78vw; border-color: rgba(244,114,182,.13); animation: orbitSpin 46s linear infinite; }
+.orbit-ring::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 18px #fff, 0 0 36px #67e8f9;
+}
+.orbit-ring-1 { width: 48vw; height: 48vw; animation: orbitSpin 12s linear infinite; }
+.orbit-ring-2 { width: 63vw; height: 63vw; border-color: rgba(167,139,250,.3); animation: orbitSpin 19s linear reverse infinite; }
+.orbit-ring-3 { width: 78vw; height: 78vw; border-color: rgba(244,114,182,.22); animation: orbitSpin 27s linear infinite; }
 
 .agent-planet {
   position: absolute;
@@ -389,9 +439,28 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border-radius: 999px;
   background: radial-gradient(circle at 34% 30%, #fff, var(--node) 27%, rgba(4,12,25,.9) 72%);
   color: rgba(0,0,0,.76);
-  box-shadow: 0 0 28px var(--node-glow), inset 0 0 18px rgba(255,255,255,.42);
+  box-shadow: 0 0 34px var(--node-glow), 0 0 76px color-mix(in srgb, var(--node) 34%, transparent), inset 0 0 22px rgba(255,255,255,.5);
   animation: planetPulse 2.5s ease-in-out infinite;
 }
+.planet-body::before {
+  content: "";
+  position: absolute;
+  inset: -70%;
+  border-radius: inherit;
+  background: radial-gradient(circle, color-mix(in srgb, var(--node) 34%, transparent) 0 18%, transparent 68%);
+  filter: blur(8px);
+  opacity: .9;
+}
+.planet-body::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--node) 76%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--node) 54%, transparent);
+  animation: planetAura 2.1s ease-in-out infinite;
+}
+.planet-body svg { position: relative; z-index: 2; filter: drop-shadow(0 0 8px rgba(255,255,255,.8)); }
 .planet-orbit {
   position: absolute;
   inset: 4px;
@@ -624,12 +693,23 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .portrait-guard { display: none; }
 
 @keyframes starDrift { to { transform: translate3d(-110px, 80px, 0); } }
+@keyframes flyingOrb {
+  0% { transform: translate3d(-8vw, 0, 0) scale(.65); opacity: 0; }
+  8% { opacity: .92; }
+  55% { opacity: .72; }
+  100% { transform: translate3d(128vw, -18vh, 0) scale(1.18); opacity: 0; }
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes orbitSpin { from { transform: translate(-50%, -50%) rotateX(64deg) rotateZ(0deg); } to { transform: translate(-50%, -50%) rotateX(64deg) rotateZ(360deg); } }
 @keyframes coreFloat { 0%, 100% { transform: translate(-50%, -50%) translateY(-8px) scale(1); } 50% { transform: translate(-50%, -50%) translateY(8px) scale(1.025); } }
+@keyframes coreEnergy {
+  0%, 100% { filter: brightness(1.04) saturate(1.15); }
+  50% { filter: brightness(1.38) saturate(1.35); }
+}
 @keyframes pulseCore { 0%, 100% { opacity: .7; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.08); } }
 @keyframes pulseDot { 0%, 100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
-@keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.28); } }
+@keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.34); } }
+@keyframes planetAura { 0%, 100% { transform: scale(.9); opacity: .45; } 50% { transform: scale(1.18); opacity: .92; } }
 @keyframes asteroidFloat { 0%, 100% { translate: 0 -4px; } 50% { translate: 0 7px; } }
 @keyframes nodeOrbitDrift {
   0%, 100% { margin-left: -7px; margin-top: 0; }

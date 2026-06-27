@@ -156,39 +156,94 @@ function CentralBrain3D({ color }: { color: string }) {
   const brain = useRef<THREE.Group>(null);
   const shell = useRef<THREE.Mesh>(null);
   const plasma = useRef<THREE.Mesh>(null);
+  const orbitA = useRef<THREE.Group>(null);
+  const orbitB = useRef<THREE.Group>(null);
+  const orbitC = useRef<THREE.Group>(null);
+  const sparks = useRef<THREE.Group>(null);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (brain.current) {
-      brain.current.rotation.y = t * 0.16;
-      brain.current.rotation.x = Math.sin(t * 0.38) * 0.1;
+      brain.current.rotation.y = t * 0.2;
+      brain.current.rotation.x = Math.sin(t * 0.38) * 0.12;
     }
-    if (shell.current) shell.current.scale.setScalar(1 + Math.sin(t * 2.25) * 0.045);
-    if (plasma.current) plasma.current.rotation.z = -t * 0.32;
+    if (shell.current) shell.current.scale.setScalar(1 + Math.sin(t * 2.8) * 0.065);
+    if (plasma.current) {
+      plasma.current.rotation.z = -t * 0.42;
+      plasma.current.scale.setScalar(1 + Math.sin(t * 3.4) * 0.055);
+    }
+    if (orbitA.current) orbitA.current.rotation.z = t * 0.7;
+    if (orbitB.current) orbitB.current.rotation.y = -t * 0.58;
+    if (orbitC.current) orbitC.current.rotation.x = t * 0.46;
+    if (sparks.current) {
+      sparks.current.rotation.y = t * 0.9;
+      sparks.current.rotation.z = -t * 0.38;
+    }
   });
 
   return (
     <group ref={brain}>
       <mesh ref={plasma}>
-        <sphereGeometry args={[1.95, 64, 64]} />
-        <meshBasicMaterial color="#efffff" transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} />
-      </mesh>
-      <mesh ref={shell}>
-        <icosahedronGeometry args={[1.82, 4]} />
-        <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={3.0} roughness={0.04} metalness={0.22} transparent opacity={0.72} wireframe />
+        <sphereGeometry args={[2.18, 96, 96]} />
+        <meshBasicMaterial color="#f8ffff" transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[1.34, 64, 64]} />
-        <meshStandardMaterial color="#f8ffff" emissive="#eaffff" emissiveIntensity={3.0} roughness={0.08} metalness={0.18} transparent opacity={0.34} />
+        <sphereGeometry args={[2.75, 64, 64]} />
+        <meshBasicMaterial color={color} transparent opacity={0.065} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
-      {[2.35, 3.05].map((radius, i) => (
-        <mesh key={radius} rotation={[0.55 + i * 0.3, 0.2 + i * 0.2, i * 0.65]}>
-          <torusGeometry args={[radius, 0.012, 16, 220]} />
-          <meshBasicMaterial color={i === 1 ? "#c084fc" : "#67e8f9"} transparent opacity={0.5 - i * 0.08} blending={THREE.AdditiveBlending} />
+      <mesh>
+        <sphereGeometry args={[3.35, 64, 64]} />
+        <meshBasicMaterial color="#67e8f9" transparent opacity={0.035} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
+      <mesh ref={shell}>
+        <icosahedronGeometry args={[1.9, 5]} />
+        <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={5.8} roughness={0.02} metalness={0.28} transparent opacity={0.82} wireframe />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[1.42, 96, 96]} />
+        <meshStandardMaterial color="#ffffff" emissive="#f8ffff" emissiveIntensity={7.2} roughness={0.02} metalness={0.22} transparent opacity={0.58} />
+      </mesh>
+      <group ref={orbitA} rotation={[0.66, 0.08, 0.15]}>
+        <mesh>
+          <torusGeometry args={[2.55, 0.022, 18, 260]} />
+          <meshBasicMaterial color="#67e8f9" transparent opacity={0.82} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
-      ))}
-      <pointLight color="#ffffff" intensity={7} distance={9} />
-      <pointLight color={color} intensity={9} distance={10} />
+        <mesh position={[2.55, 0, 0]}>
+          <sphereGeometry args={[0.075, 20, 20]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.95} blending={THREE.AdditiveBlending} />
+        </mesh>
+      </group>
+      <group ref={orbitB} rotation={[1.15, 0.5, 0.8]}>
+        <mesh>
+          <torusGeometry args={[3.16, 0.014, 18, 300]} />
+          <meshBasicMaterial color="#c084fc" transparent opacity={0.58} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
+        <mesh position={[-3.16, 0, 0]}>
+          <sphereGeometry args={[0.052, 18, 18]} />
+          <meshBasicMaterial color="#f0abfc" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
+        </mesh>
+      </group>
+      <group ref={orbitC} rotation={[0.2, 1.28, 0.35]}>
+        <mesh>
+          <torusGeometry args={[3.72, 0.01, 18, 320]} />
+          <meshBasicMaterial color="#f472b6" transparent opacity={0.4} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
+      </group>
+      <group ref={sparks}>
+        {Array.from({ length: 18 }, (_, i) => {
+          const angle = (i / 18) * Math.PI * 2;
+          const radius = 2.1 + (i % 4) * 0.34;
+          return (
+            <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(angle * 1.4) * 1.1, Math.sin(angle) * radius * 0.45]}>
+              <sphereGeometry args={[0.022 + (i % 3) * 0.012, 10, 10]} />
+              <meshBasicMaterial color={i % 3 === 0 ? "#ffffff" : i % 3 === 1 ? "#67e8f9" : color} transparent opacity={0.88} blending={THREE.AdditiveBlending} />
+            </mesh>
+          );
+        })}
+      </group>
+      <pointLight color="#ffffff" intensity={13} distance={12} />
+      <pointLight color={color} intensity={15} distance={13} />
+      <pointLight position={[0, 0, 3]} color="#67e8f9" intensity={7} distance={8} />
     </group>
   );
 }
@@ -209,9 +264,17 @@ function AgentPlanet3D({ agent, active }: { agent: Agent; active: boolean }) {
 
   return (
     <group ref={group} position={agent.position}>
+      <mesh>
+        <sphereGeometry args={[active ? 0.88 : 0.68, 40, 40]} />
+        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.26 : 0.16} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[active ? 1.22 : 0.95, 40, 40]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={active ? 0.085 : 0.045} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
       <mesh ref={planet}>
         <sphereGeometry args={[active ? 0.5 : 0.38, 48, 48]} />
-        <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 3.2 : 1.55} metalness={0.55} roughness={0.18} />
+        <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 5.4 : 2.7} metalness={0.58} roughness={0.12} />
       </mesh>
       <mesh rotation={[Math.PI / 2.1, 0, 0]}>
         <torusGeometry args={[active ? 0.9 : 0.72, 0.012, 18, 140]} />
@@ -221,10 +284,55 @@ function AgentPlanet3D({ agent, active }: { agent: Agent; active: boolean }) {
         <torusGeometry args={[active ? 1.25 : 1.0, 0.006, 18, 160]} />
         <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.55 : 0.25} blending={THREE.AdditiveBlending} />
       </mesh>
-      <pointLight color={agent.color} intensity={active ? 5 : 2.5} distance={4} />
+      <pointLight color={agent.color} intensity={active ? 8 : 4.2} distance={5.4} />
       <Text position={[0, -0.8, 0]} fontSize={active ? 0.18 : 0.14} color="#eaffff" anchorX="center" anchorY="middle">
         {agent.short}
       </Text>
+    </group>
+  );
+}
+
+function FlyingGlowPlanets() {
+  const group = useRef<THREE.Group>(null);
+  const flyers = useMemo(() => Array.from({ length: 16 }, (_, i) => {
+    const lane = i % 4;
+    return {
+      radius: 0.045 + (i % 5) * 0.018,
+      speed: 0.15 + (i % 6) * 0.035,
+      phase: i * 1.71,
+      y: -3.2 + lane * 1.75 + Math.sin(i) * 0.35,
+      z: -7.5 - (i % 5) * 1.35,
+      spread: 14 + (i % 4) * 2.2,
+      color: i % 4 === 0 ? "#67e8f9" : i % 4 === 1 ? "#a78bfa" : i % 4 === 2 ? "#f472b6" : "#ffffff",
+    };
+  }), []);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (group.current) {
+      group.current.children.forEach((child, i) => {
+        const f = flyers[i];
+        if (!f) return;
+        const travel = ((t * f.speed + f.phase) % 1) * 2 - 1;
+        child.position.set(travel * f.spread, f.y + Math.sin(t * 0.8 + f.phase) * 0.35, f.z + Math.cos(t * 0.45 + f.phase) * 0.8);
+      });
+    }
+  });
+
+  return (
+    <group ref={group}>
+      {flyers.map((f, i) => (
+        <group key={i}>
+          <mesh>
+            <sphereGeometry args={[f.radius * 5.2, 18, 18]} />
+            <meshBasicMaterial color={f.color} transparent opacity={0.1} blending={THREE.AdditiveBlending} depthWrite={false} />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[f.radius, 16, 16]} />
+            <meshBasicMaterial color={f.color} transparent opacity={0.82} blending={THREE.AdditiveBlending} depthWrite={false} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
@@ -333,6 +441,7 @@ function UniverseCanvas({ active, cameraPosition, target, progress, userZoom, dr
       <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
       <pointLight position={[5, -3, 2]} intensity={4} color="#a78bfa" />
       <Stars radius={120} depth={70} count={1800} factor={4.8} saturation={0.7} fade speed={0.85} />
+      <FlyingGlowPlanets />
       <NetworkNodes />
       <SatelliteModules />
       <CentralBrain3D color={active.color} />
@@ -630,6 +739,9 @@ export default function GenesisUniverse() {
         </div>
 
         <div className="portal-bg" />
+        <div className="flying-orbs" aria-hidden="true">
+          {Array.from({ length: 9 }, (_, index) => <span key={index} />)}
+        </div>
         <div className={`touch-glow ${touchGlow.active ? "active" : ""}`} style={{ ["--touch-x" as string]: `${touchGlow.x}%`, ["--touch-y" as string]: `${touchGlow.y}%` }} />
         {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} userZoom={userZoom} dragOffset={dragOffset} />}
         <ClockworkFallbackLines />
