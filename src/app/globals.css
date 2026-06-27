@@ -30,6 +30,8 @@ button { font: inherit; }
 canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 
 .portal-shell {
+  touch-action: none;
+  overscroll-behavior: none;
   --active: #22d3ee;
   --mx: 50%;
   --my: 50%;
@@ -46,6 +48,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 
 .portal-viewport {
+  touch-action: none;
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -84,6 +87,36 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   transform: rotate(13deg) scale(1.2);
   animation-duration: 42s;
   opacity: .34;
+}
+
+.touch-glow {
+  position: absolute;
+  left: var(--touch-x, 50%);
+  top: var(--touch-y, 50%);
+  z-index: 26;
+  width: 170px;
+  height: 170px;
+  transform: translate(-50%, -50%) scale(.55);
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: .16;
+  background:
+    radial-gradient(circle, rgba(255,255,255,.72) 0 3%, rgba(103,232,249,.42) 4% 18%, rgba(167,139,250,.2) 24%, transparent 66%);
+  box-shadow: 0 0 24px rgba(103,232,249,.65), 0 0 70px rgba(167,139,250,.32);
+  mix-blend-mode: screen;
+  transition: opacity .18s ease, transform .2s ease, left .06s linear, top .06s linear;
+}
+.touch-glow.active {
+  opacity: .9;
+  transform: translate(-50%, -50%) scale(1);
+}
+.touch-glow::after {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  border-radius: inherit;
+  border: 1px solid rgba(255,255,255,.65);
+  box-shadow: 0 0 18px rgba(255,255,255,.45);
 }
 
 .portal-canvas {

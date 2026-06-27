@@ -134,17 +134,19 @@ function Clock() {
   return <span>{time}</span>;
 }
 
-function CameraRig({ cameraPosition, target, progress, userZoom }: { cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number }) {
+function CameraRig({ cameraPosition, target, progress, userZoom, dragOffset }: { cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number } }) {
   const targetVec = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ camera, clock }) => {
     const t = clock.getElapsedTime();
     const driftX = Math.sin(t * 0.18 + progress * 6) * 0.12;
     const driftY = Math.cos(t * 0.21 + progress * 4) * 0.08;
-    targetVec.set(target[0], target[1], target[2]);
-    const base = new THREE.Vector3(cameraPosition[0] + driftX, cameraPosition[1] + driftY, cameraPosition[2]);
+    const panX = dragOffset.x * 1.15;
+    const panY = dragOffset.y * 0.85;
+    targetVec.set(target[0] + panX * 0.45, target[1] + panY * 0.45, target[2]);
+    const base = new THREE.Vector3(cameraPosition[0] + driftX + panX, cameraPosition[1] + driftY + panY, cameraPosition[2]);
     const direction = base.clone().sub(targetVec);
     const zoomed = targetVec.clone().add(direction.multiplyScalar(1 / userZoom));
-    camera.position.lerp(zoomed, 0.045);
+    camera.position.lerp(zoomed, 0.085);
     camera.lookAt(targetVec);
   });
   return null;
@@ -320,12 +322,12 @@ function NetworkNodes() {
   );
 }
 
-function UniverseCanvas({ active, cameraPosition, target, progress, userZoom }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number }) {
+function UniverseCanvas({ active, cameraPosition, target, progress, userZoom, dragOffset }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number } }) {
   return (
     <Canvas className="portal-canvas" camera={{ position: [0, 0.1, 8.0], fov: 44 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#02030a"]} />
       <fog attach="fog" args={["#02030a", 8, 20]} />
-      <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} userZoom={userZoom} />
+      <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} userZoom={userZoom} dragOffset={dragOffset} />
       <ambientLight intensity={0.22} />
       <pointLight position={[0, 3, 5]} intensity={8} color="#eaffff" />
       <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
@@ -364,6 +366,11 @@ export default function GenesisUniverse() {
   const [userZoom, setUserZoom] = useState(1);
   const zoomRef = useRef(1);
   const pinchStartRef = useRef<{ distance: number; zoom: number } | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef({ x: 0, y: 0 });
+  const velocityRef = useRef({ x: 0, y: 0 });
+  const lastTouchRef = useRef({ x: 0, y: 0 });
+  const [touchGlow, setTouchGlow] = useState({ x: 50, y: 50, active: false });
   const active = agents.find((agent) => agent.id === activeId) ?? agents[0];
   const ActiveIcon = active.icon;
   const currentView = cameraViews[camera.viewIndex] ?? cameraViews[0];
@@ -402,14 +409,43 @@ export default function GenesisUniverse() {
 
   useEffect(() => {
     let frame = 0;
+    let inertiaFrame = 0;
     let touchY = 0;
+    let pointerDown = false;
     const schedule = (next: number) => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => applyCameraProgress(next));
     };
+    const setDrag = (next: { x: number; y: number }) => {
+      const clamped = {
+        x: Math.max(-1.35, Math.min(1.35, next.x)),
+        y: Math.max(-0.95, Math.min(0.95, next.y)),
+      };
+      dragRef.current = clamped;
+      setDragOffset(clamped);
+    };
+    const startInertia = () => {
+      cancelAnimationFrame(inertiaFrame);
+      const tick = () => {
+        velocityRef.current.x *= 0.92;
+        velocityRef.current.y *= 0.92;
+        const next = {
+          x: dragRef.current.x + velocityRef.current.x,
+          y: dragRef.current.y + velocityRef.current.y,
+        };
+        setDrag(next);
+        if (Math.abs(velocityRef.current.x) > 0.002 || Math.abs(velocityRef.current.y) > 0.002) {
+          inertiaFrame = requestAnimationFrame(tick);
+        }
+      };
+      inertiaFrame = requestAnimationFrame(tick);
+    };
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
-      schedule(progressRef.current + event.deltaY / 5200);
+      schedule(progressRef.current + event.deltaY / 5600);
+      setDrag({ x: dragRef.current.x - event.deltaX / 900, y: dragRef.current.y - event.deltaY / 2600 });
+      velocityRef.current = { x: -event.deltaX / 42000, y: -event.deltaY / 70000 };
+      startInertia();
     };
     const onKey = (event: KeyboardEvent) => {
       if (["ArrowDown", "PageDown", " "].includes(event.key)) { event.preventDefault(); schedule(progressRef.current + 1 / (cameraViews.length - 1)); }
@@ -424,40 +460,130 @@ export default function GenesisUniverse() {
       return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
     };
     const onTouchStart = (event: TouchEvent) => {
-      touchY = event.touches[0]?.clientY ?? 0;
+      cancelAnimationFrame(inertiaFrame);
+      const first = event.touches[0];
+      touchY = first?.clientY ?? 0;
+      lastTouchRef.current = { x: first?.clientX ?? 0, y: first?.clientY ?? 0 };
+      if (first) setTouchGlow({ x: (first.clientX / window.innerWidth) * 100, y: (first.clientY / window.innerHeight) * 100, active: true });
       if (event.touches.length >= 2) {
         pinchStartRef.current = { distance: getPinchDistance(event), zoom: zoomRef.current };
       }
     };
     const onTouchMove = (event: TouchEvent) => {
       event.preventDefault();
+      const first = event.touches[0];
+      if (first) setTouchGlow({ x: (first.clientX / window.innerWidth) * 100, y: (first.clientY / window.innerHeight) * 100, active: true });
       if (event.touches.length >= 2) {
         const start = pinchStartRef.current;
         const distance = getPinchDistance(event);
         if (start && start.distance > 0) {
-          const nextZoom = Math.min(1.85, Math.max(0.72, start.zoom * (distance / start.distance)));
+          const nextZoom = Math.min(1.9, Math.max(0.68, start.zoom * (distance / start.distance)));
           zoomRef.current = nextZoom;
           setUserZoom(nextZoom);
         }
         return;
       }
       pinchStartRef.current = null;
-      const nextY = event.touches[0]?.clientY ?? touchY;
-      const delta = touchY - nextY;
-      touchY = nextY;
-      schedule(progressRef.current + delta / 4200);
+      if (!first) return;
+      const dx = first.clientX - lastTouchRef.current.x;
+      const dy = first.clientY - lastTouchRef.current.y;
+      lastTouchRef.current = { x: first.clientX, y: first.clientY };
+      const deltaProgress = (touchY - first.clientY) / 5200;
+      touchY = first.clientY;
+      schedule(progressRef.current + deltaProgress);
+      const nextDrag = { x: dragRef.current.x + dx / 240, y: dragRef.current.y - dy / 260 };
+      velocityRef.current = { x: dx / 5200, y: -dy / 5600 };
+      setDrag(nextDrag);
+    };
+    const onTouchEnd = () => {
+      setTouchGlow((value) => ({ ...value, active: false }));
+      pinchStartRef.current = null;
+      startInertia();
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if ((event.target as HTMLElement | null)?.closest?.("button,a")) return;
+      pointerDown = true;
+      cancelAnimationFrame(inertiaFrame);
+      lastTouchRef.current = { x: event.clientX, y: event.clientY };
+      setTouchGlow({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100, active: true });
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (!pointerDown) return;
+      event.preventDefault();
+      const dx = event.clientX - lastTouchRef.current.x;
+      const dy = event.clientY - lastTouchRef.current.y;
+      lastTouchRef.current = { x: event.clientX, y: event.clientY };
+      setTouchGlow({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100, active: true });
+      setDrag({ x: dragRef.current.x + dx / 240, y: dragRef.current.y - dy / 260 });
+      velocityRef.current = { x: dx / 5200, y: -dy / 5600 };
+      schedule(progressRef.current + dy / -5200);
+    };
+    const onPointerUp = () => {
+      if (!pointerDown) return;
+      pointerDown = false;
+      setTouchGlow((value) => ({ ...value, active: false }));
+      startInertia();
+    };
+    const onMouseDown = (event: MouseEvent) => {
+      if ((event.target as HTMLElement | null)?.closest?.("button,a")) return;
+      pointerDown = true;
+      cancelAnimationFrame(inertiaFrame);
+      lastTouchRef.current = { x: event.clientX, y: event.clientY };
+      setTouchGlow({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100, active: true });
+    };
+    const onMouseMove = (event: MouseEvent) => {
+      if (!pointerDown) return;
+      event.preventDefault();
+      const dx = event.clientX - lastTouchRef.current.x;
+      const dy = event.clientY - lastTouchRef.current.y;
+      lastTouchRef.current = { x: event.clientX, y: event.clientY };
+      setTouchGlow({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100, active: true });
+      setDrag({ x: dragRef.current.x + dx / 240, y: dragRef.current.y - dy / 260 });
+      velocityRef.current = { x: dx / 5200, y: -dy / 5600 };
+      schedule(progressRef.current + dy / -5200);
+    };
+    const onMouseUp = () => {
+      if (!pointerDown) return;
+      pointerDown = false;
+      setTouchGlow((value) => ({ ...value, active: false }));
+      startInertia();
     };
     frame = requestAnimationFrame(() => applyCameraProgress(0));
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKey);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("touchcancel", onTouchEnd);
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
+    window.addEventListener("pointermove", onPointerMove, { passive: false });
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove, { passive: false });
+    window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("pointerdown", onPointerDown, { passive: true });
+    document.addEventListener("pointermove", onPointerMove, { passive: false });
+    document.addEventListener("pointerup", onPointerUp);
     return () => {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(inertiaFrame);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
     };
   }, []);
 
@@ -492,7 +618,8 @@ export default function GenesisUniverse() {
         </div>
 
         <div className="portal-bg" />
-        {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} userZoom={userZoom} />}
+        <div className={`touch-glow ${touchGlow.active ? "active" : ""}`} style={{ ["--touch-x" as string]: `${touchGlow.x}%`, ["--touch-y" as string]: `${touchGlow.y}%` }} />
+        {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} userZoom={userZoom} dragOffset={dragOffset} />}
         <ClockworkFallbackLines />
 
         <header className="portal-briefing">
