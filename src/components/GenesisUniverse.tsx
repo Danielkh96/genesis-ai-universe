@@ -7,7 +7,7 @@ import { Bot, BrainCircuit, Code2, ExternalLink, Megaphone, RefreshCcw, RotateCc
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-type AgentId = "automation" | "marketing" | "agent" | "coding";
+type AgentId = string;
 
 type Agent = {
   id: AgentId;
@@ -18,6 +18,9 @@ type Agent = {
   glow: string;
   icon: typeof Workflow;
   position: [number, number, number];
+  galaxy: 0 | 1 | 2;
+  orbitSpeed: number;
+  orbitTilt: [number, number, number];
   hud: { x: number; y: number };
   url: string;
   description: string;
@@ -48,12 +51,63 @@ const agents: Agent[] = [
     short: "AUTO",
     role: "自动化流程星系",
     color: "#22d3ee",
-    glow: "rgba(34,211,238,.78)",
+    glow: "rgba(34,211,238,.82)",
     icon: Workflow,
-    position: [-4.9, 2.45, -0.6],
-    hud: { x: 23, y: 28 },
+    position: [-8.8, 2.8, -1.6],
+    galaxy: 0,
+    orbitSpeed: 0.045,
+    orbitTilt: [0.08, 0.0, 0.18],
+    hud: { x: 20, y: 26 },
     url: "#ai-automation",
     description: "表格、API、社群、CRM 与 OpenClaw 工作流自动连接。",
+  },
+  {
+    id: "sheets",
+    name: "Sheets Engine",
+    short: "SHEET",
+    role: "资料同步行星",
+    color: "#34d399",
+    glow: "rgba(52,211,153,.8)",
+    icon: Workflow,
+    position: [8.6, 2.25, -2.4],
+    galaxy: 0,
+    orbitSpeed: 0.045,
+    orbitTilt: [0.08, 0.0, 0.18],
+    hud: { x: 80, y: 27 },
+    url: "#ai-sheets",
+    description: "Google Sheets、资料清洗、订单状态与自动回写系统。",
+  },
+  {
+    id: "crm",
+    name: "CRM Brain",
+    short: "CRM",
+    role: "客户经营行星",
+    color: "#38bdf8",
+    glow: "rgba(56,189,248,.8)",
+    icon: Bot,
+    position: [1.5, -5.7, -1.8],
+    galaxy: 0,
+    orbitSpeed: 0.045,
+    orbitTilt: [0.08, 0.0, 0.18],
+    hud: { x: 48, y: 81 },
+    url: "#ai-crm",
+    description: "客户分层、跟进提醒、复购路径与自动私讯辅助。",
+  },
+  {
+    id: "ops",
+    name: "Ops Control",
+    short: "OPS",
+    role: "营运中控行星",
+    color: "#2dd4bf",
+    glow: "rgba(45,212,191,.78)",
+    icon: Satellite,
+    position: [-2.2, 5.7, -2.2],
+    galaxy: 0,
+    orbitSpeed: 0.045,
+    orbitTilt: [0.08, 0.0, 0.18],
+    hud: { x: 50, y: 17 },
+    url: "#ai-ops",
+    description: "把流程、任务、通知、状态监控集中到一个自动化中控台。",
   },
   {
     id: "marketing",
@@ -61,12 +115,63 @@ const agents: Agent[] = [
     short: "MKT",
     role: "增长营销星系",
     color: "#f472b6",
-    glow: "rgba(244,114,182,.76)",
+    glow: "rgba(244,114,182,.82)",
     icon: Megaphone,
-    position: [4.9, 2.3, -0.8],
-    hud: { x: 74, y: 29 },
+    position: [12.8, 4.2, -6.4],
+    galaxy: 1,
+    orbitSpeed: -0.032,
+    orbitTilt: [0.35, 0.18, -0.12],
+    hud: { x: 88, y: 37 },
     url: "#ai-marketing",
     description: "爆款 Hook、广告图、内容矩阵、短影音脚本与营销漏斗。",
+  },
+  {
+    id: "content",
+    name: "Content Studio",
+    short: "POST",
+    role: "内容生产行星",
+    color: "#fb7185",
+    glow: "rgba(251,113,133,.82)",
+    icon: Megaphone,
+    position: [-13.0, 3.8, -6.0],
+    galaxy: 1,
+    orbitSpeed: -0.032,
+    orbitTilt: [0.35, 0.18, -0.12],
+    hud: { x: 12, y: 37 },
+    url: "#ai-content",
+    description: "把商品卖点转成社群贴文、广告脚本、短影音与图像创意。",
+  },
+  {
+    id: "ads",
+    name: "Ad Galaxy",
+    short: "ADS",
+    role: "广告素材行星",
+    color: "#fbbf24",
+    glow: "rgba(251,191,36,.82)",
+    icon: Sparkles,
+    position: [4.8, -8.0, -5.6],
+    galaxy: 1,
+    orbitSpeed: -0.032,
+    orbitTilt: [0.35, 0.18, -0.12],
+    hud: { x: 73, y: 82 },
+    url: "#ai-ads",
+    description: "生成高点击广告图、标题、CTA 与多版本 A/B 测试素材。",
+  },
+  {
+    id: "funnel",
+    name: "Funnel Core",
+    short: "FUNNEL",
+    role: "销售漏斗行星",
+    color: "#e879f9",
+    glow: "rgba(232,121,249,.8)",
+    icon: Zap,
+    position: [-4.7, -8.2, -6.2],
+    galaxy: 1,
+    orbitSpeed: -0.032,
+    orbitTilt: [0.35, 0.18, -0.12],
+    hud: { x: 27, y: 82 },
+    url: "#ai-funnel",
+    description: "从曝光、点击、询问、成交到复购的完整转化路径。",
   },
   {
     id: "agent",
@@ -74,10 +179,13 @@ const agents: Agent[] = [
     short: "AGENT",
     role: "智能代理星系",
     color: "#a78bfa",
-    glow: "rgba(167,139,250,.78)",
+    glow: "rgba(167,139,250,.82)",
     icon: Bot,
-    position: [4.65, -2.55, -0.4],
-    hud: { x: 74, y: 72 },
+    position: [16.8, -1.5, -11.2],
+    galaxy: 2,
+    orbitSpeed: 0.024,
+    orbitTilt: [-0.28, -0.25, 0.22],
+    hud: { x: 88, y: 56 },
     url: "#ai-agent",
     description: "让 AI 会思考、调用工具、拆任务，并成为业务执行助手。",
   },
@@ -86,13 +194,48 @@ const agents: Agent[] = [
     name: "AI Coding",
     short: "CODE",
     role: "产品构建星系",
-    color: "#fbbf24",
-    glow: "rgba(251,191,36,.76)",
+    color: "#60a5fa",
+    glow: "rgba(96,165,250,.82)",
     icon: Code2,
-    position: [-4.65, -2.6, -0.7],
-    hud: { x: 25, y: 72 },
+    position: [-16.6, -1.2, -10.6],
+    galaxy: 2,
+    orbitSpeed: 0.024,
+    orbitTilt: [-0.28, -0.25, 0.22],
+    hud: { x: 12, y: 56 },
     url: "#ai-coding",
     description: "用 AI 建网站、工具、App、自动化系统，并部署上线。",
+  },
+  {
+    id: "deploy",
+    name: "Deploy Portal",
+    short: "LIVE",
+    role: "上线部署行星",
+    color: "#c084fc",
+    glow: "rgba(192,132,252,.82)",
+    icon: ExternalLink,
+    position: [0.3, 10.2, -11.5],
+    galaxy: 2,
+    orbitSpeed: 0.024,
+    orbitTilt: [-0.28, -0.25, 0.22],
+    hud: { x: 70, y: 16 },
+    url: "#ai-deploy",
+    description: "GitHub、Vercel、上线检查、版本回滚与产品发布流程。",
+  },
+  {
+    id: "data",
+    name: "Data Vault",
+    short: "DATA",
+    role: "知识资料行星",
+    color: "#ffffff",
+    glow: "rgba(255,255,255,.86)",
+    icon: BrainCircuit,
+    position: [-0.6, -10.4, -11.0],
+    galaxy: 2,
+    orbitSpeed: 0.024,
+    orbitTilt: [-0.28, -0.25, 0.22],
+    hud: { x: 30, y: 16 },
+    url: "#ai-data",
+    description: "沉淀知识库、操作 SOP、训练资料与可复用自动化资产。",
   },
 ];
 
@@ -108,11 +251,15 @@ const navPlanets: NavPlanet[] = [
 ];
 
 const cameraViews: CameraView[] = [
-  { id: "core", target: [0, 0, 0], camera: [0, 0.1, 8.0], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "从中心大脑进入浩瀚 AI 宇宙，所有 Agent 星球都围绕核心轨道运转。" },
-  { id: "automation", target: [-0.55, 0.35, 0], camera: [-1.75, 0.95, 3.05], label: "AI Automation", eyebrow: "SECTION 01 · ORBITAL WORKFLOW", text: "镜头贴近中心大脑，自动化星球在轨道侧翼发光连接。" },
-  { id: "marketing", target: [0.55, 0.32, 0], camera: [1.75, 0.9, 3.0], label: "AI Marketing", eyebrow: "SECTION 02 · GROWTH NEBULA", text: "镜头贴近中心大脑，营销星球在右侧轨道发光连接。" },
-  { id: "agent", target: [0.52, -0.32, 0], camera: [1.6, -0.95, 2.82], label: "AI Agent", eyebrow: "SECTION 03 · AGENT CLUSTER", text: "镜头贴近中心大脑，Agent 星群像神经节点一样接入核心。" },
-  { id: "coding", target: [-0.52, -0.35, 0], camera: [-1.6, -1.0, 2.82], label: "AI Coding", eyebrow: "SECTION 04 · BUILD PORTAL", text: "镜头贴近中心大脑，Coding 星球连接到构建传送门。" },
+  { id: "core", target: [0, 0, 0], camera: [0, 0.2, 18.5], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "中心大脑持续 360° 发光运转，三大星系、十二颗主行星与四十八颗小行星围绕核心组成放大版 AI 宇宙版图。" },
+  ...agents.map((agent, index) => ({
+    id: agent.id,
+    target: [agent.position[0] * 0.08, agent.position[1] * 0.08, agent.position[2] * 0.04] as [number, number, number],
+    camera: [agent.position[0] * 0.25, agent.position[1] * 0.16, 15.2 + (index % 3) * 1.2] as [number, number, number],
+    label: agent.name,
+    eyebrow: `SECTION ${String(index + 1).padStart(2, "0")} · GALAXY ${agent.galaxy + 1} ORBIT`,
+    text: `${agent.role} 正在围绕中心大脑运转，四颗小行星同步环绕并发光连接。`,
+  })),
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -138,12 +285,14 @@ function CameraRig({ cameraPosition, target, progress, userZoom, dragOffset }: {
   const targetVec = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ camera, clock }) => {
     const t = clock.getElapsedTime();
-    const driftX = Math.sin(t * 0.18 + progress * 6) * 0.12;
-    const driftY = Math.cos(t * 0.21 + progress * 4) * 0.08;
-    const panX = dragOffset.x * 1.15;
-    const panY = dragOffset.y * 0.85;
-    targetVec.set(target[0] + panX * 0.45, target[1] + panY * 0.45, target[2]);
-    const base = new THREE.Vector3(cameraPosition[0] + driftX + panX, cameraPosition[1] + driftY + panY, cameraPosition[2]);
+    const orbitAngle = t * 0.16 + progress * Math.PI * 2;
+    const driftX = Math.sin(t * 0.18 + progress * 6) * 0.18 + Math.cos(orbitAngle) * 0.92;
+    const driftY = Math.cos(t * 0.21 + progress * 4) * 0.12 + Math.sin(orbitAngle * 0.72) * 0.38;
+    const driftZ = Math.sin(orbitAngle) * 1.15;
+    const panX = dragOffset.x * 1.55;
+    const panY = dragOffset.y * 1.05;
+    targetVec.set(target[0] + panX * 0.38, target[1] + panY * 0.38, target[2]);
+    const base = new THREE.Vector3(cameraPosition[0] + driftX + panX, cameraPosition[1] + driftY + panY, cameraPosition[2] + driftZ);
     const direction = base.clone().sub(targetVec);
     const zoomed = targetVec.clone().add(direction.multiplyScalar(1 / userZoom));
     camera.position.lerp(zoomed, 0.085);
@@ -159,91 +308,83 @@ function CentralBrain3D({ color }: { color: string }) {
   const orbitA = useRef<THREE.Group>(null);
   const orbitB = useRef<THREE.Group>(null);
   const orbitC = useRef<THREE.Group>(null);
+  const orbitD = useRef<THREE.Group>(null);
   const sparks = useRef<THREE.Group>(null);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (brain.current) {
-      brain.current.rotation.y = t * 0.2;
-      brain.current.rotation.x = Math.sin(t * 0.38) * 0.12;
+      brain.current.rotation.y = t * 0.28;
+      brain.current.rotation.x = Math.sin(t * 0.38) * 0.14;
     }
-    if (shell.current) shell.current.scale.setScalar(1 + Math.sin(t * 2.8) * 0.065);
+    if (shell.current) shell.current.scale.setScalar(1 + Math.sin(t * 3.2) * 0.085);
     if (plasma.current) {
-      plasma.current.rotation.z = -t * 0.42;
-      plasma.current.scale.setScalar(1 + Math.sin(t * 3.4) * 0.055);
+      plasma.current.rotation.z = -t * 0.52;
+      plasma.current.scale.setScalar(1 + Math.sin(t * 3.8) * 0.075);
     }
-    if (orbitA.current) orbitA.current.rotation.z = t * 0.7;
-    if (orbitB.current) orbitB.current.rotation.y = -t * 0.58;
-    if (orbitC.current) orbitC.current.rotation.x = t * 0.46;
+    if (orbitA.current) orbitA.current.rotation.z = t * 0.95;
+    if (orbitB.current) orbitB.current.rotation.y = -t * 0.74;
+    if (orbitC.current) orbitC.current.rotation.x = t * 0.58;
+    if (orbitD.current) orbitD.current.rotation.z = -t * 0.38;
     if (sparks.current) {
-      sparks.current.rotation.y = t * 0.9;
-      sparks.current.rotation.z = -t * 0.38;
+      sparks.current.rotation.y = t * 1.15;
+      sparks.current.rotation.z = -t * 0.52;
     }
   });
 
   return (
     <group ref={brain}>
       <mesh ref={plasma}>
-        <sphereGeometry args={[2.18, 96, 96]} />
-        <meshBasicMaterial color="#f8ffff" transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <sphereGeometry args={[3.35, 128, 128]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.36} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[2.75, 64, 64]} />
-        <meshBasicMaterial color={color} transparent opacity={0.065} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <sphereGeometry args={[4.45, 96, 96]} />
+        <meshBasicMaterial color={color} transparent opacity={0.12} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[3.35, 64, 64]} />
-        <meshBasicMaterial color="#67e8f9" transparent opacity={0.035} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <sphereGeometry args={[5.9, 96, 96]} />
+        <meshBasicMaterial color="#67e8f9" transparent opacity={0.052} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh ref={shell}>
-        <icosahedronGeometry args={[1.9, 5]} />
-        <meshStandardMaterial color="#ffffff" emissive={color} emissiveIntensity={5.8} roughness={0.02} metalness={0.28} transparent opacity={0.82} wireframe />
+        <icosahedronGeometry args={[2.72, 6]} />
+        <meshStandardMaterial color="#ffffff" emissive="#eaffff" emissiveIntensity={8.6} roughness={0.01} metalness={0.34} transparent opacity={0.9} wireframe />
       </mesh>
       <mesh>
-        <sphereGeometry args={[1.42, 96, 96]} />
-        <meshStandardMaterial color="#ffffff" emissive="#f8ffff" emissiveIntensity={7.2} roughness={0.02} metalness={0.22} transparent opacity={0.58} />
+        <sphereGeometry args={[2.08, 128, 128]} />
+        <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={11.5} roughness={0.01} metalness={0.18} transparent opacity={0.72} />
       </mesh>
       <group ref={orbitA} rotation={[0.66, 0.08, 0.15]}>
-        <mesh>
-          <torusGeometry args={[2.55, 0.022, 18, 260]} />
-          <meshBasicMaterial color="#67e8f9" transparent opacity={0.82} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </mesh>
-        <mesh position={[2.55, 0, 0]}>
-          <sphereGeometry args={[0.075, 20, 20]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.95} blending={THREE.AdditiveBlending} />
-        </mesh>
+        <mesh><torusGeometry args={[4.05, 0.026, 18, 320]} /><meshBasicMaterial color="#67e8f9" transparent opacity={0.92} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
+        <mesh position={[4.05, 0, 0]}><sphereGeometry args={[0.095, 22, 22]} /><meshBasicMaterial color="#ffffff" transparent opacity={1} blending={THREE.AdditiveBlending} /></mesh>
       </group>
       <group ref={orbitB} rotation={[1.15, 0.5, 0.8]}>
-        <mesh>
-          <torusGeometry args={[3.16, 0.014, 18, 300]} />
-          <meshBasicMaterial color="#c084fc" transparent opacity={0.58} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </mesh>
-        <mesh position={[-3.16, 0, 0]}>
-          <sphereGeometry args={[0.052, 18, 18]} />
-          <meshBasicMaterial color="#f0abfc" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
-        </mesh>
+        <mesh><torusGeometry args={[5.25, 0.018, 18, 360]} /><meshBasicMaterial color="#c084fc" transparent opacity={0.72} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
+        <mesh position={[-5.25, 0, 0]}><sphereGeometry args={[0.07, 18, 18]} /><meshBasicMaterial color="#f0abfc" transparent opacity={0.95} blending={THREE.AdditiveBlending} /></mesh>
       </group>
       <group ref={orbitC} rotation={[0.2, 1.28, 0.35]}>
-        <mesh>
-          <torusGeometry args={[3.72, 0.01, 18, 320]} />
-          <meshBasicMaterial color="#f472b6" transparent opacity={0.4} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </mesh>
+        <mesh><torusGeometry args={[6.35, 0.014, 18, 380]} /><meshBasicMaterial color="#f472b6" transparent opacity={0.55} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
+        <mesh position={[0, 6.35, 0]}><sphereGeometry args={[0.06, 18, 18]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.9} blending={THREE.AdditiveBlending} /></mesh>
+      </group>
+      <group ref={orbitD} rotation={[1.35, -0.55, 0.1]}>
+        <mesh><torusGeometry args={[7.35, 0.01, 18, 420]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.33} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       </group>
       <group ref={sparks}>
-        {Array.from({ length: 18 }, (_, i) => {
-          const angle = (i / 18) * Math.PI * 2;
-          const radius = 2.1 + (i % 4) * 0.34;
+        {Array.from({ length: 42 }, (_, i) => {
+          const angle = (i / 72) * Math.PI * 2;
+          const radius = 3.05 + (i % 7) * 0.48;
           return (
-            <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(angle * 1.4) * 1.1, Math.sin(angle) * radius * 0.45]}>
-              <sphereGeometry args={[0.022 + (i % 3) * 0.012, 10, 10]} />
-              <meshBasicMaterial color={i % 3 === 0 ? "#ffffff" : i % 3 === 1 ? "#67e8f9" : color} transparent opacity={0.88} blending={THREE.AdditiveBlending} />
+            <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(angle * 1.4) * 1.85, Math.sin(angle) * radius * 0.62]}>
+              <sphereGeometry args={[0.025 + (i % 4) * 0.013, 10, 10]} />
+              <meshBasicMaterial color={i % 3 === 0 ? "#ffffff" : i % 3 === 1 ? "#67e8f9" : color} transparent opacity={0.95} blending={THREE.AdditiveBlending} />
             </mesh>
           );
         })}
       </group>
-      <pointLight color="#ffffff" intensity={13} distance={12} />
-      <pointLight color={color} intensity={15} distance={13} />
-      <pointLight position={[0, 0, 3]} color="#67e8f9" intensity={7} distance={8} />
+      <pointLight color="#ffffff" intensity={22} distance={24} />
+      <pointLight color={color} intensity={21} distance={25} />
+      <pointLight position={[0, 0, 4.5]} color="#67e8f9" intensity={12} distance={18} />
+      <pointLight position={[0, 0, -4.5]} color="#f0abfc" intensity={7} distance={16} />
     </group>
   );
 }
@@ -251,58 +392,108 @@ function CentralBrain3D({ color }: { color: string }) {
 function AgentPlanet3D({ agent, active }: { agent: Agent; active: boolean }) {
   const group = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
+  const moons = useRef<THREE.Group>(null);
   const base = useMemo(() => new THREE.Vector3(...agent.position), [agent.position]);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (group.current) {
-      group.current.position.set(base.x + Math.sin(t * 0.42 + base.y) * 0.28, base.y + Math.cos(t * 0.5 + base.x) * 0.18, base.z + Math.sin(t * 0.35) * 0.22);
-      group.current.rotation.y = t * 0.15;
+      group.current.position.set(base.x + Math.sin(t * 0.42 + base.y) * 0.38, base.y + Math.cos(t * 0.5 + base.x) * 0.28, base.z + Math.sin(t * 0.35) * 0.34);
+      group.current.rotation.y = t * 0.18;
     }
-    if (planet.current) planet.current.rotation.y = t * 0.7;
+    if (planet.current) planet.current.rotation.y = t * 0.78;
+    if (moons.current) {
+      moons.current.rotation.y = t * (active ? 1.38 : 0.98);
+      moons.current.rotation.z = Math.sin(t * 0.42) * 0.28;
+    }
   });
 
   return (
     <group ref={group} position={agent.position}>
       <mesh>
-        <sphereGeometry args={[active ? 0.88 : 0.68, 40, 40]} />
-        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.26 : 0.16} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <sphereGeometry args={[active ? 1.38 : 1.08, 48, 48]} />
+        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.32 : 0.2} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[active ? 1.22 : 0.95, 40, 40]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={active ? 0.085 : 0.045} blending={THREE.AdditiveBlending} depthWrite={false} />
+        <sphereGeometry args={[active ? 1.95 : 1.55, 48, 48]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={active ? 0.105 : 0.06} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <mesh ref={planet}>
-        <sphereGeometry args={[active ? 0.5 : 0.38, 48, 48]} />
-        <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 5.4 : 2.7} metalness={0.58} roughness={0.12} />
+        <sphereGeometry args={[active ? 0.72 : 0.56, 64, 64]} />
+        <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 7.2 : 4.1} metalness={0.62} roughness={0.08} />
       </mesh>
       <mesh rotation={[Math.PI / 2.1, 0, 0]}>
-        <torusGeometry args={[active ? 0.9 : 0.72, 0.012, 18, 140]} />
-        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.95 : 0.48} blending={THREE.AdditiveBlending} />
+        <torusGeometry args={[active ? 1.34 : 1.08, 0.014, 18, 180]} />
+        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.98 : 0.58} blending={THREE.AdditiveBlending} />
       </mesh>
       <mesh rotation={[0.7, 0.35, 0.2]}>
-        <torusGeometry args={[active ? 1.25 : 1.0, 0.006, 18, 160]} />
-        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.55 : 0.25} blending={THREE.AdditiveBlending} />
+        <torusGeometry args={[active ? 1.86 : 1.5, 0.008, 18, 190]} />
+        <meshBasicMaterial color={agent.color} transparent opacity={active ? 0.62 : 0.32} blending={THREE.AdditiveBlending} />
       </mesh>
-      <pointLight color={agent.color} intensity={active ? 8 : 4.2} distance={5.4} />
-      <Text position={[0, -0.8, 0]} fontSize={active ? 0.18 : 0.14} color="#eaffff" anchorX="center" anchorY="middle">
+      <group ref={moons} rotation={[0.45, 0.15, 0.2]}>
+        {Array.from({ length: 4 }, (_, i) => {
+          const angle = (i / 4) * Math.PI * 2;
+          const radius = (active ? 1.82 : 1.48) + (i % 2) * 0.22;
+          const moonColor = i % 2 === 0 ? "#ffffff" : agent.color;
+          return (
+            <group key={i} rotation={[i * 0.32, angle, i * 0.18]}>
+              <mesh position={[Math.cos(angle) * radius, Math.sin(angle * 1.6) * 0.34, Math.sin(angle) * radius]}>
+                <sphereGeometry args={[active ? 0.105 : 0.082, 18, 18]} />
+                <meshBasicMaterial color={moonColor} transparent opacity={0.92} blending={THREE.AdditiveBlending} depthWrite={false} />
+              </mesh>
+            </group>
+          );
+        })}
+      </group>
+      <pointLight color={agent.color} intensity={active ? 10 : 5.6} distance={8.2} />
+      <Text position={[0, -1.18, 0]} fontSize={active ? 0.22 : 0.16} color="#eaffff" anchorX="center" anchorY="middle">
         {agent.short}
       </Text>
     </group>
   );
 }
 
+function GalaxySystem({ activeId }: { activeId: AgentId }) {
+  const groups = [useRef<THREE.Group>(null), useRef<THREE.Group>(null), useRef<THREE.Group>(null)];
+  const galaxyAgents = useMemo(() => [0, 1, 2].map((galaxy) => agents.filter((agent) => agent.galaxy === galaxy)), []);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    groups.forEach((ref, index) => {
+      if (!ref.current) return;
+      const direction = index === 1 ? -1 : 1;
+      ref.current.rotation.y = direction * t * (0.05 - index * 0.008);
+      ref.current.rotation.z = Math.sin(t * 0.16 + index) * 0.055;
+    });
+  });
+
+  return (
+    <>
+      {galaxyAgents.map((items, galaxy) => (
+        <group key={galaxy} ref={groups[galaxy]} rotation={items[0]?.orbitTilt ?? [0, 0, 0]}>
+          <mesh rotation={[Math.PI / 2.2, 0, 0]}>
+            <torusGeometry args={[galaxy === 0 ? 8.2 : galaxy === 1 ? 13.2 : 17.8, 0.012, 12, 280]} />
+            <meshBasicMaterial color={galaxy === 0 ? "#67e8f9" : galaxy === 1 ? "#f472b6" : "#a78bfa"} transparent opacity={0.24} blending={THREE.AdditiveBlending} depthWrite={false} />
+          </mesh>
+          {items.map((agent) => <EnergyTube key={`line-${agent.id}`} to={agent.position} color={agent.color} />)}
+          {items.map((agent) => <AgentPlanet3D key={agent.id} agent={agent} active={activeId === agent.id} />)}
+        </group>
+      ))}
+    </>
+  );
+}
+
 function FlyingGlowPlanets() {
   const group = useRef<THREE.Group>(null);
-  const flyers = useMemo(() => Array.from({ length: 16 }, (_, i) => {
+  const flyers = useMemo(() => Array.from({ length: 28 }, (_, i) => {
     const lane = i % 4;
     return {
       radius: 0.045 + (i % 5) * 0.018,
       speed: 0.15 + (i % 6) * 0.035,
       phase: i * 1.71,
-      y: -3.2 + lane * 1.75 + Math.sin(i) * 0.35,
-      z: -7.5 - (i % 5) * 1.35,
-      spread: 14 + (i % 4) * 2.2,
+      y: -7.5 + lane * 3.6 + Math.sin(i) * 0.65,
+      z: -18 - (i % 7) * 2.4,
+      spread: 30 + (i % 6) * 4.5,
       color: i % 4 === 0 ? "#67e8f9" : i % 4 === 1 ? "#a78bfa" : i % 4 === 2 ? "#f472b6" : "#ffffff",
     };
   }), []);
@@ -354,9 +545,9 @@ function EnergyTube({ to, color }: { to: [number, number, number]; color: string
 
 function SatelliteModules() {
   const group = useRef<THREE.Group>(null);
-  const modules = useMemo(() => Array.from({ length: 42 }, (_, i) => {
-    const angle = (i / 42) * Math.PI * 2;
-    const radius = 2.15 + (i % 11) * 0.28;
+  const modules = useMemo(() => Array.from({ length: 72 }, (_, i) => {
+    const angle = (i / 72) * Math.PI * 2;
+    const radius = 5.2 + (i % 18) * 0.72;
     return {
       position: [Math.cos(angle) * radius, Math.sin(angle) * radius * 0.58, Math.sin(angle * 1.7) * 1.2] as [number, number, number],
       rotation: [Math.sin(angle) * 1.2, angle, Math.cos(angle) * 0.8] as [number, number, number],
@@ -384,12 +575,12 @@ function SatelliteModules() {
 
 function NetworkNodes() {
   const group = useRef<THREE.Group>(null);
-  const nodes = useMemo(() => Array.from({ length: 88 }, (_, i) => {
+  const nodes = useMemo(() => Array.from({ length: 180 }, (_, i) => {
     const angle = (i * 2.399963) % (Math.PI * 2);
-    const radius = 3.0 + ((i * 17) % 100) / 100 * 4.8;
-    const y = Math.sin(i * 1.37) * 2.9;
+    const radius = 6.5 + ((i * 17) % 100) / 100 * 24.0;
+    const y = Math.sin(i * 1.37) * 8.5;
     return {
-      p: new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.65 - 1.4),
+      p: new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.82 - 4.2),
       s: 0.018 + (i % 5) * 0.008,
       color: i % 5 === 0 ? "#fb7185" : i % 5 === 1 ? "#fbbf24" : i % 5 === 2 ? "#a78bfa" : "#67e8f9",
     };
@@ -399,8 +590,8 @@ function NetworkNodes() {
     nodes.forEach((node, i) => {
       const next = nodes[(i + 13) % nodes.length];
       const next2 = nodes[(i + 37) % nodes.length];
-      if (node.p.distanceTo(next.p) < 5.4 || i % 4 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
-      if (i % 9 === 0 && node.p.distanceTo(next2.p) < 6.8) values.push(node.p.x, node.p.y, node.p.z, next2.p.x, next2.p.y, next2.p.z);
+      if (node.p.distanceTo(next.p) < 10.8 || i % 5 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
+      if (i % 11 === 0 && node.p.distanceTo(next2.p) < 13.6) values.push(node.p.x, node.p.y, node.p.z, next2.p.x, next2.p.y, next2.p.z);
     });
     return new Float32Array(values);
   }, [nodes]);
@@ -432,21 +623,20 @@ function NetworkNodes() {
 
 function UniverseCanvas({ active, cameraPosition, target, progress, userZoom, dragOffset }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number } }) {
   return (
-    <Canvas className="portal-canvas" camera={{ position: [0, 0.1, 8.0], fov: 44 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+    <Canvas className="portal-canvas" camera={{ position: [0, 0.2, 18.5], fov: 48 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#02030a"]} />
-      <fog attach="fog" args={["#02030a", 8, 20]} />
+      <fog attach="fog" args={["#02030a", 18, 62]} />
       <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} userZoom={userZoom} dragOffset={dragOffset} />
       <ambientLight intensity={0.22} />
       <pointLight position={[0, 3, 5]} intensity={8} color="#eaffff" />
       <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
       <pointLight position={[5, -3, 2]} intensity={4} color="#a78bfa" />
-      <Stars radius={120} depth={70} count={1800} factor={4.8} saturation={0.7} fade speed={0.85} />
+      <Stars radius={260} depth={140} count={3600} factor={6.2} saturation={0.8} fade speed={1.05} />
       <FlyingGlowPlanets />
       <NetworkNodes />
       <SatelliteModules />
       <CentralBrain3D color={active.color} />
-      {agents.map((agent) => <EnergyTube key={`line-${agent.id}`} to={agent.position} color={agent.color} />)}
-      {agents.map((agent) => <AgentPlanet3D key={agent.id} agent={agent} active={active.id === agent.id} />)}
+      <GalaxySystem activeId={active.id} />
     </Canvas>
   );
 }
@@ -740,10 +930,11 @@ export default function GenesisUniverse() {
 
         <div className="portal-bg" />
         <div className="flying-orbs" aria-hidden="true">
-          {Array.from({ length: 9 }, (_, index) => <span key={index} />)}
+          {Array.from({ length: 16 }, (_, index) => <span key={index} />)}
         </div>
         <div className={`touch-glow ${touchGlow.active ? "active" : ""}`} style={{ ["--touch-x" as string]: `${touchGlow.x}%`, ["--touch-y" as string]: `${touchGlow.y}%` }} />
         {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} userZoom={userZoom} dragOffset={dragOffset} />}
+        <div className="core-overexpose" aria-hidden="true" />
         <ClockworkFallbackLines />
 
         <header className="portal-briefing">
@@ -864,7 +1055,7 @@ export default function GenesisUniverse() {
 
         <div className="scanline" />
         <div className="corner-hud corner-a"><Sparkles className="h-4 w-4" /> SYSTEM ONLINE</div>
-        <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> 3D NODES: 88</div>
+        <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> 3 GALAXIES · 12 PLANETS · 48 MOONS</div>
         <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> PINCH TO ZOOM</div>
       </div>
 
