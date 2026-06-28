@@ -175,7 +175,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   left: 50%;
   top: 52%;
   z-index: 3;
-  width: min(34vw, 470px);
+  width: min(27vw, 360px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 999px;
@@ -188,7 +188,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
     0 0 118px rgba(103,232,249,.68),
     0 0 220px color-mix(in srgb, var(--active) 54%, transparent);
   filter: blur(.2px);
-  opacity: .72;
+  opacity: .42;
   animation: coreOverexposePulse 2.1s ease-in-out infinite;
 }
 .core-overexpose::before,
@@ -536,6 +536,14 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-planet:hover, .agent-planet.selected { z-index: 42; }
 .agent-planet:hover .planet-body, .agent-planet.selected .planet-body { transform: scale(1.16); box-shadow: 0 0 54px var(--node-glow), 0 0 92px color-mix(in srgb, var(--node) 32%, transparent), inset 0 0 20px rgba(255,255,255,.5); }
 
+.portal-shell.webgl-ready .galaxy-stage .agent-planet,
+.portal-shell.webgl-ready .galaxy-stage .nav-asteroid,
+.portal-shell.webgl-ready .galaxy-stage .data-block {
+  opacity: 0;
+  pointer-events: none;
+}
+.portal-shell.webgl-ready .portal-lines { opacity: .08; }
+
 .nav-asteroid {
   position: absolute;
   z-index: 16;
@@ -756,7 +764,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   50% { filter: brightness(1.38) saturate(1.35); }
 }
 @keyframes pulseCore { 0%, 100% { opacity: .7; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.08); } }
-@keyframes coreOverexposePulse { 0%, 100% { opacity: .62; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: .9; transform: translate(-50%, -50%) scale(1.05); } }
+@keyframes coreOverexposePulse { 0%, 100% { opacity: .34; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: .55; transform: translate(-50%, -50%) scale(1.05); } }
 @keyframes orbitSpinOverlay { to { transform: rotate(360deg); } }
 @keyframes pulseDot { 0%, 100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
 @keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.34); } }

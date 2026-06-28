@@ -44,6 +44,13 @@ type CameraView = {
   text: string;
 };
 
+type OrbitControl = {
+  theta: number;
+  phi: number;
+};
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
 const agents: Agent[] = [
   {
     id: "automation",
@@ -53,7 +60,7 @@ const agents: Agent[] = [
     color: "#22d3ee",
     glow: "rgba(34,211,238,.82)",
     icon: Workflow,
-    position: [-8.8, 2.8, -1.6],
+    position: [-18.5, 5.8, -4.5],
     galaxy: 0,
     orbitSpeed: 0.045,
     orbitTilt: [0.08, 0.0, 0.18],
@@ -69,7 +76,7 @@ const agents: Agent[] = [
     color: "#34d399",
     glow: "rgba(52,211,153,.8)",
     icon: Workflow,
-    position: [8.6, 2.25, -2.4],
+    position: [18.2, 4.9, -8.2],
     galaxy: 0,
     orbitSpeed: 0.045,
     orbitTilt: [0.08, 0.0, 0.18],
@@ -85,7 +92,7 @@ const agents: Agent[] = [
     color: "#38bdf8",
     glow: "rgba(56,189,248,.8)",
     icon: Bot,
-    position: [1.5, -5.7, -1.8],
+    position: [4.2, -13.4, -5.8],
     galaxy: 0,
     orbitSpeed: 0.045,
     orbitTilt: [0.08, 0.0, 0.18],
@@ -101,7 +108,7 @@ const agents: Agent[] = [
     color: "#2dd4bf",
     glow: "rgba(45,212,191,.78)",
     icon: Satellite,
-    position: [-2.2, 5.7, -2.2],
+    position: [-5.4, 13.1, -9.6],
     galaxy: 0,
     orbitSpeed: 0.045,
     orbitTilt: [0.08, 0.0, 0.18],
@@ -117,7 +124,7 @@ const agents: Agent[] = [
     color: "#f472b6",
     glow: "rgba(244,114,182,.82)",
     icon: Megaphone,
-    position: [12.8, 4.2, -6.4],
+    position: [31.5, 9.4, -20.0],
     galaxy: 1,
     orbitSpeed: -0.032,
     orbitTilt: [0.35, 0.18, -0.12],
@@ -133,7 +140,7 @@ const agents: Agent[] = [
     color: "#fb7185",
     glow: "rgba(251,113,133,.82)",
     icon: Megaphone,
-    position: [-13.0, 3.8, -6.0],
+    position: [-32.0, 8.6, -18.8],
     galaxy: 1,
     orbitSpeed: -0.032,
     orbitTilt: [0.35, 0.18, -0.12],
@@ -149,7 +156,7 @@ const agents: Agent[] = [
     color: "#fbbf24",
     glow: "rgba(251,191,36,.82)",
     icon: Sparkles,
-    position: [4.8, -8.0, -5.6],
+    position: [13.2, -20.5, -21.2],
     galaxy: 1,
     orbitSpeed: -0.032,
     orbitTilt: [0.35, 0.18, -0.12],
@@ -165,7 +172,7 @@ const agents: Agent[] = [
     color: "#e879f9",
     glow: "rgba(232,121,249,.8)",
     icon: Zap,
-    position: [-4.7, -8.2, -6.2],
+    position: [-14.0, -21.0, -19.4],
     galaxy: 1,
     orbitSpeed: -0.032,
     orbitTilt: [0.35, 0.18, -0.12],
@@ -181,7 +188,7 @@ const agents: Agent[] = [
     color: "#a78bfa",
     glow: "rgba(167,139,250,.82)",
     icon: Bot,
-    position: [16.8, -1.5, -11.2],
+    position: [48.0, -4.6, -38.5],
     galaxy: 2,
     orbitSpeed: 0.024,
     orbitTilt: [-0.28, -0.25, 0.22],
@@ -197,7 +204,7 @@ const agents: Agent[] = [
     color: "#60a5fa",
     glow: "rgba(96,165,250,.82)",
     icon: Code2,
-    position: [-16.6, -1.2, -10.6],
+    position: [-47.5, -3.8, -36.0],
     galaxy: 2,
     orbitSpeed: 0.024,
     orbitTilt: [-0.28, -0.25, 0.22],
@@ -213,7 +220,7 @@ const agents: Agent[] = [
     color: "#c084fc",
     glow: "rgba(192,132,252,.82)",
     icon: ExternalLink,
-    position: [0.3, 10.2, -11.5],
+    position: [3.0, 31.0, -41.5],
     galaxy: 2,
     orbitSpeed: 0.024,
     orbitTilt: [-0.28, -0.25, 0.22],
@@ -229,7 +236,7 @@ const agents: Agent[] = [
     color: "#ffffff",
     glow: "rgba(255,255,255,.86)",
     icon: BrainCircuit,
-    position: [-0.6, -10.4, -11.0],
+    position: [-3.5, -31.5, -39.5],
     galaxy: 2,
     orbitSpeed: 0.024,
     orbitTilt: [-0.28, -0.25, 0.22],
@@ -251,15 +258,21 @@ const navPlanets: NavPlanet[] = [
 ];
 
 const cameraViews: CameraView[] = [
-  { id: "core", target: [0, 0, 0], camera: [0, 0.2, 18.5], label: "Genesis Core", eyebrow: "SECTION 00 · CENTRAL BRAIN", text: "中心大脑持续 360° 发光运转，三大星系、十二颗主行星与四十八颗小行星围绕核心组成放大版 AI 宇宙版图。" },
-  ...agents.map((agent, index) => ({
-    id: agent.id,
-    target: [agent.position[0] * 0.08, agent.position[1] * 0.08, agent.position[2] * 0.04] as [number, number, number],
-    camera: [agent.position[0] * 0.25, agent.position[1] * 0.16, 15.2 + (index % 3) * 1.2] as [number, number, number],
-    label: agent.name,
-    eyebrow: `SECTION ${String(index + 1).padStart(2, "0")} · GALAXY ${agent.galaxy + 1} ORBIT`,
-    text: `${agent.role} 正在围绕中心大脑运转，四颗小行星同步环绕并发光连接。`,
-  })),
+  { id: "core", target: [0, 0, 0], camera: [0, 1.2, 42], label: "Genesis Core", eyebrow: "SECTION 00 · 360° ORBIT CAMERA", text: "单指左右拖动可 360° 绕中心大脑旋转；双指放大可飞近行星细节，双指缩小可退到超远宇宙版图。" },
+  ...agents.map((agent, index) => {
+    const p = new THREE.Vector3(...agent.position);
+    const target = p.clone().multiplyScalar(0.74);
+    const outward = p.clone().normalize().multiplyScalar(10 + (index % 3) * 4);
+    const camera = target.clone().add(outward).add(new THREE.Vector3(0, 3.5 + (index % 2) * 2.5, 11));
+    return {
+      id: agent.id,
+      target: [target.x, target.y, target.z] as [number, number, number],
+      camera: [camera.x, camera.y, camera.z] as [number, number, number],
+      label: agent.name,
+      eyebrow: `SECTION ${String(index + 1).padStart(2, "0")} · DEEP SPACE GALAXY ${agent.galaxy + 1}`,
+      text: `${agent.role} 位于真实 3D 深空坐标，可用 360° 镜头绕行并 pinch zoom 查看四颗小行星细节。`,
+    };
+  }),
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -281,22 +294,34 @@ function Clock() {
   return <span>{time}</span>;
 }
 
-function CameraRig({ cameraPosition, target, progress, userZoom, dragOffset }: { cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number } }) {
+function CameraRig({ cameraPosition, target, progress, userZoom, dragOffset, orbitControl }: { cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number }; orbitControl: OrbitControl }) {
   const targetVec = useMemo(() => new THREE.Vector3(), []);
+  const desired = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ camera, clock }) => {
     const t = clock.getElapsedTime();
-    const orbitAngle = t * 0.16 + progress * Math.PI * 2;
-    const driftX = Math.sin(t * 0.18 + progress * 6) * 0.18 + Math.cos(orbitAngle) * 0.92;
-    const driftY = Math.cos(t * 0.21 + progress * 4) * 0.12 + Math.sin(orbitAngle * 0.72) * 0.38;
-    const driftZ = Math.sin(orbitAngle) * 1.15;
-    const panX = dragOffset.x * 1.55;
-    const panY = dragOffset.y * 1.05;
-    targetVec.set(target[0] + panX * 0.38, target[1] + panY * 0.38, target[2]);
-    const base = new THREE.Vector3(cameraPosition[0] + driftX + panX, cameraPosition[1] + driftY + panY, cameraPosition[2] + driftZ);
-    const direction = base.clone().sub(targetVec);
-    const zoomed = targetVec.clone().add(direction.multiplyScalar(1 / userZoom));
-    camera.position.lerp(zoomed, 0.085);
+    const baseTarget = new THREE.Vector3(...target);
+    const keyframeCamera = new THREE.Vector3(...cameraPosition);
+    const baseVector = keyframeCamera.sub(baseTarget);
+    const baseRadius = Math.max(4.2, baseVector.length());
+    const radius = clamp(baseRadius / userZoom, 1.45, 520);
+    const autoTheta = t * 0.09 + progress * Math.PI * 2;
+    const theta = orbitControl.theta + autoTheta;
+    const phi = clamp(orbitControl.phi + Math.sin(t * 0.13) * 0.045, -1.12, 1.12);
+    const panX = dragOffset.x * 0.38;
+    const panY = dragOffset.y * 0.32;
+
+    targetVec.set(baseTarget.x + panX, baseTarget.y + panY, baseTarget.z);
+    desired.set(
+      targetVec.x + Math.cos(theta) * Math.cos(phi) * radius,
+      targetVec.y + Math.sin(phi) * radius,
+      targetVec.z + Math.sin(theta) * Math.cos(phi) * radius,
+    );
+
+    camera.position.lerp(desired, 0.095);
     camera.lookAt(targetVec);
+    camera.near = 0.05;
+    camera.far = 1200;
+    camera.updateProjectionMatrix();
   });
   return null;
 }
@@ -472,7 +497,7 @@ function GalaxySystem({ activeId }: { activeId: AgentId }) {
       {galaxyAgents.map((items, galaxy) => (
         <group key={galaxy} ref={groups[galaxy]} rotation={items[0]?.orbitTilt ?? [0, 0, 0]}>
           <mesh rotation={[Math.PI / 2.2, 0, 0]}>
-            <torusGeometry args={[galaxy === 0 ? 8.2 : galaxy === 1 ? 13.2 : 17.8, 0.012, 12, 280]} />
+            <torusGeometry args={[galaxy === 0 ? 20 : galaxy === 1 ? 38 : 62, 0.012, 12, 280]} />
             <meshBasicMaterial color={galaxy === 0 ? "#67e8f9" : galaxy === 1 ? "#f472b6" : "#a78bfa"} transparent opacity={0.24} blending={THREE.AdditiveBlending} depthWrite={false} />
           </mesh>
           {items.map((agent) => <EnergyTube key={`line-${agent.id}`} to={agent.position} color={agent.color} />)}
@@ -577,10 +602,10 @@ function NetworkNodes() {
   const group = useRef<THREE.Group>(null);
   const nodes = useMemo(() => Array.from({ length: 180 }, (_, i) => {
     const angle = (i * 2.399963) % (Math.PI * 2);
-    const radius = 6.5 + ((i * 17) % 100) / 100 * 24.0;
-    const y = Math.sin(i * 1.37) * 8.5;
+    const radius = 18 + ((i * 17) % 100) / 100 * 72;
+    const y = Math.sin(i * 1.37) * 24;
     return {
-      p: new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.82 - 4.2),
+      p: new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.92 - 18),
       s: 0.018 + (i % 5) * 0.008,
       color: i % 5 === 0 ? "#fb7185" : i % 5 === 1 ? "#fbbf24" : i % 5 === 2 ? "#a78bfa" : "#67e8f9",
     };
@@ -590,8 +615,8 @@ function NetworkNodes() {
     nodes.forEach((node, i) => {
       const next = nodes[(i + 13) % nodes.length];
       const next2 = nodes[(i + 37) % nodes.length];
-      if (node.p.distanceTo(next.p) < 10.8 || i % 5 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
-      if (i % 11 === 0 && node.p.distanceTo(next2.p) < 13.6) values.push(node.p.x, node.p.y, node.p.z, next2.p.x, next2.p.y, next2.p.z);
+      if (node.p.distanceTo(next.p) < 24 || i % 7 === 0) values.push(node.p.x, node.p.y, node.p.z, next.p.x, next.p.y, next.p.z);
+      if (i % 11 === 0 && node.p.distanceTo(next2.p) < 30) values.push(node.p.x, node.p.y, node.p.z, next2.p.x, next2.p.y, next2.p.z);
     });
     return new Float32Array(values);
   }, [nodes]);
@@ -621,17 +646,17 @@ function NetworkNodes() {
   );
 }
 
-function UniverseCanvas({ active, cameraPosition, target, progress, userZoom, dragOffset }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number } }) {
+function UniverseCanvas({ active, cameraPosition, target, progress, userZoom, dragOffset, orbitControl }: { active: Agent; cameraPosition: [number, number, number]; target: [number, number, number]; progress: number; userZoom: number; dragOffset: { x: number; y: number }; orbitControl: OrbitControl }) {
   return (
-    <Canvas className="portal-canvas" camera={{ position: [0, 0.2, 18.5], fov: 48 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+    <Canvas className="portal-canvas" camera={{ position: [0, 1.2, 42], fov: 52, near: 0.05, far: 1200 }} dpr={[1, 1.7]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#02030a"]} />
-      <fog attach="fog" args={["#02030a", 18, 62]} />
-      <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} userZoom={userZoom} dragOffset={dragOffset} />
+      <fog attach="fog" args={["#02030a", 65, 360]} />
+      <CameraRig cameraPosition={cameraPosition} target={target} progress={progress} userZoom={userZoom} dragOffset={dragOffset} orbitControl={orbitControl} />
       <ambientLight intensity={0.22} />
       <pointLight position={[0, 3, 5]} intensity={8} color="#eaffff" />
       <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
       <pointLight position={[5, -3, 2]} intensity={4} color="#a78bfa" />
-      <Stars radius={260} depth={140} count={3600} factor={6.2} saturation={0.8} fade speed={1.05} />
+      <Stars radius={680} depth={360} count={6200} factor={8.2} saturation={0.8} fade speed={1.05} />
       <FlyingGlowPlanets />
       <NetworkNodes />
       <SatelliteModules />
@@ -662,17 +687,35 @@ export default function GenesisUniverse() {
   const [camera, setCamera] = useState({ target: cameraViews[0].target, cameraPosition: cameraViews[0].camera, progress: 0, viewIndex: 0 });
   const [burst, setBurst] = useState(cameraViews[0]);
   const progressRef = useRef(0);
-  const [userZoom, setUserZoom] = useState(1);
-  const zoomRef = useRef(1);
+  const [userZoom, setUserZoom] = useState(0.72);
+  const zoomRef = useRef(0.72);
+  const [orbitControl, setOrbitControl] = useState<OrbitControl>({ theta: 0.65, phi: 0.18 });
+  const orbitRef = useRef<OrbitControl>({ theta: 0.65, phi: 0.18 });
   const pinchStartRef = useRef<{ distance: number; zoom: number } | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const dragRef = useRef({ x: 0, y: 0 });
   const velocityRef = useRef({ x: 0, y: 0 });
+  const orbitVelocityRef = useRef({ theta: 0, phi: 0 });
   const lastTouchRef = useRef({ x: 0, y: 0 });
   const [touchGlow, setTouchGlow] = useState({ x: 50, y: 50, active: false });
   const active = agents.find((agent) => agent.id === activeId) ?? agents[0];
   const ActiveIcon = active.icon;
   const currentView = cameraViews[camera.viewIndex] ?? cameraViews[0];
+
+  const setOrbit = (next: OrbitControl) => {
+    const clamped = {
+      theta: next.theta,
+      phi: clamp(next.phi, -1.08, 1.08),
+    };
+    orbitRef.current = clamped;
+    setOrbitControl(clamped);
+  };
+
+  const updateZoom = (next: number) => {
+    const clamped = clamp(next, 0.08, 18);
+    zoomRef.current = clamped;
+    setUserZoom(clamped);
+  };
 
   const applyCameraProgress = (raw: number) => {
     const clamped = Math.min(1, Math.max(0, raw));
@@ -697,6 +740,10 @@ export default function GenesisUniverse() {
     applyCameraProgress(index / (cameraViews.length - 1));
     const view = cameraViews[index] ?? cameraViews[0];
     setBurst(view);
+    if (id === "core") {
+      setOrbit({ theta: 0.65, phi: 0.18 });
+      updateZoom(0.82);
+    }
     if (id !== "core") setActiveId(id);
   };
 
@@ -717,8 +764,8 @@ export default function GenesisUniverse() {
     };
     const setDrag = (next: { x: number; y: number }) => {
       const clamped = {
-        x: Math.max(-1.35, Math.min(1.35, next.x)),
-        y: Math.max(-0.95, Math.min(0.95, next.y)),
+        x: clamp(next.x, -0.55, 0.55),
+        y: clamp(next.y, -0.42, 0.42),
       };
       dragRef.current = clamped;
       setDragOffset(clamped);
@@ -726,14 +773,24 @@ export default function GenesisUniverse() {
     const startInertia = () => {
       cancelAnimationFrame(inertiaFrame);
       const tick = () => {
-        velocityRef.current.x *= 0.92;
-        velocityRef.current.y *= 0.92;
-        const next = {
+        velocityRef.current.x *= 0.9;
+        velocityRef.current.y *= 0.9;
+        orbitVelocityRef.current.theta *= 0.93;
+        orbitVelocityRef.current.phi *= 0.9;
+        setDrag({
           x: dragRef.current.x + velocityRef.current.x,
           y: dragRef.current.y + velocityRef.current.y,
-        };
-        setDrag(next);
-        if (Math.abs(velocityRef.current.x) > 0.002 || Math.abs(velocityRef.current.y) > 0.002) {
+        });
+        setOrbit({
+          theta: orbitRef.current.theta + orbitVelocityRef.current.theta,
+          phi: orbitRef.current.phi + orbitVelocityRef.current.phi,
+        });
+        if (
+          Math.abs(velocityRef.current.x) > 0.0008 ||
+          Math.abs(velocityRef.current.y) > 0.0008 ||
+          Math.abs(orbitVelocityRef.current.theta) > 0.0008 ||
+          Math.abs(orbitVelocityRef.current.phi) > 0.0008
+        ) {
           inertiaFrame = requestAnimationFrame(tick);
         }
       };
@@ -741,9 +798,10 @@ export default function GenesisUniverse() {
     };
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
-      schedule(progressRef.current + event.deltaY / 5600);
-      setDrag({ x: dragRef.current.x - event.deltaX / 900, y: dragRef.current.y - event.deltaY / 2600 });
-      velocityRef.current = { x: -event.deltaX / 42000, y: -event.deltaY / 70000 };
+      const zoomFactor = Math.exp(-event.deltaY * 0.0018);
+      updateZoom(zoomRef.current * zoomFactor);
+      setOrbit({ theta: orbitRef.current.theta - event.deltaX * 0.0045, phi: orbitRef.current.phi - event.deltaY * 0.0007 });
+      orbitVelocityRef.current = { theta: -event.deltaX * 0.00028, phi: -event.deltaY * 0.00006 };
       startInertia();
     };
     const onKey = (event: KeyboardEvent) => {
@@ -776,9 +834,7 @@ export default function GenesisUniverse() {
         const start = pinchStartRef.current;
         const distance = getPinchDistance(event);
         if (start && start.distance > 0) {
-          const nextZoom = Math.min(1.9, Math.max(0.68, start.zoom * (distance / start.distance)));
-          zoomRef.current = nextZoom;
-          setUserZoom(nextZoom);
+          updateZoom(start.zoom * Math.pow(distance / start.distance, 1.35));
         }
         return;
       }
@@ -787,12 +843,11 @@ export default function GenesisUniverse() {
       const dx = first.clientX - lastTouchRef.current.x;
       const dy = first.clientY - lastTouchRef.current.y;
       lastTouchRef.current = { x: first.clientX, y: first.clientY };
-      const deltaProgress = (touchY - first.clientY) / 5200;
       touchY = first.clientY;
-      schedule(progressRef.current + deltaProgress);
-      const nextDrag = { x: dragRef.current.x + dx / 240, y: dragRef.current.y - dy / 260 };
-      velocityRef.current = { x: dx / 5200, y: -dy / 5600 };
-      setDrag(nextDrag);
+      setOrbit({ theta: orbitRef.current.theta - dx * 0.0085, phi: orbitRef.current.phi + dy * 0.0065 });
+      orbitVelocityRef.current = { theta: -dx * 0.00095, phi: dy * 0.0007 };
+      velocityRef.current = { x: dx / 18000, y: -dy / 19000 };
+      setDrag({ x: dragRef.current.x + dx / 900, y: dragRef.current.y - dy / 980 });
     };
     const onTouchEnd = () => {
       setTouchGlow((value) => ({ ...value, active: false }));
@@ -813,9 +868,10 @@ export default function GenesisUniverse() {
       const dy = event.clientY - lastTouchRef.current.y;
       lastTouchRef.current = { x: event.clientX, y: event.clientY };
       setTouchGlow({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100, active: true });
-      setDrag({ x: dragRef.current.x + dx / 240, y: dragRef.current.y - dy / 260 });
-      velocityRef.current = { x: dx / 5200, y: -dy / 5600 };
-      schedule(progressRef.current + dy / -5200);
+      setOrbit({ theta: orbitRef.current.theta - dx * 0.0085, phi: orbitRef.current.phi + dy * 0.0065 });
+      orbitVelocityRef.current = { theta: -dx * 0.00095, phi: dy * 0.0007 };
+      velocityRef.current = { x: dx / 18000, y: -dy / 19000 };
+      setDrag({ x: dragRef.current.x + dx / 900, y: dragRef.current.y - dy / 980 });
     };
     const onPointerUp = () => {
       if (!pointerDown) return;
@@ -837,9 +893,10 @@ export default function GenesisUniverse() {
       const dy = event.clientY - lastTouchRef.current.y;
       lastTouchRef.current = { x: event.clientX, y: event.clientY };
       setTouchGlow({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100, active: true });
-      setDrag({ x: dragRef.current.x + dx / 240, y: dragRef.current.y - dy / 260 });
-      velocityRef.current = { x: dx / 5200, y: -dy / 5600 };
-      schedule(progressRef.current + dy / -5200);
+      setOrbit({ theta: orbitRef.current.theta - dx * 0.0085, phi: orbitRef.current.phi + dy * 0.0065 });
+      orbitVelocityRef.current = { theta: -dx * 0.00095, phi: dy * 0.0007 };
+      velocityRef.current = { x: dx / 18000, y: -dy / 19000 };
+      setDrag({ x: dragRef.current.x + dx / 900, y: dragRef.current.y - dy / 980 });
     };
     const onMouseUp = () => {
       if (!pointerDown) return;
@@ -913,7 +970,7 @@ export default function GenesisUniverse() {
 
   return (
     <main
-      className="portal-shell"
+      className={`portal-shell ${webglReady ? "webgl-ready" : ""}`}
       style={{
         ["--mx" as string]: `${mouse.x}%`,
         ["--my" as string]: `${mouse.y}%`,
@@ -933,7 +990,7 @@ export default function GenesisUniverse() {
           {Array.from({ length: 16 }, (_, index) => <span key={index} />)}
         </div>
         <div className={`touch-glow ${touchGlow.active ? "active" : ""}`} style={{ ["--touch-x" as string]: `${touchGlow.x}%`, ["--touch-y" as string]: `${touchGlow.y}%` }} />
-        {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} userZoom={userZoom} dragOffset={dragOffset} />}
+        {webglReady && <UniverseCanvas active={active} cameraPosition={camera.cameraPosition} target={camera.target} progress={camera.progress} userZoom={userZoom} dragOffset={dragOffset} orbitControl={orbitControl} />}
         <div className="core-overexpose" aria-hidden="true" />
         <ClockworkFallbackLines />
 
@@ -943,7 +1000,7 @@ export default function GenesisUniverse() {
           <span className="separator">|</span>
           <Clock />
           <span className="separator">|</span>
-          <span>GENESIS AI UNIVERSE · 3D CAMERA ONLINE</span>
+          <span>GENESIS AI UNIVERSE · 360° ORBIT + PINCH ZOOM</span>
         </header>
 
         <div className="scroll-brief">
@@ -1056,7 +1113,7 @@ export default function GenesisUniverse() {
         <div className="scanline" />
         <div className="corner-hud corner-a"><Sparkles className="h-4 w-4" /> SYSTEM ONLINE</div>
         <div className="corner-hud corner-b"><Satellite className="h-4 w-4" /> 3 GALAXIES · 12 PLANETS · 48 MOONS</div>
-        <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> PINCH TO ZOOM</div>
+        <div className="corner-hud corner-c"><Zap className="h-4 w-4" /> 360° DRAG · ZOOM 0.08–18X</div>
       </div>
 
       <div className="scroll-sectors" aria-hidden="true">
