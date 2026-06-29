@@ -111,7 +111,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
     -42px 0 34px color-mix(in srgb, var(--orb, #67e8f9) 30%, transparent);
   opacity: .82;
   filter: blur(.1px);
-  animation: flyingOrb 10s linear infinite;
+  animation: flyingOrb 22s linear infinite;
 }
 .flying-orbs span:nth-child(1) { --lane: 1; --size: 15px; --orb: #67e8f9; animation-duration: 11s; animation-delay: -1s; }
 .flying-orbs span:nth-child(2) { --lane: 3; --size: 24px; --orb: #a78bfa; animation-duration: 16s; animation-delay: -5s; }
@@ -188,8 +188,9 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
     0 0 170px rgba(103,232,249,.86),
     0 0 310px color-mix(in srgb, var(--active) 68%, transparent);
   filter: blur(.1px);
-  opacity: .68;
-  animation: coreOverexposePulse 2.1s ease-in-out infinite;
+  opacity: .72;
+  animation: coreOverexposePulse 8s ease-in-out infinite;
+  will-change: transform;
 }
 .core-overexpose::before,
 .core-overexpose::after {
@@ -199,12 +200,12 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border-radius: inherit;
   border: 1px solid rgba(224,252,255,.38);
   box-shadow: 0 0 38px rgba(103,232,249,.42);
-  animation: orbitSpinOverlay 9s linear infinite;
+  animation: orbitSpinOverlay 28s linear infinite;
 }
 .core-overexpose::after {
   inset: -32%;
   border-color: rgba(244,114,182,.24);
-  animation-duration: 15s;
+  animation-duration: 42s;
   animation-direction: reverse;
 }
 
@@ -219,7 +220,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   pointer-events: none;
   mix-blend-mode: screen;
   filter: drop-shadow(0 0 12px rgba(103,232,249,.72));
-  animation: shardWheel 36s linear infinite;
+  animation: shardWheel 72s linear infinite;
+  will-change: transform;
 }
 .core-shard-ring span {
   --angle: calc(var(--i) * 8.1818deg);
@@ -252,7 +254,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   letter-spacing: -.05em;
   text-shadow: 0 0 10px currentColor, 0 0 24px currentColor, 0 0 42px rgba(255,255,255,.75);
   filter: blur(.15px);
-  animation: nameGlow 2.6s ease-in-out infinite;
+  animation: nameGlow 7s ease-in-out infinite;
 }
 
 .portal-lines {
@@ -287,7 +289,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   backdrop-filter: blur(18px);
 }
 .portal-briefing strong { color: #ff718d; letter-spacing: .34em; }
-.live-dot { width: 7px; height: 7px; border-radius: 999px; background: #fb7185; box-shadow: 0 0 16px #fb7185; animation: pulseDot 1.3s ease-in-out infinite; }
+.live-dot { width: 7px; height: 7px; border-radius: 999px; background: #fb7185; box-shadow: 0 0 16px #fb7185; animation: pulseDot 2.8s ease-in-out infinite; }
 .separator { color: rgba(103,232,249,.38); }
 
 .scroll-brief {
@@ -437,7 +439,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
     inset 0 0 44px rgba(255,255,255,.72);
   cursor: pointer;
   pointer-events: auto;
-  animation: coreFloat 5s ease-in-out infinite, coreEnergy 1.8s ease-in-out infinite;
+  animation: coreFloat 14s ease-in-out infinite, coreEnergy 9s ease-in-out infinite;
   overflow: hidden;
 }
 .central-brain::before {
@@ -469,7 +471,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border-radius: inherit;
   background: radial-gradient(circle, #fff 0 34%, rgba(224,252,255,.86) 46%, transparent 68%);
   filter: blur(8px);
-  animation: pulseCore 1.8s ease-in-out infinite;
+  animation: pulseCore 8s ease-in-out infinite;
 }
 .brain-icon {
   width: 88px;
@@ -525,7 +527,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   color: white;
   cursor: pointer;
   pointer-events: auto;
-  animation: nodeOrbitDrift 7s ease-in-out infinite;
+  animation: nodeOrbitDrift 18s ease-in-out infinite;
 }
 .planet-body {
   position: absolute;
@@ -537,7 +539,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   background: radial-gradient(circle at 34% 30%, #fff, var(--node) 27%, rgba(4,12,25,.9) 72%);
   color: rgba(0,0,0,.76);
   box-shadow: 0 0 34px var(--node-glow), 0 0 76px color-mix(in srgb, var(--node) 34%, transparent), inset 0 0 22px rgba(255,255,255,.5);
-  animation: planetPulse 2.5s ease-in-out infinite;
+  animation: planetPulse 7s ease-in-out infinite;
 }
 .planet-body::before {
   content: "";
@@ -555,7 +557,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border-radius: inherit;
   border: 1px solid color-mix(in srgb, var(--node) 76%, transparent);
   box-shadow: 0 0 22px color-mix(in srgb, var(--node) 54%, transparent);
-  animation: planetAura 2.1s ease-in-out infinite;
+  animation: planetAura 7s ease-in-out infinite;
 }
 .planet-body svg { position: relative; z-index: 2; filter: drop-shadow(0 0 8px rgba(255,255,255,.8)); }
 .planet-orbit {
@@ -565,7 +567,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border: 1px solid color-mix(in srgb, var(--node) 72%, transparent);
   border-left-color: transparent;
   border-bottom-color: transparent;
-  animation: spin 4s linear infinite;
+  animation: spin 18s linear infinite;
   box-shadow: 0 0 18px color-mix(in srgb, var(--node) 48%, transparent);
 }
 .planet-label {
@@ -587,13 +589,18 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-planet:hover, .agent-planet.selected { z-index: 42; }
 .agent-planet:hover .planet-body, .agent-planet.selected .planet-body { transform: scale(1.16); box-shadow: 0 0 54px var(--node-glow), 0 0 92px color-mix(in srgb, var(--node) 32%, transparent), inset 0 0 20px rgba(255,255,255,.5); }
 
-.portal-shell.webgl-ready .galaxy-stage .agent-planet,
-.portal-shell.webgl-ready .galaxy-stage .nav-asteroid,
-.portal-shell.webgl-ready .galaxy-stage .data-block {
-  opacity: 0;
-  pointer-events: none;
+.portal-shell.webgl-ready .galaxy-stage .agent-planet {
+  opacity: .78;
+  pointer-events: auto;
 }
-.portal-shell.webgl-ready .portal-lines { opacity: .08; }
+.portal-shell.webgl-ready .galaxy-stage .nav-asteroid {
+  opacity: .72;
+  pointer-events: auto;
+}
+.portal-shell.webgl-ready .galaxy-stage .data-block {
+  opacity: .55;
+}
+.portal-shell.webgl-ready .portal-lines { opacity: .22; }
 
 .nav-asteroid {
   position: absolute;
@@ -604,7 +611,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   gap: 8px;
   color: white;
   pointer-events: auto;
-  animation: asteroidFloat 4.8s ease-in-out infinite;
+  animation: asteroidFloat 12s ease-in-out infinite;
 }
 .asteroid-dot {
   width: 13px;
@@ -662,6 +669,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .beam-b { top: 35%; transform: rotate(5deg); opacity: .38; }
 
 .cinematic-burst {
+  display: none;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -697,7 +705,31 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 .cinematic-burst::after { transform: translate(-50%, -50%) rotate(8deg); opacity: .65; }
 
+.stable-focus-label {
+  position: absolute;
+  right: 12.5%;
+  top: 45%;
+  z-index: 42;
+  display: grid;
+  gap: 3px;
+  min-width: 110px;
+  border: 1px solid color-mix(in srgb, var(--active) 55%, transparent);
+  border-radius: 4px;
+  background: rgba(2, 8, 23, .72);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--active) 30%, transparent), inset 0 0 10px rgba(255,255,255,.05);
+  padding: 6px 8px;
+  color: #eaffff;
+  font-size: 9px;
+  line-height: 1.1;
+  text-align: center;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+.stable-focus-label strong { color: var(--active); letter-spacing: .12em; text-shadow: 0 0 10px var(--active); }
+.stable-focus-label span { color: rgba(224,252,255,.68); font-size: 8px; }
+
 .agent-dossier {
+  display: none;
   position: absolute;
   right: 24px;
   bottom: 76px;
@@ -812,17 +844,17 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 @keyframes orbitSpin { from { transform: translate(-50%, -50%) rotateX(64deg) rotateZ(0deg); } to { transform: translate(-50%, -50%) rotateX(64deg) rotateZ(360deg); } }
 @keyframes coreFloat { 0%, 100% { transform: translate(-50%, -50%) translateY(-8px) scale(1); } 50% { transform: translate(-50%, -50%) translateY(8px) scale(1.025); } }
 @keyframes coreEnergy {
-  0%, 100% { filter: brightness(1.04) saturate(1.15); }
-  50% { filter: brightness(1.38) saturate(1.35); }
+  0%, 100% { filter: brightness(1.06) saturate(1.12); }
+  50% { filter: brightness(1.14) saturate(1.18); }
 }
-@keyframes pulseCore { 0%, 100% { opacity: .7; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.08); } }
-@keyframes coreOverexposePulse { 0%, 100% { opacity: .34; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: .55; transform: translate(-50%, -50%) scale(1.05); } }
+@keyframes pulseCore { 0%, 100% { opacity: .82; transform: scale(.99); } 50% { opacity: .94; transform: scale(1.025); } }
+@keyframes coreOverexposePulse { 0%, 100% { opacity: .64; transform: translate(-50%, -50%) scale(.995); } 50% { opacity: .74; transform: translate(-50%, -50%) scale(1.018); } }
 @keyframes orbitSpinOverlay { to { transform: rotate(360deg); } }
 @keyframes shardWheel { to { transform: translate(-50%, -50%) rotate(360deg); } }
-@keyframes nameGlow { 0%,100% { opacity: .58; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); } }
+@keyframes nameGlow { 0%,100% { opacity: .82; transform: translate(-50%, -50%) scale(.99); } 50% { opacity: .96; transform: translate(-50%, -50%) scale(1.02); } }
 @keyframes pulseDot { 0%, 100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
-@keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.34); } }
-@keyframes planetAura { 0%, 100% { transform: scale(.9); opacity: .45; } 50% { transform: scale(1.18); opacity: .92; } }
+@keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12); } }
+@keyframes planetAura { 0%, 100% { transform: scale(.98); opacity: .54; } 50% { transform: scale(1.06); opacity: .72; } }
 @keyframes asteroidFloat { 0%, 100% { translate: 0 -4px; } 50% { translate: 0 7px; } }
 @keyframes nodeOrbitDrift {
   0%, 100% { margin-left: -7px; margin-top: 0; }

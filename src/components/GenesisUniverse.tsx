@@ -4,7 +4,6 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Stars, Html, Line } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { KernelSize, BlendFunction } from "postprocessing";
-import { AnimatePresence, motion } from "framer-motion";
 import { Bot, BrainCircuit, Code2, ExternalLink, Megaphone, RefreshCcw, RotateCcw, Satellite, Sparkles, Workflow, Zap } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -518,36 +517,41 @@ function UniverseScene({ activeId, zoomAgentId, onPlanetClick }: { activeId: str
 export default function GenesisUniverse() {
   const [activeId, setActiveId] = useState<AgentId>("automation");
   const [zoomAgentId, setZoomAgentId] = useState<string | null>(null);
-  const [mouse, setMouse] = useState({ x: 50, y: 50 });
-  const [touchGlow, setTouchGlow] = useState({ x: 50, y: 50, active: false });
   const [burst, setBurst] = useState({ id: "core", label: "Genesis Core" });
-  const [webglReady, setWebglReady] = useState(false);
+  const shellRef = useRef<HTMLElement>(null);
+  const touchRef = useRef<HTMLDivElement>(null);
 
   const active = agents.find(a => a.id === activeId) ?? agents[0]!;
-  const ActiveIcon = active.icon;
-
   useEffect(() => {
-    const fn = (e: MouseEvent) => setMouse({ x: (e.clientX / window.innerWidth) * 100, y: (e.clientY / window.innerHeight) * 100 });
-    window.addEventListener("mousemove", fn);
-    return () => window.removeEventListener("mousemove", fn);
-  }, []);
-
-  useEffect(() => {
-    const fn = (e: TouchEvent) => {
-      const t = e.touches[0]; if (!t) return;
-      setTouchGlow({ x: (t.clientX / window.innerWidth) * 100, y: (t.clientY / window.innerHeight) * 100, active: e.type !== "touchend" });
+    let raf = 0;
+    const setPoint = (x: number, y: number) => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        shellRef.current?.style.setProperty("--mx", `${x}%`);
+        shellRef.current?.style.setProperty("--my", `${y}%`);
+        touchRef.current?.style.setProperty("--touch-x", `${x}%`);
+        touchRef.current?.style.setProperty("--touch-y", `${y}%`);
+        raf = 0;
+      });
     };
-    window.addEventListener("touchstart", fn, { passive: true });
-    window.addEventListener("touchmove", fn, { passive: true });
-    window.addEventListener("touchend", fn);
-    return () => { window.removeEventListener("touchstart", fn); window.removeEventListener("touchmove", fn); window.removeEventListener("touchend", fn); };
-  }, []);
-
-  useEffect(() => {
-    const id = window.requestAnimationFrame(() => {
-      try { const c = document.createElement("canvas"); setWebglReady(!!(c.getContext("webgl2") || c.getContext("webgl"))); } catch { setWebglReady(false); }
-    });
-    return () => window.cancelAnimationFrame(id);
+    const onMouseMove = (e: MouseEvent) => setPoint((e.clientX / window.innerWidth) * 100, (e.clientY / window.innerHeight) * 100);
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0]; if (!t) return;
+      touchRef.current?.classList.add("active");
+      setPoint((t.clientX / window.innerWidth) * 100, (t.clientY / window.innerHeight) * 100);
+    };
+    const onTouchEnd = () => touchRef.current?.classList.remove("active");
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("touchstart", onTouchMove, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("touchstart", onTouchMove);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
   }, []);
 
   // When user clicks an agent: set it as active AND start tracking it.
@@ -566,8 +570,8 @@ export default function GenesisUniverse() {
   }, []);
 
   return (
-    <main className={`portal-shell ${webglReady ? "webgl-ready" : ""}`}
-      style={{ ["--mx" as string]: `${mouse.x}%`, ["--my" as string]: `${mouse.y}%`, ["--active" as string]: active.color }}>
+    <main ref={shellRef} className="portal-shell webgl-ready"
+      style={{ ["--active" as string]: active.color }}>
       <div className="portal-viewport">
 
         <div className="portrait-guard">
@@ -578,17 +582,16 @@ export default function GenesisUniverse() {
 
         <div className="portal-bg" />
         <div className="flying-orbs" aria-hidden="true">{Array.from({ length: 16 }, (_, i) => <span key={i} />)}</div>
-        <div className={`touch-glow ${touchGlow.active ? "active" : ""}`} style={{ ["--touch-x" as string]: `${touchGlow.x}%`, ["--touch-y" as string]: `${touchGlow.y}%` }} />
+        <div ref={touchRef} className="touch-glow" />
 
-        {webglReady && (
-          <Canvas className="portal-canvas"
-            camera={{ position: [0, 1.2, 42], fov: 52, near: 0.05, far: 1200 }}
-            dpr={[1, 1.8]}
-            gl={{ antialias: true, alpha: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
-            onCreated={({ gl }) => { gl.setPixelRatio(Math.min(window.devicePixelRatio, 2)); }}>
-            <UniverseScene activeId={activeId} zoomAgentId={zoomAgentId} onPlanetClick={zoomToAgent} />
-          </Canvas>
-        )}
+        <Canvas className="portal-canvas"
+          camera={{ position: [0, 1.2, 42], fov: 52, near: 0.05, far: 1200 }}
+          dpr={[1, 1.35]}
+          frameloop="always"
+          gl={{ antialias: true, alpha: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05 }}
+          onCreated={({ gl }) => { gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.35)); }}>
+          <UniverseScene activeId={activeId} zoomAgentId={zoomAgentId} onPlanetClick={zoomToAgent} />
+        </Canvas>
 
         <div className="core-overexpose" aria-hidden="true" />
         <div className="core-shard-ring" aria-hidden="true">
@@ -638,12 +641,9 @@ export default function GenesisUniverse() {
         </nav>
 
         <section className="galaxy-stage" aria-label="Genesis AI Universe portal">
-          {!webglReady && (<>
-            <div className="orbit-ring orbit-ring-1" /><div className="orbit-ring orbit-ring-2" /><div className="orbit-ring orbit-ring-3" />
-            <button className="central-brain" aria-label="Genesis central AI brain">
-              <span className="brain-mesh" /><span className="brain-core-glow" /><BrainCircuit className="brain-icon" /><span className="brain-label">GENESIS<br />CORE</span>
-            </button>
-          </>)}
+          <button className="central-brain" aria-label="Genesis central AI brain">
+            <span className="brain-mesh" /><span className="brain-core-glow" /><BrainCircuit className="brain-icon" /><span className="brain-label">GENESIS<br />CORE</span>
+          </button>
           {agents.map(agent => { const Icon = agent.icon; const sel = activeId === agent.id; return (
             <button key={agent.id} data-module-id={agent.id} onClick={() => zoomToAgent(agent.id)}
               className={`agent-planet ${sel ? "selected" : ""}`}
@@ -664,25 +664,10 @@ export default function GenesisUniverse() {
           <div className="light-beam beam-a" /><div className="light-beam beam-b" />
         </section>
 
-        <AnimatePresence mode="wait">
-          <motion.div key={burst.id} className="cinematic-burst"
-            initial={{ opacity: 0, scale: 0.72, filter: "blur(18px)" }}
-            animate={{ opacity: [0, 1, 0.16], scale: [0.72, 1.2, 1], filter: ["blur(18px)", "blur(0px)", "blur(2px)"] }}
-            exit={{ opacity: 0 }} transition={{ duration: 1.1, ease: "easeOut" }}>
-            {burst.label}
-          </motion.div>
-        </AnimatePresence>
-
-        <AnimatePresence mode="wait">
-          <motion.aside key={active.id} className="agent-dossier"
-            initial={{ opacity: 0, y: 18, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }} transition={{ duration: 0.24 }}>
-            <div className="dossier-icon" style={{ color: active.color, background: `${active.color}22` }}><ActiveIcon /></div>
-            <div><p>SELECTED AGENT</p><h2>{active.name}</h2><span>{active.role}</span></div>
-            <p className="dossier-desc">{active.description}</p>
-            <a href={active.url} className="dossier-link">进入这个星球 <ExternalLink className="h-4 w-4" /></a>
-          </motion.aside>
-        </AnimatePresence>
+        <div className="stable-focus-label" aria-hidden="true">
+          <strong>{agentAliases[active.id] ?? active.name}</strong>
+          <span>{active.role}</span>
+        </div>
 
         <footer className="agent-dock" aria-label="Agent selector">
           {agents.map(agent => (
