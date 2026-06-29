@@ -45,8 +45,10 @@ const navPlanets: NavPlanet[] = [
 { id:"launch", label:"Launch", sub:"上线部署", color:"#e879f9", hud:{x:61,y:88}, url:"#launch" },
 ];
 
-// Global map to track real-time world positions of each planet (updated by AgentPlanet3D each frame)
+// Global real-time world positions for each agent planet (updated every frame by AgentPlanet3D)
 const planetWorldPositions = new Map<string, THREE.Vector3>();
+// The currently tracked agent ID for zoom (read by CameraController)
+let zoomedAgentId: string | null = null;
 
 function Clock() {
 const [time, setTime] = useState("");
@@ -76,8 +78,10 @@ return (
 );
 }
 
-// ─── Camera ──────────────────────────────────────────────────────────────────
-function CameraController({ targetPos, targetLookAt, zooming }: { targetPos: THREE.Vector3; targetLookAt: THREE.Vector3; zooming: boolean }) {
+// ─── Camera Controller ────────────────────────────────────────────────────────
+// When zooming=true, continuously reads the live planet world position from
+// planetWorldPositions map and keeps the camera orbit around that moving planet.
+function CameraController({ zooming, zoomAgentId }: { zooming: boolean; zoomAgentId: string | null }) {
 const { camera } = useThree();
 const currentPos = useRef(new THREE.Vector3(0, 1.2, 42));
 const currentLook = useRef(new THREE.Vector3(0,0,0));
@@ -88,6 +92,8 @@ const zoomLevel = useRef(1);
 const zoomVel = useRef(0);
 const isDragging = useRef(false);
 const lastMouse = useRef({ x:0, y:0 });
+// For smooth zoom approach: track how close we are to the target
+const zoomApproachT = useRef(0);
 
 useEffect(()=>{
 const onWheel = (e: WheelEvent) => { e.preventDefault(); if (!zooming) { zoomVel.current -= e.deltaY * 0.0003; orbitVel.current.theta -= e.deltaX * 0.0003; } };
@@ -107,22 +113,57 @@ window.addEventListener('touchstart',onTouch,{passive:true}); window.addEventLis
 return ()=>{ window.removeEventListener('wheel',onWheel); window.removeEventListener('mousedown',onDown); window.removeEventListener('mousemove',onMove); window.removeEventListener('mouseup',onUp); window.removeEventListener('touchstart',onTouch); window.removeEventListener('touchmove',onTouch); window.removeEventListener('touchend',onTouch); };
 },[zooming]);
 
+useEffect(()=>{
+if(zooming) { zoomApproachT.current = 0; }
+else { zoomApproachT.current = 0; }
+},[zooming, zoomAgentId]);
+
 useFrame((_,delta)=>{
-const speed = zooming ? 0.045 : 0.08;
+if (zooming && zoomAgentId) {
+// Live-track the planet's current world position
+const planetPos = planetWorldPositions.get(zoomAgentId);
+if (planetPos && planetPos.length() > 0.01) {
+zoomApproachT.current = Math.min(1, zoomApproachT.current + delta * 0.6);
+// Compute a camera position behind-and-above the planet
+const outward = planetPos.clone().normalize();
+const upVec = new THREE.Vector3(0,1,0);
+const side = outward.clone().cross(upVec).normalize();
+// Distance from planet: start far (18), settle at 10
+const dist = 18 - zoomApproachT.current * 8;
+const desiredPos = planetPos.clone()
+.add(outward.clone().multiplyScalar(dist * 0.7))
+.add(new THREE.Vector3(0, dist * 0.35, 0))
+.add(side.clone().multiplyScalar(dist * 0.2));
+// Smoothly move camera toward that position and look at planet
+const lerpSpeed = 0.055;
+currentPos.current.lerp(desiredPos, lerpSpeed);
+currentLook.current.lerp(planetPos, lerpSpeed);
+camera.position.copy(currentPos.current);
+camera.lookAt(currentLook.current);
+}
+} else {
+// Free orbit mode
+const speed = 0.08;
 orbitTheta.current += orbitVel.current.theta;
 orbitPhi.current = Math.max(-1.1, Math.min(1.1, orbitPhi.current + orbitVel.current.phi));
 orbitVel.current.theta *= 0.88; orbitVel.current.phi *= 0.88;
 zoomLevel.current = Math.max(0.06, Math.min(18, zoomLevel.current + zoomVel.current));
 zoomVel.current *= 0.88;
-let desired: THREE.Vector3;
-if (zooming) { desired = targetPos.clone(); }
-else { orbitTheta.current += delta * 0.06; const r=42/zoomLevel.current; desired=new THREE.Vector3(Math.cos(orbitTheta.current)*Math.cos(orbitPhi.current)*r,Math.sin(orbitPhi.current)*r,Math.sin(orbitTheta.current)*Math.cos(orbitPhi.current)*r); }
-currentPos.current.lerp(desired, speed); currentLook.current.lerp(targetLookAt, speed);
-camera.position.copy(currentPos.current); camera.lookAt(currentLook.current);
+orbitTheta.current += delta * 0.06;
+const r = 42 / zoomLevel.current;
+const desired = new THREE.Vector3(
+Math.cos(orbitTheta.current)*Math.cos(orbitPhi.current)*r,
+Math.sin(orbitPhi.current)*r,
+Math.sin(orbitTheta.current)*Math.cos(orbitPhi.current)*r
+);
+currentPos.current.lerp(desired, speed);
+currentLook.current.lerp(new THREE.Vector3(0,0,0), speed);
+camera.position.copy(currentPos.current);
+camera.lookAt(currentLook.current);
+}
 });
 return null;
 }
-
 // ─── Brain Shader Material ───────────────────────────────────────────────────
 const brainVertexShader = `
 varying vec3 vNormal;
@@ -177,7 +218,8 @@ alpha = clamp(alpha, 0.0, 1.0);
 gl_FragColor = vec4(col, alpha);
 }
 `;
-// ─── Central Brain 3D with Shader ────────────────────────────────────────────
+
+// ─── Central Brain 3D ────────────────────────────────────────────────────────
 function CentralBrain3D({ color }: { color: string }) {
 const brain = useRef<THREE.Group>(null);
 const shaderRef = useRef<THREE.ShaderMaterial>(null);
@@ -286,33 +328,32 @@ return (
 );
 }
 // ─── Agent Planet 3D ─────────────────────────────────────────────────────────
-// Key fix: expose world position via planetWorldPositions map each frame
+// Registers world position into planetWorldPositions every frame
 function AgentPlanet3D({ agent, active, onClick }: { agent: Agent; active: boolean; onClick: ()=>void }) {
 const group = useRef<THREE.Group>(null);
 const planet = useRef<THREE.Mesh>(null);
 const moons = useRef<THREE.Group>(null);
 const angleRef = useRef(agent.orbitAngle);
-const _worldPos = useRef(new THREE.Vector3());
+const _wp = useRef(new THREE.Vector3());
 
 useFrame(({clock},delta)=>{
 const t = clock.getElapsedTime();
 angleRef.current += agent.orbitSpeed * delta;
 const r = agent.orbitRadius;
-const x = Math.cos(angleRef.current)*r;
-const z = Math.sin(angleRef.current)*r;
-const y = Math.sin(angleRef.current*1.3)*r*0.18;
+const lx = Math.cos(angleRef.current)*r;
+const lz = Math.sin(angleRef.current)*r;
+const ly = Math.sin(angleRef.current*1.3)*r*0.18;
 if(group.current){
-group.current.position.set(x,y,z);
+group.current.position.set(lx,ly,lz);
 group.current.rotation.y=t*0.22;
-// Update world position in global map
-group.current.getWorldPosition(_worldPos.current);
-planetWorldPositions.set(agent.id, _worldPos.current.clone());
+// Update global world position map
+group.current.getWorldPosition(_wp.current);
+planetWorldPositions.set(agent.id, _wp.current.clone());
 }
 if(planet.current) planet.current.rotation.y=t*0.78;
 if(moons.current){ moons.current.rotation.y=t*(active?1.38:0.98); moons.current.rotation.z=Math.sin(t*0.42)*0.28; }
 });
 
-// Cleanup on unmount
 useEffect(()=>()=>{ planetWorldPositions.delete(agent.id); },[agent.id]);
 
 const sz = active ? 0.88 : 0.64;
@@ -412,14 +453,13 @@ return (<group ref={group}><lineSegments><bufferGeometry><bufferAttribute attach
 // ─── Universe Scene ───────────────────────────────────────────────────────────
 type ShockwaveData = { id:string; pos:THREE.Vector3; color:string };
 
-function UniverseScene({ activeId, cameraTarget, cameraPos, zooming, onPlanetClick }:{ activeId:string; cameraTarget:THREE.Vector3; cameraPos:THREE.Vector3; zooming:boolean; onPlanetClick:(id:string)=>void }) {
+function UniverseScene({ activeId, zooming, zoomAgentId, onPlanetClick }:{ activeId:string; zooming:boolean; zoomAgentId:string|null; onPlanetClick:(id:string)=>void }) {
 const galaxyAgents = useMemo(()=>[0,1,2].map(g=>agents.filter(a=>a.galaxy===g)),[]);
 const [shockwaves, setShockwaves] = useState<ShockwaveData[]>([]);
 const activeAgent = agents.find(a=>a.id===activeId);
 
 const handlePlanetClick = useCallback((id:string)=>{
 const agent=agents.find(a=>a.id===id); if(!agent) return;
-// Use the real-time world position stored in the map
 const worldPos = planetWorldPositions.get(id) ?? new THREE.Vector3(agent.orbitRadius,0,0);
 setShockwaves(prev=>[...prev, {id:id+Date.now(), pos:worldPos.clone(), color:agent.color}]);
 onPlanetClick(id);
@@ -433,7 +473,7 @@ return (
 <pointLight position={[0,3,5]} intensity={8} color="#eaffff"/>
 <pointLight position={[-5,3,2]} intensity={4} color="#67e8f9"/>
 <pointLight position={[5,-3,2]} intensity={4} color="#a78bfa"/>
-<CameraController targetPos={cameraPos} targetLookAt={cameraTarget} zooming={zooming}/>
+<CameraController zooming={zooming} zoomAgentId={zoomAgentId}/>
 <Stars radius={680} depth={360} count={6200} factor={8.2} saturation={0.8} fade speed={1.05}/>
 <BackgroundParticles/>
 <FlyingGlowPlanets/>
@@ -458,8 +498,7 @@ const [activeId, setActiveId] = useState<AgentId>("automation");
 const [mouse, setMouse] = useState({x:50,y:50});
 const [touchGlow, setTouchGlow] = useState({x:50,y:50,active:false});
 const [zooming, setZooming] = useState(false);
-const [cameraTarget, setCameraTarget] = useState(()=>new THREE.Vector3(0,0,0));
-const [cameraPos, setCameraPos] = useState(()=>new THREE.Vector3(0,1.2,42));
+const [zoomAgentId, setZoomAgentId] = useState<string|null>(null);
 const [burst, setBurst] = useState({id:"core",label:"Genesis Core"});
 const [webglReady, setWebglReady] = useState(false);
 const zoomTimeoutRef = useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -481,44 +520,22 @@ useEffect(()=>{
 try{ const c=document.createElement('canvas'); const gl=c.getContext('webgl2')||c.getContext('webgl'); setWebglReady(!!gl); }catch{ setWebglReady(false); }
 },[]);
 
-// KEY FIX: zoomToAgent now reads from planetWorldPositions for the actual live world position.
-// We use a small delay so that by the time the user clicks, the planet's world pos is populated.
+// Zoom to agent: set zooming=true and pass the agent ID to CameraController
+// CameraController will then live-track this planet's world position every frame
 const zoomToAgent = useCallback((id:string)=>{
 const agent=agents.find(a=>a.id===id); if(!agent) return;
-
 setActiveId(id);
 setBurst({id,label:agent.name});
-
-// Try to get the actual live world position first
-const livePos = planetWorldPositions.get(id);
-if(livePos && livePos.length() > 0.1) {
-// Camera sits behind-and-above the planet, looking at it
-const outward = livePos.clone().normalize();
-const up = new THREE.Vector3(0,1,0);
-const side = outward.clone().cross(up).normalize();
-const camOffset = outward.clone().multiplyScalar(12).add(new THREE.Vector3(0,5,0)).add(side.multiplyScalar(3));
-const camPos = livePos.clone().add(camOffset);
-setCameraTarget(livePos.clone());
-setCameraPos(camPos);
-} else {
-// Fallback: use initial orbit angle if world pos not yet populated
-const angle=agent.orbitAngle; const r=agent.orbitRadius;
-const wx=Math.cos(angle)*r; const wz=Math.sin(angle)*r;
-const targetWorld=new THREE.Vector3(wx,0,wz);
-const outward=targetWorld.clone().normalize().multiplyScalar(r*0.6+12);
-const camPos=targetWorld.clone().add(outward).add(new THREE.Vector3(0,4,8));
-setCameraTarget(targetWorld);
-setCameraPos(camPos);
-}
-
+setZoomAgentId(id);
 setZooming(true);
+// Keep zooming active so camera keeps tracking the moving planet
 if(zoomTimeoutRef.current) clearTimeout(zoomTimeoutRef.current);
-zoomTimeoutRef.current=setTimeout(()=>setZooming(false),2200);
+zoomTimeoutRef.current=setTimeout(()=>setZooming(false),3500);
 },[]);
 
 const resetCamera = useCallback(()=>{
-setCameraTarget(new THREE.Vector3(0,0,0)); setCameraPos(new THREE.Vector3(0,1.2,42));
-setZooming(false); setActiveId("automation"); setBurst({id:"core",label:"Genesis Core"});
+if(zoomTimeoutRef.current) clearTimeout(zoomTimeoutRef.current);
+setZooming(false); setZoomAgentId(null); setActiveId("automation"); setBurst({id:"core",label:"Genesis Core"});
 },[]);
 
 return (
@@ -540,7 +557,7 @@ camera={{position:[0,1.2,42],fov:52,near:0.05,far:1200}}
 dpr={[1,1.8]}
 gl={{antialias:true,alpha:false,powerPreference:"high-performance",toneMapping:THREE.ACESFilmicToneMapping,toneMappingExposure:1.2}}
 onCreated={({gl})=>{ gl.setPixelRatio(Math.min(window.devicePixelRatio,2)); }}>
-<UniverseScene activeId={activeId} cameraTarget={cameraTarget} cameraPos={cameraPos} zooming={zooming} onPlanetClick={zoomToAgent}/>
+<UniverseScene activeId={activeId} zooming={zooming} zoomAgentId={zoomAgentId} onPlanetClick={zoomToAgent}/>
 </Canvas>
 )}
 
