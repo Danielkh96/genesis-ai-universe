@@ -9,8 +9,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 type AgentId = string;
+type AgentCategory = "OPERATIONS" | "GROWTH" | "BUILD";
 type Agent = {
-  id: AgentId; name: string; short: string; role: string;
+  id: AgentId; name: string; short: string; role: string; category: AgentCategory;
   color: string; glow: string; icon: typeof Workflow;
   orbitRadius: number; orbitSpeed: number; orbitAngle: number;
   orbitTilt: [number, number, number]; galaxy: 0 | 1 | 2;
@@ -18,19 +19,29 @@ type Agent = {
 };
 type NavPlanet = { id: string; label: string; sub: string; color: string; hud: { x: number; y: number }; url: string };
 
+const categoryMeta: Record<AgentCategory, { label: string; zh: string; color: string; text: string }> = {
+  OPERATIONS: { label: "OPERATIONS", zh: "营运自动化", color: "#22d3ee", text: "流程 / 资料 / CRM / 中控" },
+  GROWTH: { label: "GROWTH", zh: "增长营销", color: "#f472b6", text: "内容 / 广告 / 漏斗 / 转化" },
+  BUILD: { label: "BUILD", zh: "构建智能", color: "#a78bfa", text: "Agent / Coding / Deploy / Data" },
+};
+
+const agentCategory = (id: string): AgentCategory =>
+  ["automation", "sheets", "crm", "ops"].includes(id) ? "OPERATIONS" :
+  ["marketing", "content", "ads", "funnel"].includes(id) ? "GROWTH" : "BUILD";
+
 const agents: Agent[] = [
-  { id: "automation", name: "AI Automation", short: "AUTO", role: "自动化流程星系", color: "#22d3ee", glow: "rgba(34,211,238,.82)", icon: Workflow, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: 0, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 20, y: 26 }, url: "#ai-automation", description: "表格、API、社群、CRM 与 OpenClaw 工作流自动连接。" },
-  { id: "sheets", name: "Sheets Engine", short: "SHEET", role: "资料同步行星", color: "#34d399", glow: "rgba(52,211,153,.8)", icon: Workflow, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: Math.PI / 2, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 80, y: 27 }, url: "#ai-sheets", description: "Google Sheets、资料清洗、订单状态与自动回写系统。" },
-  { id: "crm", name: "CRM Brain", short: "CRM", role: "客户经营行星", color: "#38bdf8", glow: "rgba(56,189,248,.8)", icon: Bot, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: Math.PI, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 48, y: 81 }, url: "#ai-crm", description: "客户分层、跟进提醒、复购路径与自动私讯辅助。" },
-  { id: "ops", name: "Ops Control", short: "OPS", role: "营运中控行星", color: "#2dd4bf", glow: "rgba(45,212,191,.78)", icon: Satellite, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: Math.PI * 1.5, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 50, y: 17 }, url: "#ai-ops", description: "把流程、任务、通知、状态监控集中到一个自动化中控台。" },
-  { id: "marketing", name: "AI Marketing", short: "MKT", role: "增长营销星系", color: "#f472b6", glow: "rgba(244,114,182,.82)", icon: Megaphone, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: 0, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 88, y: 37 }, url: "#ai-marketing", description: "爆款 Hook、广告图、内容矩阵、短影音脚本与营销漏斗。" },
-  { id: "content", name: "Content Studio", short: "POST", role: "内容生产行星", color: "#fb7185", glow: "rgba(251,113,133,.82)", icon: Megaphone, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: Math.PI * 0.67, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 12, y: 37 }, url: "#ai-content", description: "把商品卖点转成社群贴文、广告脚本、短影音与图像创意。" },
-  { id: "ads", name: "Ad Galaxy", short: "ADS", role: "广告素材行星", color: "#fbbf24", glow: "rgba(251,191,36,.82)", icon: Sparkles, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: Math.PI * 1.33, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 73, y: 82 }, url: "#ai-ads", description: "生成高点击广告图、标题、CTA 与多版本 A/B 测试素材。" },
-  { id: "funnel", name: "Funnel Core", short: "FUNNEL", role: "销售漏斗行星", color: "#e879f9", glow: "rgba(232,121,249,.8)", icon: Zap, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: Math.PI * 2.0, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 27, y: 82 }, url: "#ai-funnel", description: "从曝光、点击、询问、成交到复购的完整转化路径。" },
-  { id: "agent", name: "AI Agent", short: "AGENT", role: "智能代理星系", color: "#a78bfa", glow: "rgba(167,139,250,.82)", icon: Bot, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: 0, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 88, y: 56 }, url: "#ai-agent", description: "让 AI 会思考、调用工具、拆任务，并成为业务执行助手。" },
-  { id: "coding", name: "AI Coding", short: "CODE", role: "产品构建星系", color: "#60a5fa", glow: "rgba(96,165,250,.82)", icon: Code2, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: Math.PI * 0.5, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 12, y: 56 }, url: "#ai-coding", description: "用 AI 建网站、工具、App、自动化系统，并部署上线。" },
-  { id: "deploy", name: "Deploy Portal", short: "LIVE", role: "上线部署行星", color: "#c084fc", glow: "rgba(192,132,252,.82)", icon: ExternalLink, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: Math.PI, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 70, y: 16 }, url: "#ai-deploy", description: "GitHub、Vercel、上线检查、版本回滚与产品发布流程。" },
-  { id: "data", name: "Data Vault", short: "DATA", role: "知识资料行星", color: "#ffffff", glow: "rgba(255,255,255,.86)", icon: BrainCircuit, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: Math.PI * 1.5, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 30, y: 16 }, url: "#ai-data", description: "沉淀知识库、操作 SOP、训练资料与可复用自动化资产。" },
+  { id: "automation", name: "AI Automation", short: "AUTO", role: "自动化流程星系", category: "OPERATIONS", color: "#22d3ee", glow: "rgba(34,211,238,.82)", icon: Workflow, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: 0, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 20, y: 26 }, url: "#ai-automation", description: "表格、API、社群、CRM 与 OpenClaw 工作流自动连接。" },
+  { id: "sheets", name: "Sheets Engine", short: "SHEET", role: "资料同步行星", category: "OPERATIONS", color: "#34d399", glow: "rgba(52,211,153,.8)", icon: Workflow, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: Math.PI / 2, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 80, y: 27 }, url: "#ai-sheets", description: "Google Sheets、资料清洗、订单状态与自动回写系统。" },
+  { id: "crm", name: "CRM Brain", short: "CRM", role: "客户经营行星", category: "OPERATIONS", color: "#38bdf8", glow: "rgba(56,189,248,.8)", icon: Bot, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: Math.PI, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 48, y: 81 }, url: "#ai-crm", description: "客户分层、跟进提醒、复购路径与自动私讯辅助。" },
+  { id: "ops", name: "Ops Control", short: "OPS", role: "营运中控行星", category: "OPERATIONS", color: "#2dd4bf", glow: "rgba(45,212,191,.78)", icon: Satellite, orbitRadius: 20, orbitSpeed: 0.18, orbitAngle: Math.PI * 1.5, orbitTilt: [0.28, 0, 0.18], galaxy: 0, hud: { x: 50, y: 17 }, url: "#ai-ops", description: "把流程、任务、通知、状态监控集中到一个自动化中控台。" },
+  { id: "marketing", name: "AI Marketing", short: "MKT", role: "增长营销星系", category: "GROWTH", color: "#f472b6", glow: "rgba(244,114,182,.82)", icon: Megaphone, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: 0, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 88, y: 37 }, url: "#ai-marketing", description: "爆款 Hook、广告图、内容矩阵、短影音脚本与营销漏斗。" },
+  { id: "content", name: "Content Studio", short: "POST", role: "内容生产行星", category: "GROWTH", color: "#fb7185", glow: "rgba(251,113,133,.82)", icon: Megaphone, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: Math.PI * 0.67, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 12, y: 37 }, url: "#ai-content", description: "把商品卖点转成社群贴文、广告脚本、短影音与图像创意。" },
+  { id: "ads", name: "Ad Galaxy", short: "ADS", role: "广告素材行星", category: "GROWTH", color: "#fbbf24", glow: "rgba(251,191,36,.82)", icon: Sparkles, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: Math.PI * 1.33, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 73, y: 82 }, url: "#ai-ads", description: "生成高点击广告图、标题、CTA 与多版本 A/B 测试素材。" },
+  { id: "funnel", name: "Funnel Core", short: "FUNNEL", role: "销售漏斗行星", category: "GROWTH", color: "#e879f9", glow: "rgba(232,121,249,.8)", icon: Zap, orbitRadius: 36, orbitSpeed: -0.12, orbitAngle: Math.PI * 2.0, orbitTilt: [0.42, 0.18, -0.12], galaxy: 1, hud: { x: 27, y: 82 }, url: "#ai-funnel", description: "从曝光、点击、询问、成交到复购的完整转化路径。" },
+  { id: "agent", name: "AI Agent", short: "AGENT", role: "智能代理星系", category: "BUILD", color: "#a78bfa", glow: "rgba(167,139,250,.82)", icon: Bot, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: 0, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 88, y: 56 }, url: "#ai-agent", description: "让 AI 会思考、调用工具、拆任务，并成为业务执行助手。" },
+  { id: "coding", name: "AI Coding", short: "CODE", role: "产品构建星系", category: "BUILD", color: "#60a5fa", glow: "rgba(96,165,250,.82)", icon: Code2, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: Math.PI * 0.5, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 12, y: 56 }, url: "#ai-coding", description: "用 AI 建网站、工具、App、自动化系统，并部署上线。" },
+  { id: "deploy", name: "Deploy Portal", short: "LIVE", role: "上线部署行星", category: "BUILD", color: "#c084fc", glow: "rgba(192,132,252,.82)", icon: ExternalLink, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: Math.PI, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 70, y: 16 }, url: "#ai-deploy", description: "GitHub、Vercel、上线检查、版本回滚与产品发布流程。" },
+  { id: "data", name: "Data Vault", short: "DATA", role: "知识资料行星", category: "BUILD", color: "#ffffff", glow: "rgba(255,255,255,.86)", icon: BrainCircuit, orbitRadius: 58, orbitSpeed: 0.075, orbitAngle: Math.PI * 1.5, orbitTilt: [-0.28, -0.25, 0.22], galaxy: 2, hud: { x: 30, y: 16 }, url: "#ai-data", description: "沉淀知识库、操作 SOP、训练资料与可复用自动化资产。" },
 ];
 
 const navPlanets: NavPlanet[] = [
@@ -312,13 +323,42 @@ function CentralBrain3D({ color }: { color: string }) {
   );
 }
 // ── ConnectionLine ────────────────────────────────────────────────────────────
-function ConnectionLine({ to, color, active }: { to: THREE.Vector3; color: string; active: boolean }) {
+function ConnectionLine({ to, color, active, category }: { to: THREE.Vector3; color: string; active: boolean; category: AgentCategory }) {
+  const pulse = useRef<THREE.Group>(null);
   const pts = useMemo(() => { const m = to.clone().multiplyScalar(0.45); m.z += 0.5; return [new THREE.Vector3(0, 0, 0), m, to]; }, [to]);
-  return <Line points={pts} color={color} lineWidth={active ? 1.8 : 0.7} transparent opacity={active ? 0.78 : 0.28} dashed={!active} dashSize={0.8} gapSize={0.4} />;
+  const curve = useMemo(() => new THREE.CatmullRomCurve3(pts), [pts]);
+  const catColor = categoryMeta[category].color;
+  useFrame(({ clock }) => {
+    if (!pulse.current) return;
+    const t = clock.getElapsedTime();
+    pulse.current.children.forEach((child, i) => {
+      const u = (t * (active ? 0.32 : 0.18) + i * 0.28) % 1;
+      child.position.copy(curve.getPointAt(u));
+      child.scale.setScalar((active ? 1.3 : 0.85) + Math.sin(t * 5 + i) * 0.18);
+    });
+  });
+  return (
+    <group>
+      <Line points={pts} color={color} lineWidth={active ? 2.4 : 1.0} transparent opacity={active ? 0.9 : 0.42} dashed={!active} dashSize={0.8} gapSize={0.4} />
+      <Line points={pts} color={catColor} lineWidth={active ? 5.2 : 2.2} transparent opacity={active ? 0.18 : 0.09} />
+      <group ref={pulse}>
+        {Array.from({ length: active ? 5 : 3 }, (_, i) => (
+          <group key={i}>
+            <mesh><sphereGeometry args={[active ? 0.18 : 0.12, 16, 16]} /><meshBasicMaterial color="#ffffff" transparent opacity={active ? 0.82 : 0.48} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
+            <mesh><sphereGeometry args={[active ? 0.68 : 0.42, 16, 16]} /><meshBasicMaterial color={color} transparent opacity={active ? 0.16 : 0.08} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
+          </group>
+        ))}
+      </group>
+      <mesh position={to} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[active ? 2.7 : 2.0, active ? 0.026 : 0.016, 18, 180]} />
+        <meshBasicMaterial color={catColor} transparent opacity={active ? 0.74 : 0.36} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
+    </group>
+  );
 }
 
 // ── PlanetLabel ───────────────────────────────────────────────────────────────
-function PlanetLabel({ name, role, color, active }: { name: string; role: string; color: string; active: boolean }) {
+function PlanetLabel({ name, role, color, active, category }: { name: string; role: string; color: string; active: boolean; category: AgentCategory }) {
   return (
     <div style={{ pointerEvents: "none", textAlign: "center", whiteSpace: "nowrap", fontFamily: "'Geist',Arial,sans-serif" }}>
       <div style={{ display: "inline-block", position: "relative", background: active ? "linear-gradient(135deg,rgba(2,8,23,.92),rgba(8,16,36,.88))" : "rgba(2,8,23,.72)", border: `1px solid ${color}${active ? "cc" : "55"}`, borderRadius: 10, padding: active ? "7px 12px" : "5px 9px", backdropFilter: "blur(14px)", boxShadow: active ? `0 0 24px ${color}60,0 0 48px ${color}28` : `0 0 14px ${color}30`, transition: "all .3s" }}>
@@ -329,6 +369,7 @@ function PlanetLabel({ name, role, color, active }: { name: string; role: string
           <div style={{ position: "absolute", bottom: 2, right: 2, width: 6, height: 6, borderBottom: `1px solid ${color}`, borderRight: `1px solid ${color}`, borderRadius: "0 0 2px 0" }} />
         </>)}
         <div style={{ color, fontSize: active ? 11 : 10, fontWeight: 900, letterSpacing: ".18em", textShadow: `0 0 12px ${color},0 0 24px ${color}80`, marginBottom: 2 }}>{name}</div>
+        <div style={{ display: "inline-block", marginBottom: 3, border: `1px solid ${categoryMeta[category].color}66`, borderRadius: 999, padding: "2px 6px", color: categoryMeta[category].color, fontSize: 8, fontWeight: 900, letterSpacing: ".08em" }}>{categoryMeta[category].zh}</div>
         <div style={{ color: "rgba(186,230,253,.72)", fontSize: 8, letterSpacing: ".06em" }}>{role}</div>
         {active && (<div style={{ marginTop: 5, paddingTop: 4, borderTop: `1px solid ${color}40`, display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
           <div style={{ width: 5, height: 5, borderRadius: "50%", background: color, boxShadow: `0 0 8px ${color}` }} />
@@ -394,7 +435,7 @@ function AgentPlanet3D({ agent, active, onClick }: { agent: Agent; active: boole
       </group>
       <pointLight color={agent.color} intensity={active ? 14 : 7} distance={10} />
       <Html distanceFactor={20} center style={{ pointerEvents: "none", transform: "translateY(60px)" }}>
-        <PlanetLabel name={agent.name} role={agent.role} color={agent.color} active={active} />
+        <PlanetLabel name={agent.name} role={agent.role} color={agent.color} active={active} category={agent.category} />
       </Html>
     </group>
   );
@@ -414,7 +455,7 @@ function Galaxy({ galaxyIndex, agents: ga, activeId, onPlanetClick }: { galaxyIn
         <torusGeometry args={[r, 0.032, 16, 280]} />
         <meshBasicMaterial color={ringColor} transparent opacity={0.32} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
-      {ga.map(a => <ConnectionLine key={"l" + a.id} to={new THREE.Vector3(a.orbitRadius, 0, 0)} color={a.color} active={activeId === a.id} />)}
+      {ga.map(a => <ConnectionLine key={"l" + a.id} to={new THREE.Vector3(a.orbitRadius, 0, 0)} color={a.color} active={activeId === a.id} category={a.category} />)}
       {ga.map(a => <AgentPlanet3D key={a.id} agent={a} active={activeId === a.id} onClick={() => onPlanetClick(a.id)} />)}
     </group>
   );
@@ -611,6 +652,16 @@ export default function GenesisUniverse() {
           <span>GENESIS AI 宇宙 · 無限巡航 · 點擊星站</span>
         </header>
 
+        <aside className="category-legend" aria-label="Agent category legend">
+          <strong>AGENT MAP</strong>
+          {Object.entries(categoryMeta).map(([key, meta]) => (
+            <button key={key} className="legend-row" style={{ ["--cat" as string]: meta.color }} onClick={() => zoomToAgent(agents.find(agent => agent.category === key)?.id ?? "automation")}>
+              <i />
+              <span><b>{meta.zh}</b><em>{meta.text}</em></span>
+            </button>
+          ))}
+        </aside>
+
         <div className="scroll-brief">
           <p>{zoomAgentId === null ? "SECTION 00 · 360° ORBIT CAMERA" : `SECTION ${String(agents.findIndex(a => a.id === activeId) + 1).padStart(2, "0")} · DEEP SPACE GALAXY`}</p>
           <h1>{burst.label}</h1>
@@ -647,9 +698,9 @@ export default function GenesisUniverse() {
           {agents.map(agent => { const Icon = agent.icon; const sel = activeId === agent.id; return (
             <button key={agent.id} data-module-id={agent.id} onClick={() => zoomToAgent(agent.id)}
               className={`agent-planet ${sel ? "selected" : ""}`}
-              style={{ left: `${agent.hud.x}%`, top: `${agent.hud.y}%`, ["--node" as string]: agent.color, ["--node-glow" as string]: agent.glow }}>
+              style={{ left: `${agent.hud.x}%`, top: `${agent.hud.y}%`, ["--node" as string]: agent.color, ["--node-glow" as string]: agent.glow, ["--cat" as string]: categoryMeta[agent.category].color }}>
               <span className="planet-orbit" /><span className="planet-body"><Icon className="h-7 w-7" /></span>
-              <span className="planet-label"><strong>{agent.name}</strong><em>{agent.role}</em></span>
+              <span className="planet-label"><strong>{agent.name}</strong><small>{categoryMeta[agent.category].zh}</small><em>{agent.role}</em></span>
             </button>
           ); })}
           {navPlanets.map((planet, idx) => (
@@ -666,7 +717,7 @@ export default function GenesisUniverse() {
 
         <div className="stable-focus-label" aria-hidden="true">
           <strong>{agentAliases[active.id] ?? active.name}</strong>
-          <span>{active.role}</span>
+          <span>{categoryMeta[active.category].zh} · {active.role}</span>
         </div>
 
         <footer className="agent-dock" aria-label="Agent selector">
