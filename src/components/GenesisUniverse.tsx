@@ -14,29 +14,29 @@ type Agent = { id: AgentId; name: string; short: string; role: string; color: st
 type NavPlanet = { id: string; label: string; sub: string; color: string; hud: {x:number;y:number}; url: string };
 
 const agents: Agent[] = [
-{ id:"automation",name:"AI Automation",short:"AUTO",role:"Ã¨ÂÂªÃ¥ÂÂ¨Ã¥ÂÂÃ¦ÂµÂÃ§Â¨ÂÃ¦ÂÂÃ§Â³Â»",color:"#22d3ee",glow:"rgba(34,211,238,.82)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:0,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:20,y:26},url:"#ai-automation",description:"Ã¨Â¡Â¨Ã¦Â Â¼Ã£ÂÂAPIÃ£ÂÂÃ§Â¤Â¾Ã§Â¾Â¤Ã£ÂÂCRM Ã¤Â¸Â OpenClaw Ã¥Â·Â¥Ã¤Â½ÂÃ¦ÂµÂÃ¨ÂÂªÃ¥ÂÂ¨Ã¨Â¿ÂÃ¦ÂÂ¥Ã£ÂÂ"},
-{ id:"sheets",name:"Sheets Engine",short:"SHEET",role:"Ã¨ÂµÂÃ¦ÂÂÃ¥ÂÂÃ¦Â­Â¥Ã¨Â¡ÂÃ¦ÂÂ",color:"#34d399",glow:"rgba(52,211,153,.8)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI/2,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:80,y:27},url:"#ai-sheets",description:"Google SheetsÃ£ÂÂÃ¨ÂµÂÃ¦ÂÂÃ¦Â¸ÂÃ¦Â´ÂÃ£ÂÂÃ¨Â®Â¢Ã¥ÂÂÃ§ÂÂ¶Ã¦ÂÂÃ¤Â¸ÂÃ¨ÂÂªÃ¥ÂÂ¨Ã¥ÂÂÃ¥ÂÂÃ§Â³Â»Ã§Â»ÂÃ£ÂÂ"},
-{ id:"crm",name:"CRM Brain",short:"CRM",role:"Ã¥Â®Â¢Ã¦ÂÂ·Ã§Â»ÂÃ¨ÂÂ¥Ã¨Â¡ÂÃ¦ÂÂ",color:"#38bdf8",glow:"rgba(56,189,248,.8)",icon:Bot,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:48,y:81},url:"#ai-crm",description:"Ã¥Â®Â¢Ã¦ÂÂ·Ã¥ÂÂÃ¥Â±ÂÃ£ÂÂÃ¨Â·ÂÃ¨Â¿ÂÃ¦ÂÂÃ©ÂÂÃ£ÂÂÃ¥Â¤ÂÃ¨Â´Â­Ã¨Â·Â¯Ã¥Â¾ÂÃ¤Â¸ÂÃ¨ÂÂªÃ¥ÂÂ¨Ã§Â§ÂÃ¨Â®Â¯Ã¨Â¾ÂÃ¥ÂÂ©Ã£ÂÂ"},
-{ id:"ops",name:"Ops Control",short:"OPS",role:"Ã¨ÂÂ¥Ã¨Â¿ÂÃ¤Â¸Â­Ã¦ÂÂ§Ã¨Â¡ÂÃ¦ÂÂ",color:"#2dd4bf",glow:"rgba(45,212,191,.78)",icon:Satellite,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI*1.5,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:50,y:17},url:"#ai-ops",description:"Ã¦ÂÂÃ¦ÂµÂÃ§Â¨ÂÃ£ÂÂÃ¤Â»Â»Ã¥ÂÂ¡Ã£ÂÂÃ©ÂÂÃ§ÂÂ¥Ã£ÂÂÃ§ÂÂ¶Ã¦ÂÂÃ§ÂÂÃ¦ÂÂ§Ã©ÂÂÃ¤Â¸Â­Ã¥ÂÂ°Ã¤Â¸ÂÃ¤Â¸ÂªÃ¨ÂÂªÃ¥ÂÂ¨Ã¥ÂÂÃ¤Â¸Â­Ã¦ÂÂ§Ã¥ÂÂ°Ã£ÂÂ"},
-{ id:"marketing",name:"AI Marketing",short:"MKT",role:"Ã¥Â¢ÂÃ©ÂÂ¿Ã¨ÂÂ¥Ã©ÂÂÃ¦ÂÂÃ§Â³Â»",color:"#f472b6",glow:"rgba(244,114,182,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:88,y:37},url:"#ai-marketing",description:"Ã§ÂÂÃ¦Â¬Â¾ HookÃ£ÂÂÃ¥Â¹Â¿Ã¥ÂÂÃ¥ÂÂ¾Ã£ÂÂÃ¥ÂÂÃ¥Â®Â¹Ã§ÂÂ©Ã©ÂÂµÃ£ÂÂÃ§ÂÂ­Ã¥Â½Â±Ã©ÂÂ³Ã¨ÂÂÃ¦ÂÂ¬Ã¤Â¸ÂÃ¨ÂÂ¥Ã©ÂÂÃ¦Â¼ÂÃ¦ÂÂÃ£ÂÂ"},
-{ id:"content",name:"Content Studio",short:"POST",role:"Ã¥ÂÂÃ¥Â®Â¹Ã§ÂÂÃ¤ÂºÂ§Ã¨Â¡ÂÃ¦ÂÂ",color:"#fb7185",glow:"rgba(251,113,133,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*0.67,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:12,y:37},url:"#ai-content",description:"Ã¦ÂÂÃ¥ÂÂÃ¥ÂÂÃ¥ÂÂÃ§ÂÂ¹Ã¨Â½Â¬Ã¦ÂÂÃ§Â¤Â¾Ã§Â¾Â¤Ã¨Â´Â´Ã¦ÂÂÃ£ÂÂÃ¥Â¹Â¿Ã¥ÂÂÃ¨ÂÂÃ¦ÂÂ¬Ã£ÂÂÃ§ÂÂ­Ã¥Â½Â±Ã©ÂÂ³Ã¤Â¸ÂÃ¥ÂÂ¾Ã¥ÂÂÃ¥ÂÂÃ¦ÂÂÃ£ÂÂ"},
-{ id:"ads",name:"Ad Galaxy",short:"ADS",role:"Ã¥Â¹Â¿Ã¥ÂÂÃ§Â´Â Ã¦ÂÂÃ¨Â¡ÂÃ¦ÂÂ",color:"#fbbf24",glow:"rgba(251,191,36,.82)",icon:Sparkles,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*1.33,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:73,y:82},url:"#ai-ads",description:"Ã§ÂÂÃ¦ÂÂÃ©Â«ÂÃ§ÂÂ¹Ã¥ÂÂ»Ã¥Â¹Â¿Ã¥ÂÂÃ¥ÂÂ¾Ã£ÂÂÃ¦Â ÂÃ©Â¢ÂÃ£ÂÂCTA Ã¤Â¸ÂÃ¥Â¤ÂÃ§ÂÂÃ¦ÂÂ¬ A/B Ã¦ÂµÂÃ¨Â¯ÂÃ§Â´Â Ã¦ÂÂÃ£ÂÂ"},
-{ id:"funnel",name:"Funnel Core",short:"FUNNEL",role:"Ã©ÂÂÃ¥ÂÂ®Ã¦Â¼ÂÃ¦ÂÂÃ¨Â¡ÂÃ¦ÂÂ",color:"#e879f9",glow:"rgba(232,121,249,.8)",icon:Zap,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*2.0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:27,y:82},url:"#ai-funnel",description:"Ã¤Â»ÂÃ¦ÂÂÃ¥ÂÂÃ£ÂÂÃ§ÂÂ¹Ã¥ÂÂ»Ã£ÂÂÃ¨Â¯Â¢Ã©ÂÂ®Ã£ÂÂÃ¦ÂÂÃ¤ÂºÂ¤Ã¥ÂÂ°Ã¥Â¤ÂÃ¨Â´Â­Ã§ÂÂÃ¥Â®ÂÃ¦ÂÂ´Ã¨Â½Â¬Ã¥ÂÂÃ¨Â·Â¯Ã¥Â¾ÂÃ£ÂÂ"},
-{ id:"agent",name:"AI Agent",short:"AGENT",role:"Ã¦ÂÂºÃ¨ÂÂ½Ã¤Â»Â£Ã§ÂÂÃ¦ÂÂÃ§Â³Â»",color:"#a78bfa",glow:"rgba(167,139,250,.82)",icon:Bot,orbitRadius:58,orbitSpeed:0.075,orbitAngle:0,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:88,y:56},url:"#ai-agent",description:"Ã¨Â®Â© AI Ã¤Â¼ÂÃ¦ÂÂÃ¨ÂÂÃ£ÂÂÃ¨Â°ÂÃ§ÂÂ¨Ã¥Â·Â¥Ã¥ÂÂ·Ã£ÂÂÃ¦ÂÂÃ¤Â»Â»Ã¥ÂÂ¡Ã¯Â¼ÂÃ¥Â¹Â¶Ã¦ÂÂÃ¤Â¸ÂºÃ¤Â¸ÂÃ¥ÂÂ¡Ã¦ÂÂ§Ã¨Â¡ÂÃ¥ÂÂ©Ã¦ÂÂÃ£ÂÂ"},
-{ id:"coding",name:"AI Coding",short:"CODE",role:"Ã¤ÂºÂ§Ã¥ÂÂÃ¦ÂÂÃ¥Â»ÂºÃ¦ÂÂÃ§Â³Â»",color:"#60a5fa",glow:"rgba(96,165,250,.82)",icon:Code2,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*0.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:12,y:56},url:"#ai-coding",description:"Ã§ÂÂ¨ AI Ã¥Â»ÂºÃ§Â½ÂÃ§Â«ÂÃ£ÂÂÃ¥Â·Â¥Ã¥ÂÂ·Ã£ÂÂAppÃ£ÂÂÃ¨ÂÂªÃ¥ÂÂ¨Ã¥ÂÂÃ§Â³Â»Ã§Â»ÂÃ¯Â¼ÂÃ¥Â¹Â¶Ã©ÂÂ¨Ã§Â½Â²Ã¤Â¸ÂÃ§ÂºÂ¿Ã£ÂÂ"},
-{ id:"deploy",name:"Deploy Portal",short:"LIVE",role:"Ã¤Â¸ÂÃ§ÂºÂ¿Ã©ÂÂ¨Ã§Â½Â²Ã¨Â¡ÂÃ¦ÂÂ",color:"#c084fc",glow:"rgba(192,132,252,.82)",icon:ExternalLink,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:70,y:16},url:"#ai-deploy",description:"GitHubÃ£ÂÂVercelÃ£ÂÂÃ¤Â¸ÂÃ§ÂºÂ¿Ã¦Â£ÂÃ¦ÂÂ¥Ã£ÂÂÃ§ÂÂÃ¦ÂÂ¬Ã¥ÂÂÃ¦Â»ÂÃ¤Â¸ÂÃ¤ÂºÂ§Ã¥ÂÂÃ¥ÂÂÃ¥Â¸ÂÃ¦ÂµÂÃ§Â¨ÂÃ£ÂÂ"},
-{ id:"data",name:"Data Vault",short:"DATA",role:"Ã§ÂÂ¥Ã¨Â¯ÂÃ¨ÂµÂÃ¦ÂÂÃ¨Â¡ÂÃ¦ÂÂ",color:"#ffffff",glow:"rgba(255,255,255,.86)",icon:BrainCircuit,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*1.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:30,y:16},url:"#ai-data",description:"Ã¦Â²ÂÃ¦Â·ÂÃ§ÂÂ¥Ã¨Â¯ÂÃ¥ÂºÂÃ£ÂÂÃ¦ÂÂÃ¤Â½Â SOPÃ£ÂÂÃ¨Â®Â­Ã§Â»ÂÃ¨ÂµÂÃ¦ÂÂÃ¤Â¸ÂÃ¥ÂÂ¯Ã¥Â¤ÂÃ§ÂÂ¨Ã¨ÂÂªÃ¥ÂÂ¨Ã¥ÂÂÃ¨ÂµÂÃ¤ÂºÂ§Ã£ÂÂ"},
+{ id:"automation",name:"AI Automation",short:"AUTO",role:"ÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ¥ÃÂÃÂÃÂ¦ÃÂµÃÂÃÂ§ÃÂ¨ÃÂÃÂ¦ÃÂÃÂÃÂ§ÃÂ³ÃÂ»",color:"#22d3ee",glow:"rgba(34,211,238,.82)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:0,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:20,y:26},url:"#ai-automation",description:"ÃÂ¨ÃÂ¡ÃÂ¨ÃÂ¦ÃÂ ÃÂ¼ÃÂ£ÃÂÃÂAPIÃÂ£ÃÂÃÂÃÂ§ÃÂ¤ÃÂ¾ÃÂ§ÃÂ¾ÃÂ¤ÃÂ£ÃÂÃÂCRM ÃÂ¤ÃÂ¸ÃÂ OpenClaw ÃÂ¥ÃÂ·ÃÂ¥ÃÂ¤ÃÂ½ÃÂÃÂ¦ÃÂµÃÂÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ¨ÃÂ¿ÃÂÃÂ¦ÃÂÃÂ¥ÃÂ£ÃÂÃÂ"},
+{ id:"sheets",name:"Sheets Engine",short:"SHEET",role:"ÃÂ¨ÃÂµÃÂÃÂ¦ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¦ÃÂ­ÃÂ¥ÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#34d399",glow:"rgba(52,211,153,.8)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI/2,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:80,y:27},url:"#ai-sheets",description:"Google SheetsÃÂ£ÃÂÃÂÃÂ¨ÃÂµÃÂÃÂ¦ÃÂÃÂÃÂ¦ÃÂ¸ÃÂÃÂ¦ÃÂ´ÃÂÃÂ£ÃÂÃÂÃÂ¨ÃÂ®ÃÂ¢ÃÂ¥ÃÂÃÂÃÂ§ÃÂÃÂ¶ÃÂ¦ÃÂÃÂÃÂ¤ÃÂ¸ÃÂÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ§ÃÂ³ÃÂ»ÃÂ§ÃÂ»ÃÂÃÂ£ÃÂÃÂ"},
+{ id:"crm",name:"CRM Brain",short:"CRM",role:"ÃÂ¥ÃÂ®ÃÂ¢ÃÂ¦ÃÂÃÂ·ÃÂ§ÃÂ»ÃÂÃÂ¨ÃÂÃÂ¥ÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#38bdf8",glow:"rgba(56,189,248,.8)",icon:Bot,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:48,y:81},url:"#ai-crm",description:"ÃÂ¥ÃÂ®ÃÂ¢ÃÂ¦ÃÂÃÂ·ÃÂ¥ÃÂÃÂÃÂ¥ÃÂ±ÃÂÃÂ£ÃÂÃÂÃÂ¨ÃÂ·ÃÂÃÂ¨ÃÂ¿ÃÂÃÂ¦ÃÂÃÂÃÂ©ÃÂÃÂÃÂ£ÃÂÃÂÃÂ¥ÃÂ¤ÃÂÃÂ¨ÃÂ´ÃÂ­ÃÂ¨ÃÂ·ÃÂ¯ÃÂ¥ÃÂ¾ÃÂÃÂ¤ÃÂ¸ÃÂÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ§ÃÂ§ÃÂÃÂ¨ÃÂ®ÃÂ¯ÃÂ¨ÃÂ¾ÃÂÃÂ¥ÃÂÃÂ©ÃÂ£ÃÂÃÂ"},
+{ id:"ops",name:"Ops Control",short:"OPS",role:"ÃÂ¨ÃÂÃÂ¥ÃÂ¨ÃÂ¿ÃÂÃÂ¤ÃÂ¸ÃÂ­ÃÂ¦ÃÂÃÂ§ÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#2dd4bf",glow:"rgba(45,212,191,.78)",icon:Satellite,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI*1.5,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:50,y:17},url:"#ai-ops",description:"ÃÂ¦ÃÂÃÂÃÂ¦ÃÂµÃÂÃÂ§ÃÂ¨ÃÂÃÂ£ÃÂÃÂÃÂ¤ÃÂ»ÃÂ»ÃÂ¥ÃÂÃÂ¡ÃÂ£ÃÂÃÂÃÂ©ÃÂÃÂÃÂ§ÃÂÃÂ¥ÃÂ£ÃÂÃÂÃÂ§ÃÂÃÂ¶ÃÂ¦ÃÂÃÂÃÂ§ÃÂÃÂÃÂ¦ÃÂÃÂ§ÃÂ©ÃÂÃÂÃÂ¤ÃÂ¸ÃÂ­ÃÂ¥ÃÂÃÂ°ÃÂ¤ÃÂ¸ÃÂÃÂ¤ÃÂ¸ÃÂªÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ¥ÃÂÃÂÃÂ¤ÃÂ¸ÃÂ­ÃÂ¦ÃÂÃÂ§ÃÂ¥ÃÂÃÂ°ÃÂ£ÃÂÃÂ"},
+{ id:"marketing",name:"AI Marketing",short:"MKT",role:"ÃÂ¥ÃÂ¢ÃÂÃÂ©ÃÂÃÂ¿ÃÂ¨ÃÂÃÂ¥ÃÂ©ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ§ÃÂ³ÃÂ»",color:"#f472b6",glow:"rgba(244,114,182,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:88,y:37},url:"#ai-marketing",description:"ÃÂ§ÃÂÃÂÃÂ¦ÃÂ¬ÃÂ¾ HookÃÂ£ÃÂÃÂÃÂ¥ÃÂ¹ÃÂ¿ÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂ¾ÃÂ£ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¥ÃÂ®ÃÂ¹ÃÂ§ÃÂÃÂ©ÃÂ©ÃÂÃÂµÃÂ£ÃÂÃÂÃÂ§ÃÂÃÂ­ÃÂ¥ÃÂ½ÃÂ±ÃÂ©ÃÂÃÂ³ÃÂ¨ÃÂÃÂÃÂ¦ÃÂÃÂ¬ÃÂ¤ÃÂ¸ÃÂÃÂ¨ÃÂÃÂ¥ÃÂ©ÃÂÃÂÃÂ¦ÃÂ¼ÃÂÃÂ¦ÃÂÃÂÃÂ£ÃÂÃÂ"},
+{ id:"content",name:"Content Studio",short:"POST",role:"ÃÂ¥ÃÂÃÂÃÂ¥ÃÂ®ÃÂ¹ÃÂ§ÃÂÃÂÃÂ¤ÃÂºÃÂ§ÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#fb7185",glow:"rgba(251,113,133,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*0.67,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:12,y:37},url:"#ai-content",description:"ÃÂ¦ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ§ÃÂÃÂ¹ÃÂ¨ÃÂ½ÃÂ¬ÃÂ¦ÃÂÃÂÃÂ§ÃÂ¤ÃÂ¾ÃÂ§ÃÂ¾ÃÂ¤ÃÂ¨ÃÂ´ÃÂ´ÃÂ¦ÃÂÃÂÃÂ£ÃÂÃÂÃÂ¥ÃÂ¹ÃÂ¿ÃÂ¥ÃÂÃÂÃÂ¨ÃÂÃÂÃÂ¦ÃÂÃÂ¬ÃÂ£ÃÂÃÂÃÂ§ÃÂÃÂ­ÃÂ¥ÃÂ½ÃÂ±ÃÂ©ÃÂÃÂ³ÃÂ¤ÃÂ¸ÃÂÃÂ¥ÃÂÃÂ¾ÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ£ÃÂÃÂ"},
+{ id:"ads",name:"Ad Galaxy",short:"ADS",role:"ÃÂ¥ÃÂ¹ÃÂ¿ÃÂ¥ÃÂÃÂÃÂ§ÃÂ´ÃÂ ÃÂ¦ÃÂÃÂÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#fbbf24",glow:"rgba(251,191,36,.82)",icon:Sparkles,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*1.33,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:73,y:82},url:"#ai-ads",description:"ÃÂ§ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ©ÃÂ«ÃÂÃÂ§ÃÂÃÂ¹ÃÂ¥ÃÂÃÂ»ÃÂ¥ÃÂ¹ÃÂ¿ÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂ¾ÃÂ£ÃÂÃÂÃÂ¦ÃÂ ÃÂÃÂ©ÃÂ¢ÃÂÃÂ£ÃÂÃÂCTA ÃÂ¤ÃÂ¸ÃÂÃÂ¥ÃÂ¤ÃÂÃÂ§ÃÂÃÂÃÂ¦ÃÂÃÂ¬ A/B ÃÂ¦ÃÂµÃÂÃÂ¨ÃÂ¯ÃÂÃÂ§ÃÂ´ÃÂ ÃÂ¦ÃÂÃÂÃÂ£ÃÂÃÂ"},
+{ id:"funnel",name:"Funnel Core",short:"FUNNEL",role:"ÃÂ©ÃÂÃÂÃÂ¥ÃÂÃÂ®ÃÂ¦ÃÂ¼ÃÂÃÂ¦ÃÂÃÂÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#e879f9",glow:"rgba(232,121,249,.8)",icon:Zap,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*2.0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:27,y:82},url:"#ai-funnel",description:"ÃÂ¤ÃÂ»ÃÂÃÂ¦ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ£ÃÂÃÂÃÂ§ÃÂÃÂ¹ÃÂ¥ÃÂÃÂ»ÃÂ£ÃÂÃÂÃÂ¨ÃÂ¯ÃÂ¢ÃÂ©ÃÂÃÂ®ÃÂ£ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ¤ÃÂºÃÂ¤ÃÂ¥ÃÂÃÂ°ÃÂ¥ÃÂ¤ÃÂÃÂ¨ÃÂ´ÃÂ­ÃÂ§ÃÂÃÂÃÂ¥ÃÂ®ÃÂÃÂ¦ÃÂÃÂ´ÃÂ¨ÃÂ½ÃÂ¬ÃÂ¥ÃÂÃÂÃÂ¨ÃÂ·ÃÂ¯ÃÂ¥ÃÂ¾ÃÂÃÂ£ÃÂÃÂ"},
+{ id:"agent",name:"AI Agent",short:"AGENT",role:"ÃÂ¦ÃÂÃÂºÃÂ¨ÃÂÃÂ½ÃÂ¤ÃÂ»ÃÂ£ÃÂ§ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ§ÃÂ³ÃÂ»",color:"#a78bfa",glow:"rgba(167,139,250,.82)",icon:Bot,orbitRadius:58,orbitSpeed:0.075,orbitAngle:0,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:88,y:56},url:"#ai-agent",description:"ÃÂ¨ÃÂ®ÃÂ© AI ÃÂ¤ÃÂ¼ÃÂÃÂ¦ÃÂÃÂÃÂ¨ÃÂÃÂÃÂ£ÃÂÃÂÃÂ¨ÃÂ°ÃÂÃÂ§ÃÂÃÂ¨ÃÂ¥ÃÂ·ÃÂ¥ÃÂ¥ÃÂÃÂ·ÃÂ£ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ¤ÃÂ»ÃÂ»ÃÂ¥ÃÂÃÂ¡ÃÂ¯ÃÂ¼ÃÂÃÂ¥ÃÂ¹ÃÂ¶ÃÂ¦ÃÂÃÂÃÂ¤ÃÂ¸ÃÂºÃÂ¤ÃÂ¸ÃÂÃÂ¥ÃÂÃÂ¡ÃÂ¦ÃÂÃÂ§ÃÂ¨ÃÂ¡ÃÂÃÂ¥ÃÂÃÂ©ÃÂ¦ÃÂÃÂÃÂ£ÃÂÃÂ"},
+{ id:"coding",name:"AI Coding",short:"CODE",role:"ÃÂ¤ÃÂºÃÂ§ÃÂ¥ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ¥ÃÂ»ÃÂºÃÂ¦ÃÂÃÂÃÂ§ÃÂ³ÃÂ»",color:"#60a5fa",glow:"rgba(96,165,250,.82)",icon:Code2,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*0.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:12,y:56},url:"#ai-coding",description:"ÃÂ§ÃÂÃÂ¨ AI ÃÂ¥ÃÂ»ÃÂºÃÂ§ÃÂ½ÃÂÃÂ§ÃÂ«ÃÂÃÂ£ÃÂÃÂÃÂ¥ÃÂ·ÃÂ¥ÃÂ¥ÃÂÃÂ·ÃÂ£ÃÂÃÂAppÃÂ£ÃÂÃÂÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ¥ÃÂÃÂÃÂ§ÃÂ³ÃÂ»ÃÂ§ÃÂ»ÃÂÃÂ¯ÃÂ¼ÃÂÃÂ¥ÃÂ¹ÃÂ¶ÃÂ©ÃÂÃÂ¨ÃÂ§ÃÂ½ÃÂ²ÃÂ¤ÃÂ¸ÃÂÃÂ§ÃÂºÃÂ¿ÃÂ£ÃÂÃÂ"},
+{ id:"deploy",name:"Deploy Portal",short:"LIVE",role:"ÃÂ¤ÃÂ¸ÃÂÃÂ§ÃÂºÃÂ¿ÃÂ©ÃÂÃÂ¨ÃÂ§ÃÂ½ÃÂ²ÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#c084fc",glow:"rgba(192,132,252,.82)",icon:ExternalLink,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:70,y:16},url:"#ai-deploy",description:"GitHubÃÂ£ÃÂÃÂVercelÃÂ£ÃÂÃÂÃÂ¤ÃÂ¸ÃÂÃÂ§ÃÂºÃÂ¿ÃÂ¦ÃÂ£ÃÂÃÂ¦ÃÂÃÂ¥ÃÂ£ÃÂÃÂÃÂ§ÃÂÃÂÃÂ¦ÃÂÃÂ¬ÃÂ¥ÃÂÃÂÃÂ¦ÃÂ»ÃÂÃÂ¤ÃÂ¸ÃÂÃÂ¤ÃÂºÃÂ§ÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¥ÃÂ¸ÃÂÃÂ¦ÃÂµÃÂÃÂ§ÃÂ¨ÃÂÃÂ£ÃÂÃÂ"},
+{ id:"data",name:"Data Vault",short:"DATA",role:"ÃÂ§ÃÂÃÂ¥ÃÂ¨ÃÂ¯ÃÂÃÂ¨ÃÂµÃÂÃÂ¦ÃÂÃÂÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂ",color:"#ffffff",glow:"rgba(255,255,255,.86)",icon:BrainCircuit,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*1.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:30,y:16},url:"#ai-data",description:"ÃÂ¦ÃÂ²ÃÂÃÂ¦ÃÂ·ÃÂÃÂ§ÃÂÃÂ¥ÃÂ¨ÃÂ¯ÃÂÃÂ¥ÃÂºÃÂÃÂ£ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ¤ÃÂ½ÃÂ SOPÃÂ£ÃÂÃÂÃÂ¨ÃÂ®ÃÂ­ÃÂ§ÃÂ»ÃÂÃÂ¨ÃÂµÃÂÃÂ¦ÃÂÃÂÃÂ¤ÃÂ¸ÃÂÃÂ¥ÃÂÃÂ¯ÃÂ¥ÃÂ¤ÃÂÃÂ§ÃÂÃÂ¨ÃÂ¨ÃÂÃÂªÃÂ¥ÃÂÃÂ¨ÃÂ¥ÃÂÃÂÃÂ¨ÃÂµÃÂÃÂ¤ÃÂºÃÂ§ÃÂ£ÃÂÃÂ"},
 ];
 
 const navPlanets: NavPlanet[] = [
-{ id:"academy",label:"Academy",sub:"Ã¨Â¯Â¾Ã§Â¨ÂÃ¥ÂÂ¥Ã¥ÂÂ£",color:"#38bdf8",hud:{x:14,y:44},url:"#academy"},
-{ id:"projects",label:"Projects",sub:"Ã¥Â®ÂÃ¦ÂÂÃ¤Â½ÂÃ¥ÂÂ",color:"#c084fc",hud:{x:86,y:44},url:"#projects"},
-{ id:"templates",label:"Templates",sub:"Ã¦Â¨Â¡Ã¦ÂÂ¿Ã¥ÂºÂ",color:"#34d399",hud:{x:16,y:60},url:"#templates"},
-{ id:"community",label:"Community",sub:"Ã¥Â­Â¦Ã¤Â¹Â Ã§Â¤Â¾Ã§Â¾Â¤",color:"#fb7185",hud:{x:84,y:60},url:"#community"},
-{ id:"roadmap",label:"Roadmap",sub:"Ã¨Â·Â¯Ã§ÂºÂ¿Ã¥ÂÂ¾",color:"#60a5fa",hud:{x:38,y:14},url:"#roadmap"},
-{ id:"diagnosis",label:"Diagnosis",sub:"AI Ã¨Â¯ÂÃ¦ÂÂ­",color:"#f97316",hud:{x:62,y:14},url:"#diagnosis"},
-{ id:"vault",label:"Vault",sub:"Ã¨ÂµÂÃ¦ÂºÂÃ¥ÂºÂ",color:"#2dd4bf",hud:{x:39,y:88},url:"#vault"},
-{ id:"launch",label:"Launch",sub:"Ã¤Â¸ÂÃ§ÂºÂ¿Ã©ÂÂ¨Ã§Â½Â²",color:"#e879f9",hud:{x:61,y:88},url:"#launch"},
+{ id:"academy",label:"Academy",sub:"ÃÂ¨ÃÂ¯ÃÂ¾ÃÂ§ÃÂ¨ÃÂÃÂ¥ÃÂÃÂ¥ÃÂ¥ÃÂÃÂ£",color:"#38bdf8",hud:{x:14,y:44},url:"#academy"},
+{ id:"projects",label:"Projects",sub:"ÃÂ¥ÃÂ®ÃÂÃÂ¦ÃÂÃÂÃÂ¤ÃÂ½ÃÂÃÂ¥ÃÂÃÂ",color:"#c084fc",hud:{x:86,y:44},url:"#projects"},
+{ id:"templates",label:"Templates",sub:"ÃÂ¦ÃÂ¨ÃÂ¡ÃÂ¦ÃÂÃÂ¿ÃÂ¥ÃÂºÃÂ",color:"#34d399",hud:{x:16,y:60},url:"#templates"},
+{ id:"community",label:"Community",sub:"ÃÂ¥ÃÂ­ÃÂ¦ÃÂ¤ÃÂ¹ÃÂ ÃÂ§ÃÂ¤ÃÂ¾ÃÂ§ÃÂ¾ÃÂ¤",color:"#fb7185",hud:{x:84,y:60},url:"#community"},
+{ id:"roadmap",label:"Roadmap",sub:"ÃÂ¨ÃÂ·ÃÂ¯ÃÂ§ÃÂºÃÂ¿ÃÂ¥ÃÂÃÂ¾",color:"#60a5fa",hud:{x:38,y:14},url:"#roadmap"},
+{ id:"diagnosis",label:"Diagnosis",sub:"AI ÃÂ¨ÃÂ¯ÃÂÃÂ¦ÃÂÃÂ­",color:"#f97316",hud:{x:62,y:14},url:"#diagnosis"},
+{ id:"vault",label:"Vault",sub:"ÃÂ¨ÃÂµÃÂÃÂ¦ÃÂºÃÂÃÂ¥ÃÂºÃÂ",color:"#2dd4bf",hud:{x:39,y:88},url:"#vault"},
+{ id:"launch",label:"Launch",sub:"ÃÂ¤ÃÂ¸ÃÂÃÂ§ÃÂºÃÂ¿ÃÂ©ÃÂÃÂ¨ÃÂ§ÃÂ½ÃÂ²",color:"#e879f9",hud:{x:61,y:88},url:"#launch"},
 ];
 
 const planetWorldPositions = new Map<string, THREE.Vector3>();
@@ -61,7 +61,7 @@ if (t.current >= 1) onDone();
 return (<mesh ref={mesh} position={position}><ringGeometry args={[0.8,1.2,64]}/><meshBasicMaterial ref={mat} color={color} transparent opacity={0.9} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide}/></mesh>);
 }
 
-// Ã¢ÂÂÃ¢ÂÂ CameraController Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ CameraController ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
 const { camera } = useThree();
 const pos = useRef(new THREE.Vector3(0, 1.2, 42));
@@ -145,10 +145,6 @@ cam.position.copy(pos.current);
 // lookAt the planet - must updateMatrixWorld for R3F to use it
 cam.lookAt(p.x, p.y, p.z);
 cam.updateMatrixWorld(true);
-// Debug: log every 120 frames
-if (Math.round(performance.now() / 1000) % 2 === 0 && performance.now() % 1000 < 20) {
-  console.log('[CAM-TRACK] camPos:', pos.current.toArray().map(v=>v.toFixed(1)), 'planetPos:', [p.x,p.y,p.z].map(v=>v.toFixed(1)), 'dist:', pos.current.distanceTo(p).toFixed(2));
-}
 // Narrow FOV telephoto effect
 fovRef.current += (12 - fovRef.current) * Math.min(1, delta * 5);
 cam.fov = fovRef.current;
@@ -325,7 +321,7 @@ const resetCamera=useCallback(()=>{setZoomAgentId(null);setActiveId("automation"
 return(
 <main className={`portal-shell ${webglReady?"webgl-ready":""}`} style={{["--mx" as string]:`${mouse.x}%`,["--my" as string]:`${mouse.y}%`,["--active" as string]:active.color}}>
 <div className="portal-viewport">
-<div className="portrait-guard"><RotateCcw className="h-12 w-12 text-cyan-200"/><h1>Ã¨Â¯Â·Ã¦Â¨ÂªÃ¥Â±ÂÃ¨Â¿ÂÃ¥ÂÂ¥ Genesis AI Universe</h1><p>Ã¨Â¿ÂÃ¤Â¸ÂªÃ§ÂÂÃ©ÂÂ¢Ã¦ÂÂ¯Ã¦Â¨ÂªÃ¥Â±ÂÃ¦Â¸Â¸Ã¦ÂÂÃ¥Â¼ÂÃ¦ÂÂÃ§Â³Â»Ã¤Â¼Â Ã©ÂÂÃ©ÂÂ¨Ã¯Â¼ÂÃ¦ÂÂÃ¨Â½Â¬Ã¦ÂÂÃ¦ÂÂºÃ¥ÂÂÃ¥ÂÂ¯Ã§ÂÂÃ¥ÂÂ°Ã¥Â®ÂÃ¦ÂÂ´Ã¤Â¸Â­Ã¥Â¿ÂÃ¥Â¤Â§Ã¨ÂÂÃ£ÂÂAgent Ã¦ÂÂÃ§ÂÂÃ¥ÂÂÃ¥Â¯Â¼Ã¨ÂÂªÃ¨Â¡ÂÃ¦ÂÂÃ£ÂÂ</p></div>
+<div className="portrait-guard"><RotateCcw className="h-12 w-12 text-cyan-200"/><h1>ÃÂ¨ÃÂ¯ÃÂ·ÃÂ¦ÃÂ¨ÃÂªÃÂ¥ÃÂ±ÃÂÃÂ¨ÃÂ¿ÃÂÃÂ¥ÃÂÃÂ¥ Genesis AI Universe</h1><p>ÃÂ¨ÃÂ¿ÃÂÃÂ¤ÃÂ¸ÃÂªÃÂ§ÃÂÃÂÃÂ©ÃÂÃÂ¢ÃÂ¦ÃÂÃÂ¯ÃÂ¦ÃÂ¨ÃÂªÃÂ¥ÃÂ±ÃÂÃÂ¦ÃÂ¸ÃÂ¸ÃÂ¦ÃÂÃÂÃÂ¥ÃÂ¼ÃÂÃÂ¦ÃÂÃÂÃÂ§ÃÂ³ÃÂ»ÃÂ¤ÃÂ¼ÃÂ ÃÂ©ÃÂÃÂÃÂ©ÃÂÃÂ¨ÃÂ¯ÃÂ¼ÃÂÃÂ¦ÃÂÃÂÃÂ¨ÃÂ½ÃÂ¬ÃÂ¦ÃÂÃÂÃÂ¦ÃÂÃÂºÃÂ¥ÃÂÃÂÃÂ¥ÃÂÃÂ¯ÃÂ§ÃÂÃÂÃÂ¥ÃÂÃÂ°ÃÂ¥ÃÂ®ÃÂÃÂ¦ÃÂÃÂ´ÃÂ¤ÃÂ¸ÃÂ­ÃÂ¥ÃÂ¿ÃÂÃÂ¥ÃÂ¤ÃÂ§ÃÂ¨ÃÂÃÂÃÂ£ÃÂÃÂAgent ÃÂ¦ÃÂÃÂÃÂ§ÃÂÃÂÃÂ¥ÃÂÃÂÃÂ¥ÃÂ¯ÃÂ¼ÃÂ¨ÃÂÃÂªÃÂ¨ÃÂ¡ÃÂÃÂ¦ÃÂÃÂÃÂ£ÃÂÃÂ</p></div>
 <div className="portal-bg"/>
 <div className="flying-orbs" aria-hidden="true">{Array.from({length:16},(_,i)=><span key={i}/>)}</div>
 <div className={`touch-glow ${touchGlow.active?"active":""}`} style={{["--touch-x" as string]:`${touchGlow.x}%`,["--touch-y" as string]:`${touchGlow.y}%`}}/>
@@ -337,9 +333,9 @@ onCreated={({gl})=>{gl.setPixelRatio(Math.min(window.devicePixelRatio,2));}}><Un
 <defs><filter id="lineGlow"><feGaussianBlur stdDeviation="0.45" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
 {agents.map(n=><line key={n.id} x1="50" y1="50" x2={n.hud.x} y2={n.hud.y} stroke={n.color} strokeWidth="0.13" opacity="0.56" filter="url(#lineGlow)"/>)}
 </svg>
-<header className="portal-briefing"><span className="live-dot"/><strong>BRIEFING ÃÂ· LIVE</strong><span className="separator">|</span><Clock/><span className="separator">|</span><span>GENESIS AI UNIVERSE ÃÂ· 360ÃÂ° ORBIT + PINCH ZOOM</span></header>
+<header className="portal-briefing"><span className="live-dot"/><strong>BRIEFING ÃÂÃÂ· LIVE</strong><span className="separator">|</span><Clock/><span className="separator">|</span><span>GENESIS AI UNIVERSE ÃÂÃÂ· 360ÃÂÃÂ° ORBIT + PINCH ZOOM</span></header>
 <div className="scroll-brief">
-<p>{zoomAgentId===null?"SECTION 00 ÃÂ· 360ÃÂ° ORBIT CAMERA":`SECTION ${String(agents.findIndex(a=>a.id===activeId)+1).padStart(2,"0")} ÃÂ· DEEP SPACE GALAXY`}</p>
+<p>{zoomAgentId===null?"SECTION 00 ÃÂÃÂ· 360ÃÂÃÂ° ORBIT CAMERA":`SECTION ${String(agents.findIndex(a=>a.id===activeId)+1).padStart(2,"0")} ÃÂÃÂ· DEEP SPACE GALAXY`}</p>
 <h1>{burst.label}</h1><span>{active.description}</span>
 </div>
 <div className="progress-rail" aria-hidden="true">
@@ -348,9 +344,9 @@ onCreated={({gl})=>{gl.setPixelRatio(Math.min(window.devicePixelRatio,2));}}><Un
 ))}
 </div>
 <nav className="side-console" aria-label="Universe navigation">
-<button onClick={resetCamera} className="console-btn reset"><RefreshCcw className="h-4 w-4"/>Ã©ÂÂÃ§Â½Â®</button>
+<button onClick={resetCamera} className="console-btn reset"><RefreshCcw className="h-4 w-4"/>ÃÂ©ÃÂÃÂÃÂ§ÃÂ½ÃÂ®</button>
 {agents.map(agent=>(<button key={agent.id} onClick={()=>zoomToAgent(agent.id)} className={`console-btn ${activeId===agent.id?"active":""}`} style={{["--node" as string]:agent.color}}>{agent.name.replace("AI ","")}</button>))}
-<a className="console-btn portal-link" href="#academy">Academy</a><a className="console-btn portal-link" href="#diagnosis">Ã¨Â¯ÂÃ¦ÂÂ­</a>
+<a className="console-btn portal-link" href="#academy">Academy</a><a className="console-btn portal-link" href="#diagnosis">ÃÂ¨ÃÂ¯ÃÂÃÂ¦ÃÂÃÂ­</a>
 </nav>
 <section className="galaxy-stage" aria-label="Genesis AI Universe portal">
 {!webglReady&&(<><div className="orbit-ring orbit-ring-1"/><div className="orbit-ring orbit-ring-2"/><div className="orbit-ring orbit-ring-3"/>
@@ -370,15 +366,15 @@ onCreated={({gl})=>{gl.setPixelRatio(Math.min(window.devicePixelRatio,2));}}><Un
 <div className="dossier-icon" style={{color:active.color,background:`${active.color}22`}}><ActiveIcon/></div>
 <div><p>SELECTED AGENT</p><h2>{active.name}</h2><span>{active.role}</span></div>
 <p className="dossier-desc">{active.description}</p>
-<a href={active.url} className="dossier-link">Ã¨Â¿ÂÃ¥ÂÂ¥Ã¨Â¿ÂÃ¤Â¸ÂªÃ¦ÂÂÃ§ÂÂ <ExternalLink className="h-4 w-4"/></a>
+<a href={active.url} className="dossier-link">ÃÂ¨ÃÂ¿ÃÂÃÂ¥ÃÂÃÂ¥ÃÂ¨ÃÂ¿ÃÂÃÂ¤ÃÂ¸ÃÂªÃÂ¦ÃÂÃÂÃÂ§ÃÂÃÂ <ExternalLink className="h-4 w-4"/></a>
 </motion.aside></AnimatePresence>
 <footer className="agent-dock" aria-label="Agent selector">
 {agents.map(agent=>(<button key={agent.id} onClick={()=>zoomToAgent(agent.id)} className={activeId===agent.id?"active":""} style={{["--node" as string]:agent.color}}>{agent.name}</button>))}
 </footer>
 <div className="scanline"/>
 <div className="corner-hud corner-a"><Sparkles className="h-4 w-4"/>SYSTEM ONLINE</div>
-<div className="corner-hud corner-b"><Satellite className="h-4 w-4"/>3 GALAXIES ÃÂ· 12 PLANETS ÃÂ· 48 MOONS</div>
-<div className="corner-hud corner-c"><Zap className="h-4 w-4"/>360ÃÂ° DRAG ÃÂ· ZOOM ÃÂ· CLICK TO ZOOM IN</div>
+<div className="corner-hud corner-b"><Satellite className="h-4 w-4"/>3 GALAXIES ÃÂÃÂ· 12 PLANETS ÃÂÃÂ· 48 MOONS</div>
+<div className="corner-hud corner-c"><Zap className="h-4 w-4"/>360ÃÂÃÂ° DRAG ÃÂÃÂ· ZOOM ÃÂÃÂ· CLICK TO ZOOM IN</div>
 </div>
 <div className="scroll-sectors" aria-hidden="true">
 {[{id:"genesis-core",label:"Genesis Core"},...agents.map(a=>({id:`ai-${a.id}`,label:a.name}))].map(({id,label},idx)=>(
