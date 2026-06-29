@@ -78,9 +78,8 @@ function Shockwave({ position, color, onDone }: { position: THREE.Vector3; color
   );
 }
 
+
 // ── CameraController ──────────────────────────────────────────────────────────
-// zoomAgentId: the agent being tracked. When non-null, camera continuously
-// follows that planet's real-time world position from planetWorldPositions map.
 function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
   const { camera } = useThree();
   const pos = useRef(new THREE.Vector3(0, 1.2, 42));
@@ -93,37 +92,21 @@ function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
   const velZoom = useRef(0);
   const dragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
-  const camAngle = useRef(0); // cinematic orbit angle when tracking planet
-
-  // Reset cinematic angle when switching agents
-  const prevAgentId = useRef<string | null>(null);
-  useEffect(() => {
-    if (zoomAgentId !== prevAgentId.current) {
-      camAngle.current = 0;
-      prevAgentId.current = zoomAgentId;
-    }
-  }, [zoomAgentId]);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (!zoomAgentId) {
-        velZoom.current -= e.deltaY * 0.0003;
-        velTheta.current -= e.deltaX * 0.0003;
-      }
+      if (!zoomAgentId) { velZoom.current -= e.deltaY * 0.0003; velTheta.current -= e.deltaX * 0.0003; }
     };
     const onDown = (e: MouseEvent) => {
       if ((e.target as HTMLElement)?.closest?.("button,a")) return;
-      dragging.current = true;
-      lastMouse.current = { x: e.clientX, y: e.clientY };
+      dragging.current = true; lastMouse.current = { x: e.clientX, y: e.clientY };
     };
     const onMove = (e: MouseEvent) => {
       if (!dragging.current || zoomAgentId) return;
-      const dx = e.clientX - lastMouse.current.x;
-      const dy = e.clientY - lastMouse.current.y;
+      const dx = e.clientX - lastMouse.current.x, dy = e.clientY - lastMouse.current.y;
       lastMouse.current = { x: e.clientX, y: e.clientY };
-      velTheta.current -= dx * 0.007;
-      velPhi.current -= dy * 0.005;
+      velTheta.current -= dx * 0.007; velPhi.current -= dy * 0.005;
     };
     const onUp = () => { dragging.current = false; };
     const onTouch = (e: TouchEvent) => {
@@ -132,50 +115,40 @@ function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
       if (e.type === "touchstart") { dragging.current = true; lastMouse.current = { x: t.clientX, y: t.clientY }; }
       if (e.type === "touchmove" && !zoomAgentId) {
         e.preventDefault();
-        const dx = t.clientX - lastMouse.current.x; const dy = t.clientY - lastMouse.current.y;
+        const dx = t.clientX - lastMouse.current.x, dy = t.clientY - lastMouse.current.y;
         lastMouse.current = { x: t.clientX, y: t.clientY };
         velTheta.current -= dx * 0.007; velPhi.current -= dy * 0.005;
       }
       if (e.type === "touchend") dragging.current = false;
     };
     window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("mousedown", onDown);
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    window.addEventListener("touchstart", onTouch, { passive: true });
-    window.addEventListener("touchmove", onTouch, { passive: false });
-    window.addEventListener("touchend", onTouch);
+    window.addEventListener("mousedown", onDown); window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchstart", onTouch, { passive: true }); window.addEventListener("touchmove", onTouch, { passive: false }); window.addEventListener("touchend", onTouch);
     return () => {
       window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("mousedown", onDown);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      window.removeEventListener("touchstart", onTouch);
-      window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("touchend", onTouch);
+      window.removeEventListener("mousedown", onDown); window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchstart", onTouch); window.removeEventListener("touchmove", onTouch); window.removeEventListener("touchend", onTouch);
     };
   }, [zoomAgentId]);
 
   useFrame((_, delta) => {
     if (zoomAgentId) {
-      // ── TRACKING MODE: follow planet's live world position ──
+      // ── CLOSE-UP TRACKING MODE ──
+      // Planet is the target. Camera sits 3.5 units away from it,
+      // in the direction of (planet -> origin) so we see the planet against space.
+      // Planet is always centered in frame.
       const planetPos = planetWorldPositions.get(zoomAgentId);
       if (planetPos && planetPos.lengthSq() > 0.01) {
-        camAngle.current += delta * 0.07; // slow cinematic orbit
-        // Build a camera position offset from the planet
-        const outward = planetPos.clone().normalize();
-        const worldUp = new THREE.Vector3(0, 1, 0);
-        const side = new THREE.Vector3().crossVectors(outward, worldUp).normalize();
-        const up2 = new THREE.Vector3().crossVectors(side, outward).normalize();
-        // Orbit camera around the planet at a fixed distance
-        const orbitOffset = side.clone().multiplyScalar(Math.sin(camAngle.current) * 3)
-          .add(up2.clone().multiplyScalar(2.5 + Math.cos(camAngle.current * 0.5) * 1.5))
-          .add(outward.clone().multiplyScalar(7));
-        const desiredPos = planetPos.clone().add(orbitOffset);
-        // Fast lerp so camera snaps quickly and keeps up with the moving planet
-        const speed = Math.min(1, delta * 8);
+        // Direction from planet outward (away from center / brain)
+        const toPlanet = planetPos.clone().normalize(); // unit vec pointing at planet from origin
+        // Camera offset: sit behind-right of planet relative to the outward direction
+        // "behind" = in the direction planet came from (toward origin side), plus slight upward tilt
+        const camOffset = toPlanet.clone().multiplyScalar(3.5).add(new THREE.Vector3(0, 0.8, 0));
+        const desiredPos = planetPos.clone().add(camOffset);
+        // Very fast lerp - camera must stay glued to the planet
+        const speed = Math.min(1, delta * 10);
         pos.current.lerp(desiredPos, speed);
-        look.current.lerp(planetPos, speed);
+        look.current.lerp(planetPos.clone(), speed);
         camera.position.copy(pos.current);
         camera.lookAt(look.current);
       }
@@ -183,8 +156,7 @@ function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
       // ── FREE ORBIT MODE ──
       theta.current += velTheta.current + delta * 0.06;
       phi.current = Math.max(-1.1, Math.min(1.1, phi.current + velPhi.current));
-      velTheta.current *= 0.88;
-      velPhi.current *= 0.88;
+      velTheta.current *= 0.88; velPhi.current *= 0.88;
       zoomLevel.current = Math.max(0.06, Math.min(18, zoomLevel.current + velZoom.current));
       velZoom.current *= 0.88;
       const r = 42 / zoomLevel.current;
