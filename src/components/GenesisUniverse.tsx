@@ -14,29 +14,29 @@ type Agent = { id: AgentId; name: string; short: string; role: string; color: st
 type NavPlanet = { id: string; label: string; sub: string; color: string; hud: {x:number;y:number}; url: string };
 
 const agents: Agent[] = [
-{ id:"automation",name:"AI Automation",short:"AUTO",role:"自动化流程星系",color:"#22d3ee",glow:"rgba(34,211,238,.82)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:0,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:20,y:26},url:"#ai-automation",description:"表格、API、社群、CRM 与 OpenClaw 工作流自动连接。"},
-{ id:"sheets",name:"Sheets Engine",short:"SHEET",role:"资料同步行星",color:"#34d399",glow:"rgba(52,211,153,.8)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI/2,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:80,y:27},url:"#ai-sheets",description:"Google Sheets、资料清洗、订单状态与自动回写系统。"},
-{ id:"crm",name:"CRM Brain",short:"CRM",role:"客户经营行星",color:"#38bdf8",glow:"rgba(56,189,248,.8)",icon:Bot,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:48,y:81},url:"#ai-crm",description:"客户分层、跟进提醒、复购路径与自动私讯辅助。"},
-{ id:"ops",name:"Ops Control",short:"OPS",role:"营运中控行星",color:"#2dd4bf",glow:"rgba(45,212,191,.78)",icon:Satellite,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI*1.5,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:50,y:17},url:"#ai-ops",description:"把流程、任务、通知、状态监控集中到一个自动化中控台。"},
-{ id:"marketing",name:"AI Marketing",short:"MKT",role:"增长营销星系",color:"#f472b6",glow:"rgba(244,114,182,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:88,y:37},url:"#ai-marketing",description:"爆款 Hook、广告图、内容矩阵、短影音脚本与营销漏斗。"},
-{ id:"content",name:"Content Studio",short:"POST",role:"内容生产行星",color:"#fb7185",glow:"rgba(251,113,133,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*0.67,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:12,y:37},url:"#ai-content",description:"把商品卖点转成社群贴文、广告脚本、短影音与图像创意。"},
-{ id:"ads",name:"Ad Galaxy",short:"ADS",role:"广告素材行星",color:"#fbbf24",glow:"rgba(251,191,36,.82)",icon:Sparkles,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*1.33,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:73,y:82},url:"#ai-ads",description:"生成高点击广告图、标题、CTA 与多版本 A/B 测试素材。"},
-{ id:"funnel",name:"Funnel Core",short:"FUNNEL",role:"销售漏斗行星",color:"#e879f9",glow:"rgba(232,121,249,.8)",icon:Zap,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*2.0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:27,y:82},url:"#ai-funnel",description:"从曝光、点击、询问、成交到复购的完整转化路径。"},
-{ id:"agent",name:"AI Agent",short:"AGENT",role:"智能代理星系",color:"#a78bfa",glow:"rgba(167,139,250,.82)",icon:Bot,orbitRadius:58,orbitSpeed:0.075,orbitAngle:0,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:88,y:56},url:"#ai-agent",description:"让 AI 会思考、调用工具、拆任务，并成为业务执行助手。"},
-{ id:"coding",name:"AI Coding",short:"CODE",role:"产品构建星系",color:"#60a5fa",glow:"rgba(96,165,250,.82)",icon:Code2,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*0.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:12,y:56},url:"#ai-coding",description:"用 AI 建网站、工具、App、自动化系统，并部署上线。"},
-{ id:"deploy",name:"Deploy Portal",short:"LIVE",role:"上线部署行星",color:"#c084fc",glow:"rgba(192,132,252,.82)",icon:ExternalLink,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:70,y:16},url:"#ai-deploy",description:"GitHub、Vercel、上线检查、版本回滚与产品发布流程。"},
-{ id:"data",name:"Data Vault",short:"DATA",role:"知识资料行星",color:"#ffffff",glow:"rgba(255,255,255,.86)",icon:BrainCircuit,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*1.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:30,y:16},url:"#ai-data",description:"沉淀知识库、操作 SOP、训练资料与可复用自动化资产。"},
+{ id:"automation",name:"AI Automation",short:"AUTO",role:"èªå¨åæµç¨æç³»",color:"#22d3ee",glow:"rgba(34,211,238,.82)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:0,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:20,y:26},url:"#ai-automation",description:"è¡¨æ ¼ãAPIãç¤¾ç¾¤ãCRM ä¸ OpenClaw å·¥ä½æµèªå¨è¿æ¥ã"},
+{ id:"sheets",name:"Sheets Engine",short:"SHEET",role:"èµæåæ­¥è¡æ",color:"#34d399",glow:"rgba(52,211,153,.8)",icon:Workflow,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI/2,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:80,y:27},url:"#ai-sheets",description:"Google Sheetsãèµææ¸æ´ãè®¢åç¶æä¸èªå¨ååç³»ç»ã"},
+{ id:"crm",name:"CRM Brain",short:"CRM",role:"å®¢æ·ç»è¥è¡æ",color:"#38bdf8",glow:"rgba(56,189,248,.8)",icon:Bot,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:48,y:81},url:"#ai-crm",description:"å®¢æ·åå±ãè·è¿æéãå¤è´­è·¯å¾ä¸èªå¨ç§è®¯è¾å©ã"},
+{ id:"ops",name:"Ops Control",short:"OPS",role:"è¥è¿ä¸­æ§è¡æ",color:"#2dd4bf",glow:"rgba(45,212,191,.78)",icon:Satellite,orbitRadius:20,orbitSpeed:0.18,orbitAngle:Math.PI*1.5,orbitTilt:[0.28,0,0.18],galaxy:0,hud:{x:50,y:17},url:"#ai-ops",description:"ææµç¨ãä»»å¡ãéç¥ãç¶æçæ§éä¸­å°ä¸ä¸ªèªå¨åä¸­æ§å°ã"},
+{ id:"marketing",name:"AI Marketing",short:"MKT",role:"å¢é¿è¥éæç³»",color:"#f472b6",glow:"rgba(244,114,182,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:88,y:37},url:"#ai-marketing",description:"çæ¬¾ Hookãå¹¿åå¾ãåå®¹ç©éµãç­å½±é³èæ¬ä¸è¥éæ¼æã"},
+{ id:"content",name:"Content Studio",short:"POST",role:"åå®¹çäº§è¡æ",color:"#fb7185",glow:"rgba(251,113,133,.82)",icon:Megaphone,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*0.67,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:12,y:37},url:"#ai-content",description:"æåååç¹è½¬æç¤¾ç¾¤è´´æãå¹¿åèæ¬ãç­å½±é³ä¸å¾ååæã"},
+{ id:"ads",name:"Ad Galaxy",short:"ADS",role:"å¹¿åç´ æè¡æ",color:"#fbbf24",glow:"rgba(251,191,36,.82)",icon:Sparkles,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*1.33,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:73,y:82},url:"#ai-ads",description:"çæé«ç¹å»å¹¿åå¾ãæ é¢ãCTA ä¸å¤çæ¬ A/B æµè¯ç´ æã"},
+{ id:"funnel",name:"Funnel Core",short:"FUNNEL",role:"éå®æ¼æè¡æ",color:"#e879f9",glow:"rgba(232,121,249,.8)",icon:Zap,orbitRadius:36,orbitSpeed:-0.12,orbitAngle:Math.PI*2.0,orbitTilt:[0.42,0.18,-0.12],galaxy:1,hud:{x:27,y:82},url:"#ai-funnel",description:"ä»æåãç¹å»ãè¯¢é®ãæäº¤å°å¤è´­çå®æ´è½¬åè·¯å¾ã"},
+{ id:"agent",name:"AI Agent",short:"AGENT",role:"æºè½ä»£çæç³»",color:"#a78bfa",glow:"rgba(167,139,250,.82)",icon:Bot,orbitRadius:58,orbitSpeed:0.075,orbitAngle:0,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:88,y:56},url:"#ai-agent",description:"è®© AI ä¼æèãè°ç¨å·¥å·ãæä»»å¡ï¼å¹¶æä¸ºä¸å¡æ§è¡å©æã"},
+{ id:"coding",name:"AI Coding",short:"CODE",role:"äº§åæå»ºæç³»",color:"#60a5fa",glow:"rgba(96,165,250,.82)",icon:Code2,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*0.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:12,y:56},url:"#ai-coding",description:"ç¨ AI å»ºç½ç«ãå·¥å·ãAppãèªå¨åç³»ç»ï¼å¹¶é¨ç½²ä¸çº¿ã"},
+{ id:"deploy",name:"Deploy Portal",short:"LIVE",role:"ä¸çº¿é¨ç½²è¡æ",color:"#c084fc",glow:"rgba(192,132,252,.82)",icon:ExternalLink,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:70,y:16},url:"#ai-deploy",description:"GitHubãVercelãä¸çº¿æ£æ¥ãçæ¬åæ»ä¸äº§ååå¸æµç¨ã"},
+{ id:"data",name:"Data Vault",short:"DATA",role:"ç¥è¯èµæè¡æ",color:"#ffffff",glow:"rgba(255,255,255,.86)",icon:BrainCircuit,orbitRadius:58,orbitSpeed:0.075,orbitAngle:Math.PI*1.5,orbitTilt:[-0.28,-0.25,0.22],galaxy:2,hud:{x:30,y:16},url:"#ai-data",description:"æ²æ·ç¥è¯åºãæä½ SOPãè®­ç»èµæä¸å¯å¤ç¨èªå¨åèµäº§ã"},
 ];
 
 const navPlanets: NavPlanet[] = [
-{ id:"academy",label:"Academy",sub:"课程入口",color:"#38bdf8",hud:{x:14,y:44},url:"#academy"},
-{ id:"projects",label:"Projects",sub:"实战作品",color:"#c084fc",hud:{x:86,y:44},url:"#projects"},
-{ id:"templates",label:"Templates",sub:"模板库",color:"#34d399",hud:{x:16,y:60},url:"#templates"},
-{ id:"community",label:"Community",sub:"学习社群",color:"#fb7185",hud:{x:84,y:60},url:"#community"},
-{ id:"roadmap",label:"Roadmap",sub:"路线图",color:"#60a5fa",hud:{x:38,y:14},url:"#roadmap"},
-{ id:"diagnosis",label:"Diagnosis",sub:"AI 诊断",color:"#f97316",hud:{x:62,y:14},url:"#diagnosis"},
-{ id:"vault",label:"Vault",sub:"资源库",color:"#2dd4bf",hud:{x:39,y:88},url:"#vault"},
-{ id:"launch",label:"Launch",sub:"上线部署",color:"#e879f9",hud:{x:61,y:88},url:"#launch"},
+{ id:"academy",label:"Academy",sub:"è¯¾ç¨å¥å£",color:"#38bdf8",hud:{x:14,y:44},url:"#academy"},
+{ id:"projects",label:"Projects",sub:"å®æä½å",color:"#c084fc",hud:{x:86,y:44},url:"#projects"},
+{ id:"templates",label:"Templates",sub:"æ¨¡æ¿åº",color:"#34d399",hud:{x:16,y:60},url:"#templates"},
+{ id:"community",label:"Community",sub:"å­¦ä¹ ç¤¾ç¾¤",color:"#fb7185",hud:{x:84,y:60},url:"#community"},
+{ id:"roadmap",label:"Roadmap",sub:"è·¯çº¿å¾",color:"#60a5fa",hud:{x:38,y:14},url:"#roadmap"},
+{ id:"diagnosis",label:"Diagnosis",sub:"AI è¯æ­",color:"#f97316",hud:{x:62,y:14},url:"#diagnosis"},
+{ id:"vault",label:"Vault",sub:"èµæºåº",color:"#2dd4bf",hud:{x:39,y:88},url:"#vault"},
+{ id:"launch",label:"Launch",sub:"ä¸çº¿é¨ç½²",color:"#e879f9",hud:{x:61,y:88},url:"#launch"},
 ];
 
 const planetWorldPositions = new Map<string, THREE.Vector3>();
@@ -61,7 +61,7 @@ if (t.current >= 1) onDone();
 return (<mesh ref={mesh} position={position}><ringGeometry args={[0.8,1.2,64]}/><meshBasicMaterial ref={mat} color={color} transparent opacity={0.9} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide}/></mesh>);
 }
 
-// ── CameraController ──────────────────────────────────────────────────────────
+// ââ CameraController ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
 const { camera } = useThree();
 const pos = useRef(new THREE.Vector3(0, 1.2, 42));
@@ -132,7 +132,7 @@ const outward = p.clone().normalize();
 const upPerp = new THREE.Vector3(0,1,0);
 upPerp.sub(outward.clone().multiplyScalar(upPerp.dot(outward))).normalize();
 // Camera sits 5 units beyond planet from origin + slight elevation
-const desired = p.clone().add(outward.clone().multiplyScalar(5)).add(upPerp.multiplyScalar(1.2));
+const desired = p.clone().sub(outward.clone().multiplyScalar(5)).add(upPerp.multiplyScalar(1.2));
 const isNewTarget = prevZoomId.current !== zoomAgentId;
 if (isNewTarget) {
 prevZoomId.current = zoomAgentId;
@@ -321,7 +321,7 @@ const resetCamera=useCallback(()=>{setZoomAgentId(null);setActiveId("automation"
 return(
 <main className={`portal-shell ${webglReady?"webgl-ready":""}`} style={{["--mx" as string]:`${mouse.x}%`,["--my" as string]:`${mouse.y}%`,["--active" as string]:active.color}}>
 <div className="portal-viewport">
-<div className="portrait-guard"><RotateCcw className="h-12 w-12 text-cyan-200"/><h1>请横屏进入 Genesis AI Universe</h1><p>这个界面是横屏游戏式星系传送门，旋转手机后可看到完整中心大脑、Agent 星球和导航行星。</p></div>
+<div className="portrait-guard"><RotateCcw className="h-12 w-12 text-cyan-200"/><h1>è¯·æ¨ªå±è¿å¥ Genesis AI Universe</h1><p>è¿ä¸ªçé¢æ¯æ¨ªå±æ¸¸æå¼æç³»ä¼ éé¨ï¼æè½¬ææºåå¯çå°å®æ´ä¸­å¿å¤§èãAgent æçåå¯¼èªè¡æã</p></div>
 <div className="portal-bg"/>
 <div className="flying-orbs" aria-hidden="true">{Array.from({length:16},(_,i)=><span key={i}/>)}</div>
 <div className={`touch-glow ${touchGlow.active?"active":""}`} style={{["--touch-x" as string]:`${touchGlow.x}%`,["--touch-y" as string]:`${touchGlow.y}%`}}/>
@@ -333,9 +333,9 @@ onCreated={({gl})=>{gl.setPixelRatio(Math.min(window.devicePixelRatio,2));}}><Un
 <defs><filter id="lineGlow"><feGaussianBlur stdDeviation="0.45" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
 {agents.map(n=><line key={n.id} x1="50" y1="50" x2={n.hud.x} y2={n.hud.y} stroke={n.color} strokeWidth="0.13" opacity="0.56" filter="url(#lineGlow)"/>)}
 </svg>
-<header className="portal-briefing"><span className="live-dot"/><strong>BRIEFING · LIVE</strong><span className="separator">|</span><Clock/><span className="separator">|</span><span>GENESIS AI UNIVERSE · 360° ORBIT + PINCH ZOOM</span></header>
+<header className="portal-briefing"><span className="live-dot"/><strong>BRIEFING Â· LIVE</strong><span className="separator">|</span><Clock/><span className="separator">|</span><span>GENESIS AI UNIVERSE Â· 360Â° ORBIT + PINCH ZOOM</span></header>
 <div className="scroll-brief">
-<p>{zoomAgentId===null?"SECTION 00 · 360° ORBIT CAMERA":`SECTION ${String(agents.findIndex(a=>a.id===activeId)+1).padStart(2,"0")} · DEEP SPACE GALAXY`}</p>
+<p>{zoomAgentId===null?"SECTION 00 Â· 360Â° ORBIT CAMERA":`SECTION ${String(agents.findIndex(a=>a.id===activeId)+1).padStart(2,"0")} Â· DEEP SPACE GALAXY`}</p>
 <h1>{burst.label}</h1><span>{active.description}</span>
 </div>
 <div className="progress-rail" aria-hidden="true">
@@ -344,9 +344,9 @@ onCreated={({gl})=>{gl.setPixelRatio(Math.min(window.devicePixelRatio,2));}}><Un
 ))}
 </div>
 <nav className="side-console" aria-label="Universe navigation">
-<button onClick={resetCamera} className="console-btn reset"><RefreshCcw className="h-4 w-4"/>重置</button>
+<button onClick={resetCamera} className="console-btn reset"><RefreshCcw className="h-4 w-4"/>éç½®</button>
 {agents.map(agent=>(<button key={agent.id} onClick={()=>zoomToAgent(agent.id)} className={`console-btn ${activeId===agent.id?"active":""}`} style={{["--node" as string]:agent.color}}>{agent.name.replace("AI ","")}</button>))}
-<a className="console-btn portal-link" href="#academy">Academy</a><a className="console-btn portal-link" href="#diagnosis">诊断</a>
+<a className="console-btn portal-link" href="#academy">Academy</a><a className="console-btn portal-link" href="#diagnosis">è¯æ­</a>
 </nav>
 <section className="galaxy-stage" aria-label="Genesis AI Universe portal">
 {!webglReady&&(<><div className="orbit-ring orbit-ring-1"/><div className="orbit-ring orbit-ring-2"/><div className="orbit-ring orbit-ring-3"/>
@@ -366,15 +366,15 @@ onCreated={({gl})=>{gl.setPixelRatio(Math.min(window.devicePixelRatio,2));}}><Un
 <div className="dossier-icon" style={{color:active.color,background:`${active.color}22`}}><ActiveIcon/></div>
 <div><p>SELECTED AGENT</p><h2>{active.name}</h2><span>{active.role}</span></div>
 <p className="dossier-desc">{active.description}</p>
-<a href={active.url} className="dossier-link">进入这个星球 <ExternalLink className="h-4 w-4"/></a>
+<a href={active.url} className="dossier-link">è¿å¥è¿ä¸ªæç <ExternalLink className="h-4 w-4"/></a>
 </motion.aside></AnimatePresence>
 <footer className="agent-dock" aria-label="Agent selector">
 {agents.map(agent=>(<button key={agent.id} onClick={()=>zoomToAgent(agent.id)} className={activeId===agent.id?"active":""} style={{["--node" as string]:agent.color}}>{agent.name}</button>))}
 </footer>
 <div className="scanline"/>
 <div className="corner-hud corner-a"><Sparkles className="h-4 w-4"/>SYSTEM ONLINE</div>
-<div className="corner-hud corner-b"><Satellite className="h-4 w-4"/>3 GALAXIES · 12 PLANETS · 48 MOONS</div>
-<div className="corner-hud corner-c"><Zap className="h-4 w-4"/>360° DRAG · ZOOM · CLICK TO ZOOM IN</div>
+<div className="corner-hud corner-b"><Satellite className="h-4 w-4"/>3 GALAXIES Â· 12 PLANETS Â· 48 MOONS</div>
+<div className="corner-hud corner-c"><Zap className="h-4 w-4"/>360Â° DRAG Â· ZOOM Â· CLICK TO ZOOM IN</div>
 </div>
 <div className="scroll-sectors" aria-hidden="true">
 {[{id:"genesis-core",label:"Genesis Core"},...agents.map(a=>({id:`ai-${a.id}`,label:a.name}))].map(({id,label},idx)=>(
