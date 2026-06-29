@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Stars, Html, Line } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { KernelSize, BlendFunction } from "postprocessing";
@@ -45,6 +45,21 @@ const navPlanets: NavPlanet[] = [
   { id: "launch", label: "Launch", sub: "上线部署", color: "#e879f9", hud: { x: 61, y: 88 }, url: "#launch" },
 ];
 
+const agentAliases: Record<string, string> = {
+  automation: "自动", sheets: "表格", crm: "客户", ops: "营运",
+  marketing: "营销", content: "内容", ads: "广告", funnel: "漏斗",
+  agent: "代理", coding: "代码", deploy: "上线", data: "资料",
+};
+
+const coreNameCloud = [
+  { label: "自动", x: 50, y: 35, color: "#ff4d8d" },
+  { label: "表格", x: 61, y: 39, color: "#b56cff" },
+  { label: "客户", x: 44, y: 45, color: "#ff4d8d" },
+  { label: "代码", x: 56, y: 51, color: "#33f7e2" },
+  { label: "营销", x: 51, y: 57, color: "#ffffff" },
+  { label: "上线", x: 63, y: 60, color: "#ffb52f" },
+];
+
 // Module-level Map to store each planet's world position, updated every frame.
 // This is fine in Next.js client components - it's not serialized/hydrated.
 const planetWorldPositions = new Map<string, THREE.Vector3>();
@@ -85,7 +100,6 @@ function Shockwave({ position, color, onDone }: { position: THREE.Vector3; color
 // - FOV narrows from 52° to 12° (telephoto lens = planet fills screen)
 // - Instant snap to position on first frame, then smooth lerp tracking
 function CameraController({ zoomAgentId }: { zoomAgentId: string | null }) {
-const { camera } = useThree();
 const pos = useRef(new THREE.Vector3(0, 1.2, 42));
 const look = useRef(new THREE.Vector3(0, 0, 0));
 const theta = useRef(0.65);
@@ -245,7 +259,7 @@ function CentralBrain3D({ color }: { color: string }) {
     vertexShader: brainVert, fragmentShader: brainFrag,
     uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(color) } },
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.FrontSide,
-  }), []);
+  }), [color]);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -407,21 +421,27 @@ function Galaxy({ galaxyIndex, agents: ga, activeId, onPlanetClick }: { galaxyIn
   );
 }
 // ── Background ────────────────────────────────────────────────────────────────
+const seededParticle = (i: number, salt: number) => {
+  const x = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+function makeParticleGeometry(n: number, rMin: number, rMax: number) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const r = rMin + seededParticle(i, 1) * (rMax - rMin), th = seededParticle(i, 2) * Math.PI * 2, ph = (seededParticle(i, 3) - 0.5) * Math.PI;
+    pos[i * 3] = Math.cos(th) * Math.cos(ph) * r; pos[i * 3 + 1] = Math.sin(ph) * r; pos[i * 3 + 2] = Math.sin(th) * Math.cos(ph) * r;
+  }
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  return geo;
+}
+
 function BackgroundParticles() {
   const g = useRef<THREE.Group>(null);
-  const mk = (n: number, rMin: number, rMax: number) => {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) {
-      const r = rMin + Math.random() * (rMax - rMin), th = Math.random() * Math.PI * 2, ph = (Math.random() - 0.5) * Math.PI;
-      pos[i * 3] = Math.cos(th) * Math.cos(ph) * r; pos[i * 3 + 1] = Math.sin(ph) * r; pos[i * 3 + 2] = Math.sin(th) * Math.cos(ph) * r;
-    }
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    return geo;
-  };
-  const geo1 = useMemo(() => mk(1200, 200, 800), []);
-  const geo2 = useMemo(() => mk(800, 400, 800), []);
-  const geo3 = useMemo(() => mk(600, 600, 1200), []);
+  const geo1 = useMemo(() => makeParticleGeometry(1200, 200, 800), []);
+  const geo2 = useMemo(() => makeParticleGeometry(800, 400, 800), []);
+  const geo3 = useMemo(() => makeParticleGeometry(600, 600, 1200), []);
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (g.current) {
@@ -524,7 +544,10 @@ export default function GenesisUniverse() {
   }, []);
 
   useEffect(() => {
-    try { const c = document.createElement("canvas"); setWebglReady(!!(c.getContext("webgl2") || c.getContext("webgl"))); } catch { setWebglReady(false); }
+    const id = window.requestAnimationFrame(() => {
+      try { const c = document.createElement("canvas"); setWebglReady(!!(c.getContext("webgl2") || c.getContext("webgl"))); } catch { setWebglReady(false); }
+    });
+    return () => window.cancelAnimationFrame(id);
   }, []);
 
   // When user clicks an agent: set it as active AND start tracking it.
@@ -568,6 +591,12 @@ export default function GenesisUniverse() {
         )}
 
         <div className="core-overexpose" aria-hidden="true" />
+        <div className="core-shard-ring" aria-hidden="true">
+          {Array.from({ length: 44 }, (_, i) => <span key={i} style={{ ["--i" as string]: i }} />)}
+        </div>
+        <div className="core-name-cloud" aria-hidden="true">
+          {coreNameCloud.map(item => <b key={item.label} style={{ left: `${item.x}%`, top: `${item.y}%`, color: item.color }}>{item.label}</b>)}
+        </div>
         <svg className="portal-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <defs><filter id="lineGlow"><feGaussianBlur stdDeviation="0.45" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
           {agents.map(n => <line key={n.id} x1="50" y1="50" x2={n.hud.x} y2={n.hud.y} stroke={n.color} strokeWidth="0.13" opacity="0.56" filter="url(#lineGlow)" />)}
@@ -576,7 +605,7 @@ export default function GenesisUniverse() {
         <header className="portal-briefing">
           <span className="live-dot" /><strong>BRIEFING · LIVE</strong><span className="separator">|</span>
           <Clock /><span className="separator">|</span>
-          <span>GENESIS AI UNIVERSE · 360° ORBIT + PINCH ZOOM</span>
+          <span>GENESIS AI 宇宙 · 無限巡航 · 點擊星站</span>
         </header>
 
         <div className="scroll-brief">
@@ -586,7 +615,7 @@ export default function GenesisUniverse() {
         </div>
 
         <div className="progress-rail" aria-hidden="true">
-          {[{ id: "core", label: "Genesis Core" }, ...agents.map(a => ({ id: a.id, label: a.name }))].map(({ id, label }, idx) => (
+          {[{ id: "core" }, ...agents.map(a => ({ id: a.id }))].map(({ id }, idx) => (
             <button key={id} onClick={() => id === "core" ? resetCamera() : zoomToAgent(id)}
               className={activeId === id || (id === "core" && zoomAgentId === null) ? "active" : ""}>
               <i /><span>{String(idx).padStart(2, "0")}</span>
@@ -598,13 +627,14 @@ export default function GenesisUniverse() {
           <button onClick={resetCamera} className="console-btn reset"><RefreshCcw className="h-4 w-4" />重置</button>
           {agents.map(agent => (
             <button key={agent.id} onClick={() => zoomToAgent(agent.id)}
-              className={`console-btn ${activeId === agent.id ? "active" : ""}`}
+              className={`console-btn station ${activeId === agent.id ? "active" : ""}`}
               style={{ ["--node" as string]: agent.color }}>
-              {agent.name.replace("AI ", "")}
+              <span className="console-main">{agentAliases[agent.id] ?? agent.short}</span>
+              <span className="console-sub">站</span>
             </button>
           ))}
-          <a className="console-btn portal-link" href="#academy">Academy</a>
-          <a className="console-btn portal-link" href="#diagnosis">诊断</a>
+          <a className="console-btn portal-link station" href="#academy"><span className="console-main">学院</span></a>
+          <a className="console-btn portal-link station" href="#diagnosis"><span className="console-main">导览</span></a>
         </nav>
 
         <section className="galaxy-stage" aria-label="Genesis AI Universe portal">
@@ -659,7 +689,7 @@ export default function GenesisUniverse() {
             <button key={agent.id} onClick={() => zoomToAgent(agent.id)}
               className={activeId === agent.id ? "active" : ""}
               style={{ ["--node" as string]: agent.color }}>
-              {agent.name}
+              {agentAliases[agent.id] ?? agent.name}
             </button>
           ))}
         </footer>

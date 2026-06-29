@@ -175,20 +175,20 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   left: 50%;
   top: 52%;
   z-index: 3;
-  width: min(27vw, 360px);
+  width: min(36vw, 520px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 999px;
   pointer-events: none;
   mix-blend-mode: screen;
   background:
-    radial-gradient(circle, rgba(255,255,255,.94) 0 16%, rgba(236,254,255,.86) 24%, rgba(103,232,249,.42) 39%, rgba(167,139,250,.16) 54%, transparent 72%);
+    radial-gradient(circle, rgba(255,255,255,1) 0 30%, rgba(236,254,255,.96) 39%, rgba(103,232,249,.62) 52%, rgba(167,139,250,.22) 64%, transparent 78%);
   box-shadow:
-    0 0 44px rgba(255,255,255,.95),
-    0 0 118px rgba(103,232,249,.68),
-    0 0 220px color-mix(in srgb, var(--active) 54%, transparent);
-  filter: blur(.2px);
-  opacity: .42;
+    0 0 70px rgba(255,255,255,1),
+    0 0 170px rgba(103,232,249,.86),
+    0 0 310px color-mix(in srgb, var(--active) 68%, transparent);
+  filter: blur(.1px);
+  opacity: .68;
   animation: coreOverexposePulse 2.1s ease-in-out infinite;
 }
 .core-overexpose::before,
@@ -206,6 +206,53 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border-color: rgba(244,114,182,.24);
   animation-duration: 15s;
   animation-direction: reverse;
+}
+
+.core-shard-ring {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  z-index: 5;
+  width: min(52vw, 690px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 12px rgba(103,232,249,.72));
+  animation: shardWheel 36s linear infinite;
+}
+.core-shard-ring span {
+  --angle: calc(var(--i) * 8.1818deg);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(24px, 4.8vw, 66px);
+  height: clamp(5px, .85vw, 12px);
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(218,251,255,.94), rgba(125,211,252,.86));
+  box-shadow: 0 0 18px rgba(224,252,255,.72), 0 0 42px rgba(34,211,238,.42);
+  transform-origin: 0 0;
+  transform: rotate(var(--angle)) translateX(min(22vw, 285px)) rotate(9deg);
+  opacity: .68;
+}
+.core-shard-ring span:nth-child(3n) { width: clamp(34px, 6.4vw, 86px); transform: rotate(var(--angle)) translateX(min(20.5vw, 260px)) rotate(89deg); }
+.core-shard-ring span:nth-child(4n) { background: linear-gradient(90deg, rgba(255,255,255,.1), rgba(191,219,254,.96), rgba(167,139,250,.78)); }
+.core-name-cloud {
+  position: absolute;
+  inset: 0;
+  z-index: 34;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.core-name-cloud b {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: clamp(18px, 2.25vw, 38px);
+  font-weight: 1000;
+  letter-spacing: -.05em;
+  text-shadow: 0 0 10px currentColor, 0 0 24px currentColor, 0 0 42px rgba(255,255,255,.75);
+  filter: blur(.15px);
+  animation: nameGlow 2.6s ease-in-out infinite;
 }
 
 .portal-lines {
@@ -245,10 +292,11 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 
 .scroll-brief {
   position: absolute;
-  left: 148px;
-  top: 118px;
+  left: 156px;
+  top: 116px;
   z-index: 32;
-  width: min(340px, 30vw);
+  width: min(260px, 24vw);
+  opacity: .42;
   border-left: 3px solid var(--active);
   background: linear-gradient(90deg, color-mix(in srgb, var(--active) 18%, rgba(2,8,23,.68)), rgba(2,8,23,.18), transparent);
   padding: 12px 0 12px 16px;
@@ -264,14 +312,14 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 }
 .scroll-brief h1 {
   margin: 0;
-  font-size: clamp(22px, 2.8vw, 44px);
+  font-size: clamp(18px, 1.8vw, 28px);
   line-height: .96;
   font-weight: 1000;
   text-transform: uppercase;
   text-shadow: 0 0 24px color-mix(in srgb, var(--active) 45%, transparent);
 }
 .scroll-brief span {
-  display: block;
+  display: none;
   margin-top: 9px;
   max-width: 300px;
   color: rgba(226,232,240,.78);
@@ -327,23 +375,23 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 118px;
+  width: 92px;
 }
 .console-btn {
   display: inline-flex;
-  min-height: 30px;
+  min-height: 29px;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   border: 1px solid color-mix(in srgb, var(--node, #22d3ee) 60%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--node, #22d3ee) 14%, rgba(0,0,0,.62));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--node, #22d3ee) 18%, rgba(0,0,0,.58));
   box-shadow: 0 0 18px color-mix(in srgb, var(--node, #22d3ee) 24%, transparent), inset 0 0 16px rgba(255,255,255,.05);
-  padding: 6px 10px;
+  padding: 5px 8px;
   color: #eaffff;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 950;
   backdrop-filter: blur(12px);
   transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
@@ -352,6 +400,9 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   background: color-mix(in srgb, var(--node, #22d3ee) 28%, rgba(0,0,0,.65));
   box-shadow: 0 0 32px color-mix(in srgb, var(--node, #22d3ee) 50%, transparent), inset 0 0 18px rgba(255,255,255,.08);
 }
+.console-btn.station { justify-content: space-between; border-radius: 999px; }
+.console-main { flex: 1; text-align: center; text-shadow: 0 0 10px currentColor; }
+.console-sub { min-width: 28px; margin-right: -4px; border-left: 1px solid color-mix(in srgb, var(--node, #22d3ee) 45%, transparent); color: color-mix(in srgb, var(--node, #22d3ee) 78%, white 12%); font-size: 10px; letter-spacing: .16em; opacity: .85; }
 .console-btn.reset { --node: #38bdf8; }
 .console-btn.portal-link { --node: #a78bfa; }
 
@@ -651,7 +702,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   right: 24px;
   bottom: 76px;
   z-index: 38;
-  width: min(320px, 27vw);
+  width: min(260px, 22vw);
+  opacity: .72;
   border: 1px solid rgba(255,255,255,.13);
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(2,8,23,.86), rgba(8,13,31,.7));
@@ -673,13 +725,13 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-dossier p:first-of-type { color: #67e8f9; font-size: 10px; letter-spacing: .28em; margin: 0; }
 .agent-dossier h2 { margin: 2px 0 0; font-size: 24px; font-weight: 1000; }
 .agent-dossier span { color: rgba(226,232,240,.64); font-size: 12px; }
-.dossier-desc { clear: both; margin: 16px 0 14px !important; color: rgba(226,232,240,.84) !important; line-height: 1.7; letter-spacing: 0 !important; font-size: 14px !important; }
+.dossier-desc { display: none; }
 .dossier-link { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(103,232,249,.26); border-radius: 999px; background: rgba(103,232,249,.1); padding: 10px 14px; color: #dffbff; font-size: 13px; font-weight: 900; pointer-events: auto; }
 
 .agent-dock {
   position: absolute;
   left: 50%;
-  bottom: 18px;
+  bottom: 14px;
   z-index: 45;
   display: flex;
   flex-wrap: wrap;
@@ -689,7 +741,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 999px;
   background: rgba(2,8,23,.55);
-  max-width: min(92vw, 980px);
+  max-width: min(74vw, 720px);
   padding: 7px;
   backdrop-filter: blur(18px);
   box-shadow: 0 0 34px rgba(34,211,238,.14);
@@ -697,8 +749,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-dock button {
   border: 1px solid color-mix(in srgb, var(--node) 42%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--node) 10%, rgba(0,0,0,.5));
-  padding: 7px 10px;
+  background: color-mix(in srgb, var(--node) 14%, rgba(0,0,0,.55));
+  padding: 8px 14px;
   color: #eaffff;
   cursor: pointer;
   font-size: 11px;
@@ -710,7 +762,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .corner-hud {
   position: absolute;
   z-index: 25;
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: 8px;
   border: 1px solid rgba(103,232,249,.16);
@@ -766,6 +818,8 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 @keyframes pulseCore { 0%, 100% { opacity: .7; transform: scale(.95); } 50% { opacity: 1; transform: scale(1.08); } }
 @keyframes coreOverexposePulse { 0%, 100% { opacity: .34; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: .55; transform: translate(-50%, -50%) scale(1.05); } }
 @keyframes orbitSpinOverlay { to { transform: rotate(360deg); } }
+@keyframes shardWheel { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes nameGlow { 0%,100% { opacity: .58; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); } }
 @keyframes pulseDot { 0%, 100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.25); opacity: 1; } }
 @keyframes planetPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.34); } }
 @keyframes planetAura { 0%, 100% { transform: scale(.9); opacity: .45; } 50% { transform: scale(1.18); opacity: .92; } }
