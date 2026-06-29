@@ -586,7 +586,7 @@ export default function GenesisUniverse() {
         </div>
 
         <div className="progress-rail" aria-hidden="true">
-          {[{ id: "core", label: "Genesis Core" }, ...agents].map(({ id, label }, idx) => (
+          {[{ id: "core", label: "Genesis Core" }, ...agents.map(a => ({ id: a.id, label: a.name }))].map(({ id, label }, idx) => (
             <button key={id} onClick={() => id === "core" ? resetCamera() : zoomToAgent(id)}
               className={activeId === id || (id === "core" && zoomAgentId === null) ? "active" : ""}>
               <i /><span>{String(idx).padStart(2, "0")}</span>
