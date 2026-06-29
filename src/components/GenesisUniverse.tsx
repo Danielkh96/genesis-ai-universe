@@ -45,9 +45,7 @@ const navPlanets: NavPlanet[] = [
 { id:"launch", label:"Launch", sub:"上线部署", color:"#e879f9", hud:{x:61,y:88}, url:"#launch" },
 ];
 
-// Global real-time world positions for each agent planet (updated every frame by AgentPlanet3D)
 const planetWorldPositions = new Map<string, THREE.Vector3>();
-// The currently tracked agent ID for zoom (read by CameraController)
 let zoomedAgentId: string | null = null;
 
 function Clock() {
@@ -79,8 +77,6 @@ return (
 }
 
 // ─── Camera Controller ────────────────────────────────────────────────────────
-// When zooming=true, continuously reads the live planet world position from
-// planetWorldPositions map and keeps the camera orbit around that moving planet.
 function CameraController({ zooming, zoomAgentId }: { zooming: boolean; zoomAgentId: string | null }) {
 const { camera } = useThree();
 const currentPos = useRef(new THREE.Vector3(0, 1.2, 42));
@@ -92,8 +88,7 @@ const zoomLevel = useRef(1);
 const zoomVel = useRef(0);
 const isDragging = useRef(false);
 const lastMouse = useRef({ x:0, y:0 });
-// For smooth zoom approach: track how close we are to the target
-const zoomApproachT = useRef(0);
+const camAngle = useRef(0);
 
 useEffect(()=>{
 const onWheel = (e: WheelEvent) => { e.preventDefault(); if (!zooming) { zoomVel.current -= e.deltaY * 0.0003; orbitVel.current.theta -= e.deltaX * 0.0003; } };
@@ -113,36 +108,28 @@ window.addEventListener('touchstart',onTouch,{passive:true}); window.addEventLis
 return ()=>{ window.removeEventListener('wheel',onWheel); window.removeEventListener('mousedown',onDown); window.removeEventListener('mousemove',onMove); window.removeEventListener('mouseup',onUp); window.removeEventListener('touchstart',onTouch); window.removeEventListener('touchmove',onTouch); window.removeEventListener('touchend',onTouch); };
 },[zooming]);
 
-useEffect(()=>{
-if(zooming) { zoomApproachT.current = 0; }
-else { zoomApproachT.current = 0; }
-},[zooming, zoomAgentId]);
+useEffect(()=>{ camAngle.current = 0; },[zoomAgentId]);
 
 useFrame((_,delta)=>{
 if (zooming && zoomAgentId) {
-// Live-track the planet's current world position
 const planetPos = planetWorldPositions.get(zoomAgentId);
-if (planetPos && planetPos.length() > 0.01) {
-zoomApproachT.current = Math.min(1, zoomApproachT.current + delta * 0.6);
-// Compute a camera position behind-and-above the planet
+if (planetPos && planetPos.length() > 0.5) {
+camAngle.current += delta * 0.08;
 const outward = planetPos.clone().normalize();
-const upVec = new THREE.Vector3(0,1,0);
-const side = outward.clone().cross(upVec).normalize();
-// Distance from planet: start far (18), settle at 10
-const dist = 18 - zoomApproachT.current * 8;
-const desiredPos = planetPos.clone()
-.add(outward.clone().multiplyScalar(dist * 0.7))
-.add(new THREE.Vector3(0, dist * 0.35, 0))
-.add(side.clone().multiplyScalar(dist * 0.2));
-// Smoothly move camera toward that position and look at planet
-const lerpSpeed = 0.055;
+const worldUp = new THREE.Vector3(0,1,0);
+const side = outward.clone().cross(worldUp).normalize();
+const up = outward.clone().cross(side).normalize();
+const offset = outward.clone().multiplyScalar(6)
+.add(up.clone().multiplyScalar(3.5))
+.add(side.clone().multiplyScalar(Math.sin(camAngle.current) * 2.5));
+const desiredPos = planetPos.clone().add(offset);
+const lerpSpeed = Math.min(1, delta * 9);
 currentPos.current.lerp(desiredPos, lerpSpeed);
 currentLook.current.lerp(planetPos, lerpSpeed);
 camera.position.copy(currentPos.current);
 camera.lookAt(currentLook.current);
 }
 } else {
-// Free orbit mode
 const speed = 0.08;
 orbitTheta.current += orbitVel.current.theta;
 orbitPhi.current = Math.max(-1.1, Math.min(1.1, orbitPhi.current + orbitVel.current.phi));
@@ -164,7 +151,6 @@ camera.lookAt(currentLook.current);
 });
 return null;
 }
-// ─── Brain Shader Material ───────────────────────────────────────────────────
 const brainVertexShader = `
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -219,7 +205,6 @@ gl_FragColor = vec4(col, alpha);
 }
 `;
 
-// ─── Central Brain 3D ────────────────────────────────────────────────────────
 function CentralBrain3D({ color }: { color: string }) {
 const brain = useRef<THREE.Group>(null);
 const shaderRef = useRef<THREE.ShaderMaterial>(null);
@@ -289,7 +274,6 @@ return (<mesh key={i} position={[Math.cos(angle)*r,Math.sin(angle*1.4)*1.85,Math
 );
 }
 
-// ─── Connection Lines ─────────────────────────────────────────────────────────
 function ConnectionLine({ to, color, active }: { to: THREE.Vector3; color: string; active: boolean }) {
 const points = useMemo(()=>{
 const mid = to.clone().multiplyScalar(0.45); mid.z+=0.5;
@@ -303,7 +287,6 @@ dashed={!active} dashSize={0.8} gapSize={0.4}
 );
 }
 
-// ─── Agent Planet Label ──────────────────────────────────────────────────────
 function PlanetLabel({ name, role, color, active }: { name: string; role: string; color: string; active: boolean }) {
 return (
 <div style={{ pointerEvents: 'none', textAlign: 'center', whiteSpace: 'nowrap', fontFamily: "'Geist', Arial, sans-serif" }}>
@@ -327,8 +310,6 @@ return (
 </div>
 );
 }
-// ─── Agent Planet 3D ─────────────────────────────────────────────────────────
-// Registers world position into planetWorldPositions every frame
 function AgentPlanet3D({ agent, active, onClick }: { agent: Agent; active: boolean; onClick: ()=>void }) {
 const group = useRef<THREE.Group>(null);
 const planet = useRef<THREE.Mesh>(null);
@@ -346,7 +327,6 @@ const ly = Math.sin(angleRef.current*1.3)*r*0.18;
 if(group.current){
 group.current.position.set(lx,ly,lz);
 group.current.rotation.y=t*0.22;
-// Update global world position map
 group.current.getWorldPosition(_wp.current);
 planetWorldPositions.set(agent.id, _wp.current.clone());
 }
@@ -397,7 +377,6 @@ return (
 );
 }
 
-// ─── Galaxy ───────────────────────────────────────────────────────────────────
 function Galaxy({ galaxyIndex, agents: galaxyAgents, activeId, onPlanetClick }: { galaxyIndex: number; agents: Agent[]; activeId: string; onPlanetClick: (id:string)=>void }) {
 const group = useRef<THREE.Group>(null);
 const r = galaxyIndex===0?20:galaxyIndex===1?36:58;
@@ -424,7 +403,6 @@ onClick={()=>onPlanetClick(agent.id)}
 </group>
 );
 }
-// ─── Background Particles ─────────────────────────────────────────────────────
 function BackgroundParticles() {
 const group = useRef<THREE.Group>(null);
 const geo1 = useMemo(()=>{ const g=new THREE.BufferGeometry(); const pos=new Float32Array(1200*3); for(let i=0;i<1200;i++){ const r=200+Math.random()*600; const th=Math.random()*Math.PI*2; const ph=(Math.random()-0.5)*Math.PI; pos[i*3]=Math.cos(th)*Math.cos(ph)*r; pos[i*3+1]=Math.sin(ph)*r; pos[i*3+2]=Math.sin(th)*Math.cos(ph)*r; } g.setAttribute('position',new THREE.BufferAttribute(pos,3)); return g; },[]);
@@ -434,7 +412,6 @@ useFrame(({clock})=>{ const t=clock.getElapsedTime(); if(group.current){ (group.
 return (<group ref={group}><points geometry={geo1}><pointsMaterial size={1.8} color="#ffffff" transparent opacity={0.65} sizeAttenuation/></points><points geometry={geo2}><pointsMaterial size={2.4} color="#67e8f9" transparent opacity={0.38} sizeAttenuation/></points><points geometry={geo3}><pointsMaterial size={1.6} color="#a78bfa" transparent opacity={0.28} sizeAttenuation/></points></group>);
 }
 
-// ─── Flying Orbs ─────────────────────────────────────────────────────────────
 function FlyingGlowPlanets() {
 const group = useRef<THREE.Group>(null);
 const flyers = useMemo(()=>Array.from({length:28},(_,i)=>({ radius:0.045+(i%5)*0.018, speed:0.15+(i%6)*0.035, phase:i*1.71, y:-7.5+(i%4)*3.6+Math.sin(i)*0.65, z:-18-(i%7)*2.4, spread:30+(i%6)*4.5, color:i%4===0?"#67e8f9":i%4===1?"#a78bfa":i%4===2?"#f472b6":"#ffffff" })),[]);
@@ -442,7 +419,6 @@ useFrame(({clock})=>{ const t=clock.getElapsedTime(); if(group.current) group.cu
 return (<group ref={group}>{flyers.map((f,i)=>(<group key={i}><mesh><sphereGeometry args={[f.radius*5.2,18,18]}/><meshBasicMaterial color={f.color} transparent opacity={0.1} blending={THREE.AdditiveBlending} depthWrite={false}/></mesh><mesh><sphereGeometry args={[f.radius,16,16]}/><meshBasicMaterial color={f.color} transparent opacity={0.82} blending={THREE.AdditiveBlending} depthWrite={false}/></mesh></group>))}</group>);
 }
 
-// ─── Network Nodes ────────────────────────────────────────────────────────────
 function NetworkNodes() {
 const group = useRef<THREE.Group>(null);
 const { nodes, linePositions } = useMemo(()=>{ const nodes=Array.from({length:160},(_,i)=>{ const angle=(i*2.399963)%(Math.PI*2); const r=18+((i*17)%100)/100*68; const y=Math.sin(i*1.37)*22; return {p:new THREE.Vector3(Math.cos(angle)*r,y,Math.sin(angle)*r*0.9-16),s:0.018+(i%5)*0.008,color:i%5===0?"#fb7185":i%5===1?"#fbbf24":i%5===2?"#a78bfa":"#67e8f9"}; }); const vals: number[]=[]; nodes.forEach((n,i)=>{ const nx=nodes[(i+13)%nodes.length]!; if(n.p.distanceTo(nx.p)<22||i%7===0) vals.push(n.p.x,n.p.y,n.p.z,nx.p.x,nx.p.y,nx.p.z); }); return {nodes,linePositions:new Float32Array(vals)}; },[]);
@@ -450,7 +426,6 @@ useFrame(({clock})=>{ if(group.current){ group.current.rotation.y=clock.getElaps
 return (<group ref={group}><lineSegments><bufferGeometry><bufferAttribute attach="attributes-position" args={[linePositions,3]}/></bufferGeometry><lineBasicMaterial color="#67e8f9" transparent opacity={0.05} blending={THREE.AdditiveBlending} depthWrite={false}/></lineSegments>{nodes.map((n,i)=>(<mesh key={i} position={n.p}><sphereGeometry args={[n.s,8,8]}/><meshBasicMaterial color={n.color} transparent opacity={0.75} blending={THREE.AdditiveBlending}/></mesh>))}</group>);
 }
 
-// ─── Universe Scene ───────────────────────────────────────────────────────────
 type ShockwaveData = { id:string; pos:THREE.Vector3; color:string };
 
 function UniverseScene({ activeId, zooming, zoomAgentId, onPlanetClick }:{ activeId:string; zooming:boolean; zoomAgentId:string|null; onPlanetClick:(id:string)=>void }) {
@@ -492,7 +467,6 @@ return (
 </>
 );
 }
-// ─── Main Export ──────────────────────────────────────────────────────────────
 export default function GenesisUniverse() {
 const [activeId, setActiveId] = useState<AgentId>("automation");
 const [mouse, setMouse] = useState({x:50,y:50});
@@ -520,17 +494,15 @@ useEffect(()=>{
 try{ const c=document.createElement('canvas'); const gl=c.getContext('webgl2')||c.getContext('webgl'); setWebglReady(!!gl); }catch{ setWebglReady(false); }
 },[]);
 
-// Zoom to agent: set zooming=true and pass the agent ID to CameraController
-// CameraController will then live-track this planet's world position every frame
 const zoomToAgent = useCallback((id:string)=>{
 const agent=agents.find(a=>a.id===id); if(!agent) return;
 setActiveId(id);
 setBurst({id,label:agent.name});
 setZoomAgentId(id);
 setZooming(true);
-// Keep zooming active so camera keeps tracking the moving planet
 if(zoomTimeoutRef.current) clearTimeout(zoomTimeoutRef.current);
-zoomTimeoutRef.current=setTimeout(()=>setZooming(false),3500);
+// Keep zooming=true indefinitely while agent is selected (camera keeps tracking)
+// Reset only when user clicks reset or another agent
 },[]);
 
 const resetCamera = useCallback(()=>{
