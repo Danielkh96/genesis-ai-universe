@@ -273,9 +273,10 @@ function CentralBrain3D({ color }: { color: string }) {
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    if (brain.current) { brain.current.rotation.y = t * 0.28; brain.current.rotation.x = Math.sin(t * 0.38) * 0.14; }
+    if (brain.current) { brain.current.rotation.y = t * 0.18; brain.current.rotation.x = 0; }
     if (shader.current) { shader.current.uniforms.uTime.value = t; shader.current.uniforms.uColor.value.set(color); }
-    if (innerGlow.current) innerGlow.current.scale.setScalar(1 + Math.sin(t * 1.8) * 0.032);
+    if (innerGlow.current) // innerGlow pulse removed
+    // innerGlow.current.scale.setScalar(1);
     if (o0.current) o0.current.rotation.z = t * 0.95;
     if (o1.current) o1.current.rotation.y = -t * 0.74;
     if (o2.current) o2.current.rotation.x = t * 0.58;
@@ -615,7 +616,10 @@ export default function GenesisUniverse() {
       style={{ ["--active" as string]: active.color }}>
       <div className="portal-viewport">
 
-        <div className="portrait-guard">
+        
+{/* Stop CSS flicker animations */}
+<style>{".planet-body,.planet-body::after,.core-overexpose,.central-brain { animation: none !important; } .central-brain { animation: coreFloat 14s ease-in-out infinite !important; }"}</style>
+      <div className="portrait-guard">
           <RotateCcw className="h-12 w-12 text-cyan-200" />
           <h1>请横屏进入 Genesis AI Universe</h1>
           <p>这个界面是横屏游戏式星系传送门，旋转手机后可看到完整中心大脑、Agent 星球和导航行星。</p>
