@@ -636,30 +636,20 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
 .agent-planet:hover, .agent-planet.selected { z-index: 42; }
 .agent-planet:hover .planet-body, .agent-planet.selected .planet-body { transform: scale(1.16); box-shadow: 0 0 54px var(--node-glow), 0 0 92px color-mix(in srgb, var(--node) 32%, transparent), inset 0 0 20px rgba(255,255,255,.5); }
 
-.portal-shell.webgl-ready .galaxy-stage .agent-planet {
-  opacity: .78;
-  pointer-events: auto;
+.portal-shell.webgl-ready .galaxy-stage .agent-planet,
+.portal-shell.webgl-ready .galaxy-stage .nav-asteroid,
+.portal-shell.webgl-ready .galaxy-stage .data-block,
+.portal-shell.webgl-ready .galaxy-stage .central-brain {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
-.portal-shell.webgl-ready .galaxy-stage .nav-asteroid {
-  opacity: .72;
-  pointer-events: auto;
-}
-.portal-shell.webgl-ready .galaxy-stage .data-block {
-  opacity: .55;
-}
-.portal-shell.webgl-ready .portal-lines { opacity: .22; }
+.portal-shell.webgl-ready .portal-lines { opacity: 0 !important; }
 
-.portal-shell.webgl-ready .galaxy-stage .agent-planet .planet-label {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--cat, var(--node)) 18%, rgba(2,8,23,.82)), rgba(2,8,23,.72));
-  border-color: color-mix(in srgb, var(--cat, var(--node)) 52%, transparent);
-  box-shadow: 0 0 22px color-mix(in srgb, var(--cat, var(--node)) 26%, transparent);
+.portal-shell.webgl-ready .core-name-cloud,
+.portal-shell.webgl-ready .core-shard-ring {
+  display: none !important;
 }
-.portal-shell.webgl-ready .galaxy-stage .agent-planet .planet-label em { display: none; }
-.portal-shell.webgl-ready .galaxy-stage .agent-planet .planet-orbit {
-  border-color: color-mix(in srgb, var(--cat, var(--node)) 62%, transparent);
-  border-left-color: transparent;
-  border-bottom-color: transparent;
-}
+
 
 
 .nav-asteroid {
@@ -977,53 +967,7 @@ canvas { width: 100% !important; height: 100% !important; touch-action: none; }
   .category-legend { left: 118px; top: 230px; width: 290px; }
   .scroll-brief h1 { font-size: 30px; }
   .scroll-brief span { display: none; }
-  
-.category-legend {
-  position: absolute;
-  left: 148px;
-  top: 260px;
-  z-index: 39;
-  width: min(310px, 28vw);
-  display: grid;
-  gap: 8px;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(2,8,23,.72), rgba(5,18,34,.34));
-  box-shadow: 0 0 42px rgba(34,211,238,.12), inset 0 0 24px rgba(255,255,255,.035);
-  padding: 12px;
-  backdrop-filter: blur(18px);
-}
-.category-legend > strong {
-  color: rgba(224,252,255,.88);
-  font-size: 10px;
-  font-weight: 1000;
-  letter-spacing: .28em;
-}
-.legend-row {
-  display: grid;
-  grid-template-columns: 14px 1fr;
-  gap: 9px;
-  align-items: center;
-  border: 1px solid color-mix(in srgb, var(--cat) 36%, transparent);
-  border-radius: 13px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--cat) 18%, rgba(2,8,23,.56)), rgba(2,8,23,.28));
-  color: #eaffff;
-  padding: 8px 9px;
-  text-align: left;
-  cursor: pointer;
-  box-shadow: 0 0 22px color-mix(in srgb, var(--cat) 18%, transparent);
-}
-.legend-row i {
-  width: 11px;
-  height: 11px;
-  border-radius: 999px;
-  background: var(--cat);
-  box-shadow: 0 0 16px var(--cat), 0 0 34px color-mix(in srgb, var(--cat) 70%, transparent);
-}
-.legend-row b { display: block; color: var(--cat); font-size: 12px; text-shadow: 0 0 12px var(--cat); }
-.legend-row em { display: block; margin-top: 2px; color: rgba(226,232,240,.68); font-size: 10px; font-style: normal; line-height: 1.35; }
-
-.progress-rail { right: 8px; }
+  .progress-rail { right: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
