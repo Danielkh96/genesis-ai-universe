@@ -289,7 +289,7 @@ function CentralBrain3D({ color }: { color: string }) {
       <mesh><sphereGeometry args={[5.2, 64, 64]} /><meshBasicMaterial color="#67e8f9" transparent opacity={0.07} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       <mesh><sphereGeometry args={[4.45, 96, 96]} /><meshBasicMaterial color={color} transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       <mesh><icosahedronGeometry args={[2.72, 5]} /><primitive object={mat} ref={shader} /></mesh>
-      <mesh ref={innerGlow}><sphereGeometry args={[2.08, 128, 128]} /><meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={4} roughness={0.01} metalness={0.18} transparent opacity={0.55} /></mesh>
+      <mesh ref={innerGlow}><sphereGeometry args={[2.08, 128, 128]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.68} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       <mesh><sphereGeometry args={[1.4, 64, 64]} /><meshBasicMaterial color="#fff" transparent opacity={0.92} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       <group ref={o0} rotation={[0.66, 0.08, 0.15]}>
         <mesh><torusGeometry args={[4.05, 0.026, 18, 320]} /><meshBasicMaterial color="#67e8f9" transparent opacity={0.92} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
@@ -315,10 +315,10 @@ function CentralBrain3D({ color }: { color: string }) {
           </mesh>);
         })}
       </group>
-      <pointLight color="#fff" intensity={10} distance={26} />
-      <pointLight color={color} intensity={8} distance={28} />
-      <pointLight position={[0, 0, 4.5]} color="#67e8f9" intensity={5} distance={20} />
-      <pointLight position={[0, 0, -4.5]} color="#f0abfc" intensity={3.5} distance={18} />
+      
+      
+      
+      
     </group>
   );
 }
@@ -419,7 +419,7 @@ function AgentPlanet3D({ agent, active, onClick }: { agent: Agent; active: boole
       </mesh>
       <mesh><sphereGeometry args={[sz * 2.4, 48, 48]} /><meshBasicMaterial color={agent.color} transparent opacity={active ? 0.1 : 0.06} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       <mesh><sphereGeometry args={[sz * 1.7, 48, 48]} /><meshBasicMaterial color={agent.color} transparent opacity={active ? 0.22 : 0.12} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
-      <mesh ref={planet}><sphereGeometry args={[sz, 64, 64]} /><meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={active ? 2.2 : 1.2} metalness={0.55} roughness={0.12} /></mesh>
+      <mesh ref={planet}><sphereGeometry args={[sz, 64, 64]} /><meshBasicMaterial color={agent.color} transparent opacity={active ? 0.95 : 0.85} blending={THREE.AdditiveBlending} depthWrite={false} /></mesh>
       <mesh rotation={[Math.PI / 2.1, 0, 0]}><torusGeometry args={[sz * 1.72, 0.016, 18, 180]} /><meshBasicMaterial color={agent.color} transparent opacity={active ? 0.98 : 0.52} blending={THREE.AdditiveBlending} /></mesh>
       <mesh rotation={[0.7, 0.35, 0.2]}><torusGeometry args={[sz * 2.4, 0.008, 18, 190]} /><meshBasicMaterial color={agent.color} transparent opacity={active ? 0.62 : 0.24} blending={THREE.AdditiveBlending} /></mesh>
       <group ref={moons} rotation={[0.45, 0.15, 0.2]}>
@@ -433,7 +433,7 @@ function AgentPlanet3D({ agent, active, onClick }: { agent: Agent; active: boole
           </group>);
         })}
       </group>
-      <pointLight color={agent.color} intensity={active ? 4.5 : 2.5} distance={10} />
+      
       <Html distanceFactor={20} center style={{ pointerEvents: "none", transform: "translateY(60px)" }}>
         <PlanetLabel name={agent.name} role={agent.role} color={agent.color} active={active} category={agent.category} />
       </Html>
@@ -536,7 +536,7 @@ function UniverseScene({ activeId, zoomAgentId, onPlanetClick }: { activeId: str
   return (<>
     <color attach="background" args={["#02030a"]} />
     <fog attach="fog" args={["#02030a", 80, 420]} />
-    <ambientLight intensity={0.18} />
+    <ambientLight intensity={0.06} />
     <pointLight position={[0, 3, 5]} intensity={8} color="#eaffff" />
     <pointLight position={[-5, 3, 2]} intensity={4} color="#67e8f9" />
     <pointLight position={[5, -3, 2]} intensity={4} color="#a78bfa" />
@@ -549,7 +549,7 @@ function UniverseScene({ activeId, zoomAgentId, onPlanetClick }: { activeId: str
     {galaxyAgents.map((ga, gi) => <Galaxy key={gi} galaxyIndex={gi} agents={ga} activeId={activeId} onPlanetClick={handleClick} />)}
     {shockwaves.map(sw => <Shockwave key={sw.id} position={sw.pos} color={sw.color} onDone={() => setShockwaves(p => p.filter(s => s.id !== sw.id))} />)}
     <EffectComposer>
-      <Bloom intensity={0.85} luminanceThreshold={0.28} luminanceSmoothing={0.92} kernelSize={KernelSize.LARGE} blendFunction={BlendFunction.ADD} mipmapBlur />
+      <Bloom intensity={1.0} luminanceThreshold={0.45} luminanceSmoothing={0.9} kernelSize={KernelSize.LARGE} blendFunction={BlendFunction.ADD} mipmapBlur />
       <Vignette eskil={false} offset={0.22} darkness={0.55} blendFunction={BlendFunction.NORMAL} />
     </EffectComposer>
   </>);
@@ -629,7 +629,7 @@ export default function GenesisUniverse() {
           camera={{ position: [0, 1.2, 42], fov: 52, near: 0.05, far: 1200 }}
           dpr={[1, 1.35]}
           frameloop="always"
-          gl={{ antialias: true, alpha: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05 }}
+          gl={{ antialias: true, alpha: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.72 }}
           onCreated={({ gl }) => { gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.35)); }}>
           <UniverseScene activeId={activeId} zoomAgentId={zoomAgentId} onPlanetClick={zoomToAgent} />
         </Canvas>
