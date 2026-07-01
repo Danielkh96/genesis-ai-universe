@@ -250,7 +250,7 @@ void main() {
   float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0,0.0,1.0))), 2.8);
   vec2 suv = vec2(atan(vPosition.z,vPosition.x)/(2.0*3.14159)+0.5, asin(vPosition.y/length(vPosition))/3.14159+0.5);
   float grid = max(hexGrid(suv + vec2(uTime*0.02,0.0), 8.0), hexGrid(suv*1.618+vec2(0.0,uTime*0.015),5.0)*0.6);
-  float pulse = sin(length(vPosition)/2.72*6.28 - uTime*2.0)*0.175+0.175;
+  float pulse = 0.175; // flicker removed - was: sin(length(vPosition)/2.72*6.28 - uTime*2.0)*0.175+0.175
   vec3 base = mix(uColor,vec3(1.0),0.55); vec3 rim = mix(vec3(0.4,0.9,1.0),base,0.5);
   vec3 col = base*grid*(0.7+pulse*0.3) + rim*fresnel*1.8 + vec3(0.6,1.0,1.0)*pulse*0.25;
   gl_FragColor = vec4(col, clamp(max(grid*0.92, fresnel*0.85),0.0,1.0));
